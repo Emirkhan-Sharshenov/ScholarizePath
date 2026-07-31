@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Home, GraduationCap, BookOpen, Trophy, Settings } from "lucide-react";
+import { Home, GraduationCap, University, Bot, Settings } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/scholarships", label: "Scholarships", icon: GraduationCap },
-  { href: "/tasks", label: "Tasks", icon: BookOpen },
-  { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
+  { href: "/universities", label: "University", icon: University },
+  { href: "/aibot", label: "AI Bot", icon: Bot },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
