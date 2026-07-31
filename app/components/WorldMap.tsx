@@ -306,31 +306,20 @@ export default function WorldMap() {
                         zIndex: 9999,
                         left: hoveredCountry.x + 20,
                         top: hoveredCountry.y - 20,
-                        width: 288,
                         borderRadius: 16,
-                        backgroundColor: "blue",
+                        backgroundColor: "white",
                         padding: 20,
-                        boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
                         pointerEvents: "none",
                     }}
                 >
-                    <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
+                    <h2 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>
                         {hoveredCountry.name}
                     </h2>
-                    <p style={{ color: "#6b7280" }}>Top universities</p>
-                    <button
-                        style={{
-                            marginTop: 16,
-                            width: "100%",
-                            borderRadius: 12,
-                            backgroundColor: "#2563eb",
-                            color: "white",
-                            padding: "8px 0",
-                            border: "none",
-                        }}
-                    >
+                    <p style={{ color: "#6b7280", fontSize: 12 }}>Top universities</p>
+                    <button className="mt-4 w-full rounded-xl bg-[rgb(220,231,251)] py-2 text-[rgb(33,94,201)]">
                         Explore
                     </button>
+                        
                 </div>
             )}
         </div>
