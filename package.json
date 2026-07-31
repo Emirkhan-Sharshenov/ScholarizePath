@@ -9,9 +9,22 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material-nextjs": "^9.1.1",
+    "@react-map/world": "^1.0.13",
+    "framer-motion": "^12.43.0",
+    "lucide-react": "^1.27.0",
+    "maplibre-gl": "^6.0.0",
     "next": "16.2.11",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-map-gl": "^8.1.1",
+    "react-mui-sidebar": "^1.6.10",
+    "react-simple-maps": "^3.0.0",
+    "react-svg-worldmap": "^2.0.2",
+    "react-type-animation": "^3.2.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
