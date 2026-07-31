@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import React from 'react'
+import { useRouter } from 'next/navigation'
 
 function LoginForm() {
   const [isLogin, setLogin] = useState(false)
@@ -12,6 +13,7 @@ function LoginForm() {
     const [registerPassword, setRegisterPassword] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
+    const router = useRouter()
     const handleRegister = async () => {
         const response = await fetch("/api/auth/register", {
             method: "POST",
@@ -28,7 +30,9 @@ function LoginForm() {
 
         const data = await response.json()
 
-        console.log(data)
+        if (data.success) {
+            router.push("/dashboard")
+        }
         
         
        
@@ -45,13 +49,12 @@ function LoginForm() {
                 password: loginPassword,
             })
 
-            
-
-
-        })
+         })
         const data = await response.json()
 
-        console.log(data)
+        if (data.success){
+            router.push("/dashboard")
+        }
     }
    
   return (

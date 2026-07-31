@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import { connectDB } from "../lib/mongodb";
 import Users from "../models/Users";
 import { generateToken } from "../lib/jwt";
+import { AuthRequest } from "../types/auth";
+import { authMiddleware } from "../middleware/auth.middleware";
 
 export async function register(request: Request) {
     await connectDB();
@@ -53,11 +55,10 @@ export async function register(request: Request) {
     });
 
     const token = generateToken(user._id.toString())
-    return NextResponse.json(
+    const response = NextResponse.json(
         {
             success: true,
             message: "Account created",
-            token,
             user: {
                 id: user._id,
                 firstName: user.firstName,
@@ -68,7 +69,18 @@ export async function register(request: Request) {
             },
         },
         { status: 201 }
-    );
+    )
+    response.cookies.set({
+        name: "token",
+        value: token,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24 * 7,
+        path: "/",
+    })
+
+    return response
 }
 
 export async function login(request:Request) {
@@ -117,11 +129,10 @@ export async function login(request:Request) {
 
     const token = generateToken(user._id.toString())
 
-    return NextResponse.json(
+    const response =  NextResponse.json(
         {
             success: true,
             message: "Login successful",
-            token,
             user:{
                 id: user._id,
                 firstName: user.firstName,
@@ -133,5 +144,52 @@ export async function login(request:Request) {
         },
         { status: 200 }
     )
+
+response.cookies.set({
+    name: "token",
+    value: token,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 60 * 60 * 24 * 7,
+    path: "/"
+})
+
+return response
+
+
     
+}
+
+export async function me(request: AuthRequest) {
+    await connectDB()
+
+    const auth = await authMiddleware(request)
+
+    if (auth instanceof NextResponse) {
+        return auth
+    }
+    
+    const user = await Users.findById(auth).select("-password")
+    if (!user) {
+        return NextResponse.json(
+            {
+                success: false,
+                message: "User not found",
+            },
+            {
+                status: 404,
+            }
+        )
+    }
+
+    return NextResponse.json(
+        {
+            success: true,
+            user,
+        },
+        {
+            status: 200,
+        }
+    )
 }
