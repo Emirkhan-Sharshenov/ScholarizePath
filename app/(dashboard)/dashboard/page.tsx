@@ -1,7 +1,7 @@
-import Sidebar from "../../components/Sidebar";
-import SearchBar from "../../components/SearchbarDashboard";
-import MapCard from "../../components/MapCard";
-import TopUniversitiesCard from "../../components/TopUniversitiesCard";
+
+import SearchBar from "../../components/dashboard/SearchbarDashboard";
+import MapCard from "../../components/dashboard/MapCard";
+import TopUniversitiesCard from "../../components/dashboard/TopUniversitiesCard";
 
 export default function Page() {
   return (

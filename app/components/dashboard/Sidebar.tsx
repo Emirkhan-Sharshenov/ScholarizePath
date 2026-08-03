@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Home, GraduationCap, University, Bot, Settings } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -49,14 +50,20 @@ export default function Sidebar() {
             <Link
               key={href}
               href={href}
-              className={`flex items-center justify-start rounded-xl py-2 pl-[18px] pr-3 transition-all duration-300 ${isActive
-                  ? "bg-[rgb(2,76,209)] text-white"
-                  : "text-gray-700 hover:bg-gray-100"
+              className={`relative flex items-center justify-start rounded-xl py-2 pl-[18px] pr-3 transition-colors duration-300 ${isActive ? "text-white" : "text-gray-700 hover:bg-gray-100"
                 } ${collapsed ? "gap-0" : "gap-3"}`}
             >
-              <Icon className="h-5 w-5 shrink-0" />
+              {isActive && (
+                <motion.div
+                  layoutId="sidebar-active-pill"
+                  className="absolute inset-0 rounded-xl bg-[rgb(2,76,209)]"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  style={{ zIndex: 0 }}
+                />
+              )}
+              <Icon className="relative z-10 h-5 w-5 shrink-0" />
               <span
-                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${collapsed ? "max-w-0 opacity-0" : "max-w-[160px] opacity-100"
+                className={`relative z-10 overflow-hidden whitespace-nowrap transition-all duration-300 ${collapsed ? "max-w-0 opacity-0" : "max-w-[160px] opacity-100"
                   }`}
               >
                 {label}

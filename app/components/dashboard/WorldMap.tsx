@@ -1,5 +1,6 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import {
     ComposableMap,
     Geographies,
@@ -259,8 +260,8 @@ export default function WorldMap() {
                 preserveAspectRatio="none"
             >
                 <Geographies geography={geoUrl}>
-                    {({ geographies }) =>
-                        geographies.map((geo) => {
+                    {({ geographies }: { geographies: any[] }) =>
+                        geographies.map((geo: any) => {
                             const properties = geo.properties as GeoProperties;
                             const fillColor = getCountryColor(properties.name);
                             const hoverColor = getHoverColor(properties.name);
@@ -268,7 +269,7 @@ export default function WorldMap() {
                                 <Geography
                                     key={geo.rsmKey}
                                     geography={geo}
-                                    onMouseMove={(e) => {
+                                    onMouseMove={(e: MouseEvent<HTMLDivElement>) => {
                                         setHoveredCountry({
                                             name: properties.name,
                                             x: e.clientX,
