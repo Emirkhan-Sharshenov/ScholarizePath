@@ -1,0 +1,8 @@
+{
+	"folders": [],
+	"settings": {
+		"chat.tools.terminal.autoApprove": {
+			"npx tsc": true
+		}
+	}
+}

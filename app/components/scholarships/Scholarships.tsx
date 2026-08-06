@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useEffect, useState } from "react";
+import ScholarshipsListUI from "./ScholarshipsListUI";
+import ScholarshipRow from "./ScholarshipRow";
 
 interface ScholarshipsListUIProps {
     scholarships: any[]; // Automatically calculates counts
