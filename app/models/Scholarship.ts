@@ -3,7 +3,7 @@ import { Schema, model, models } from "mongoose";
 const ScholarshipSchema = new Schema(
     {},
     {
-        strict: false, // пока разрешаем любые поля из твоего JSON
+        strict: false, 
         collection: "scholarships",
     }
 );
