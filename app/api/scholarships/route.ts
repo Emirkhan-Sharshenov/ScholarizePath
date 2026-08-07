@@ -10,11 +10,11 @@ export async function GET() {
 
         return NextResponse.json(scholarships)
     } catch (error) {
-        console.error("Failed to fetch")
+        console.error("Scholarships API error:", error);
 
         return NextResponse.json(
             { message: "Failed to fetch scholarships" },
             { status: 500 }
-        )
+        );
     }
 }
