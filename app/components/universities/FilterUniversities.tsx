@@ -1,16 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { ChevronDown } from 'lucide-react';
 
-interface FilterUniversitiesProps {
-    onApply?: (filters: FilterState) => void;
-    onReset?: () => void;
-}
-
-interface FilterState {
+export interface FilterState {
     search: string;
-    location: string;
+    country: string;
     minRanking: string;
     maxRanking: string;
     minTuition: string;
@@ -19,9 +14,9 @@ interface FilterState {
     degreeLevel: string;
 }
 
-const initialFilters: FilterState = {
+export const initialFilters: FilterState = {
     search: '',
-    location: 'All Locations',
+    country: 'All Countries',
     minRanking: '',
     maxRanking: '',
     minTuition: '',
@@ -30,16 +25,75 @@ const initialFilters: FilterState = {
     degreeLevel: 'All Degree Levels',
 };
 
-export default function FilterUniversities({ onApply, onReset }: FilterUniversitiesProps) {
-    const [filters, setFilters] = useState<FilterState>(initialFilters);
+const COUNTRIES = [
+    'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahrain', 'Bangladesh',
+    'Belgium', 'Brazil', 'Brunei', 'Bulgaria', 'Cambodia', 'Canada', 'Chile', 'China',
+    'Colombia', 'Costa Rica', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Ecuador',
+    'Egypt', 'Estonia', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Georgia', 'Germany',
+    'Ghana', 'Greece', 'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran',
+    'Ireland', 'Israel', 'Italy', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kuwait',
+    'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lithuania', 'Malaysia', 'Malta', 'Mexico',
+    'Mongolia', 'Morocco', 'Nepal', 'Netherlands', 'New Zealand', 'Nigeria', 'Norway',
+    'Oman', 'Pakistan', 'Palestine', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar',
+    'Romania', 'Russia', 'Saudi Arabia', 'Senegal', 'Serbia', 'Singapore', 'Slovakia',
+    'Slovenia', 'South Africa', 'South Korea', 'Spain', 'Sri Lanka', 'Sweden', 'Switzerland',
+    'Taiwan', 'Tanzania', 'Thailand', 'Tunisia', 'Turkey', 'Uganda', 'United Arab Emirates',
+    'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vietnam'
+];
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+const PROGRAMS = [
+    'Actuarial Science', 'Aerospace Engineering', 'African Studies', 'Agricultural Engineering',
+    'Agricultural Sciences', 'Agriculture', 'Agronomy', 'Applied Mathematics', 'Applied Studies',
+    'Architecture', 'Arts', 'Baltic Studies', 'Biochemistry', 'Biology', 'Biomedicine',
+    'Bioscience', 'Bioscience Engineering', 'Biotechnology', 'Business', 'Business (Antai)',
+    'Business (HEC)', 'Business Administration', 'Business Analytics', 'Business Economics',
+    'Business Informatics', 'Business and Technology Management', 'Byzantine Studies',
+    'Chemical Engineering', 'Chemistry', 'Chinese Literature', 'Civil Engineering', 'Classics',
+    'Commerce', 'Communication', 'Communication Arts', 'Communication Science', 'Computer Engineering',
+    'Computer Science', 'Computer Science and Engineering', 'Computing', 'Computing and Software Systems',
+    'Data Engineering and Analytics', 'Data Science', 'Dentistry', 'Design', 'Development Studies',
+    'Economics', 'Economics and Business', 'Electrical Engineering', 'Electronic Engineering',
+    'Engineering', 'Engineering Science', 'English Literature', 'English Studies', 'Environmental Science',
+    'Environmental Science and Engineering', 'Environmental Studies', 'Film and Media', 'Finance',
+    'Fine Arts', 'Foreign Languages', 'Forestry', 'Gastronomy', 'Geology', 'Geosciences', 'History',
+    'Humanities', 'Industrial Design', 'Industrial Engineering', 'Informatics', 'Information Science',
+    'Information Technology', 'International Affairs', 'International Business', 'International Development',
+    'International Liberal Studies', 'International Relations', 'International Studies', 'International Trade',
+    'International and Comparative Politics', 'Islamic Studies', 'Journalism', 'Law', 'Life Sciences',
+    'Literature', 'Machine Learning', 'Management', 'Management and Finance', 'Marine Biology',
+    'Marine Science', 'Mass Communication', 'Materials Science', 'Mathematics', 'Mathematics and Computing',
+    'Mechanical Engineering', 'Mechatronics Engineering', 'Media Studies', 'Medicine', 'Middle East Studies',
+    'Mining Engineering', 'Mongolian Studies', 'Natural Sciences', 'Naval Architecture', 'Nordic Studies',
+    'Ocean Engineering', 'Oriental Studies', 'Pacific Studies', 'Petroleum Engineering', 'Petroleum Geoscience',
+    'Pharmacy', 'Philology', 'Philosophy', 'Philosophy Politics and Economics', 'Physical Education',
+    'Physics', 'Political Science', 'Political Science and International Relations', 'Psychology',
+    'Public Health', 'Renewable Energy', 'Semiotics', 'Slavic Studies', 'Social Sciences', 'Sociology',
+    'Software Engineering', 'Theology', 'Tourism', 'Tourism Studies', 'Translation and Interpreting',
+    'Urban Planning', 'Veterinary Medicine'
+];
+
+interface FilterUniversitiesProps {
+    filters: FilterState;
+    setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
+    onApply?: () => void;
+    onReset?: () => void;
+}
+
+export default function FilterUniversities({
+    filters,
+    setFilters,
+    onApply,
+    onReset,
+}: FilterUniversitiesProps) {
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    ) => {
         const { name, value } = e.target;
         setFilters((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleApply = () => {
-        if (onApply) onApply(filters);
+        if (onApply) onApply();
     };
 
     const handleReset = () => {
@@ -48,13 +102,13 @@ export default function FilterUniversities({ onApply, onReset }: FilterUniversit
     };
 
     return (
-        <div className="w-full max-w-xs rounded-2xl bg-white p-5 shadow-sm border border-gray-100 font-sans">
-            <h2 className="text-lg font-bold text-slate-900 mb-5">Filter Universities</h2>
+        <div className="w-full max-w-xs rounded-2xl border border-gray-100 bg-white p-5 font-sans shadow-sm">
+            <h2 className="mb-5 text-lg font-bold text-slate-900">Filter Universities</h2>
 
             <div className="space-y-4">
                 {/* Search */}
                 <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    <label className="mb-1.5 block text-xs font-bold text-slate-800">
                         Search
                     </label>
                     <input
@@ -62,37 +116,38 @@ export default function FilterUniversities({ onApply, onReset }: FilterUniversit
                         name="search"
                         value={filters.search}
                         onChange={handleChange}
-                        placeholder="Search universities by name"
-                        className="w-full rounded-xl border border-gray-200 py-2 px-3 text-xs text-slate-700 placeholder-slate-400 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                        placeholder="Search universities..."
+                        className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                     />
                 </div>
 
-                {/* Location */}
+                {/* Country */}
                 <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                        Location
+                    <label className="mb-1.5 block text-xs font-bold text-slate-800">
+                        Country
                     </label>
                     <div className="relative">
                         <select
-                            name="location"
-                            value={filters.location}
+                            name="country"
+                            value={filters.country}
                             onChange={handleChange}
-                            className="w-full appearance-none rounded-xl border border-gray-200 bg-white py-2 px-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600 cursor-pointer"
+                            className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                         >
-                            <option value="All Locations">All Locations</option>
-                            <option value="United States">United States</option>
-                            <option value="United Kingdom">United Kingdom</option>
-                            <option value="Canada">Canada</option>
-                            <option value="Australia">Australia</option>
+                            <option value="All Countries">All Countries</option>
+                            {COUNTRIES.map((c) => (
+                                <option key={c} value={c}>
+                                    {c}
+                                </option>
+                            ))}
                         </select>
-                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-600" />
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
                     </div>
                 </div>
 
                 {/* Ranking */}
                 <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                        Ranking
+                    <label className="mb-1.5 block text-xs font-bold text-slate-800">
+                        Ranking Range
                     </label>
                     <div className="flex items-center gap-2">
                         <input
@@ -101,23 +156,23 @@ export default function FilterUniversities({ onApply, onReset }: FilterUniversit
                             value={filters.minRanking}
                             onChange={handleChange}
                             placeholder="Min"
-                            className="w-full rounded-xl border border-gray-200 py-2 px-3 text-xs text-slate-700 placeholder-slate-400 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                         />
-                        <span className="text-slate-400 font-medium text-xs">-</span>
+                        <span className="text-xs text-slate-400">-</span>
                         <input
                             type="number"
                             name="maxRanking"
                             value={filters.maxRanking}
                             onChange={handleChange}
                             placeholder="Max"
-                            className="w-full rounded-xl border border-gray-200 py-2 px-3 text-xs text-slate-700 placeholder-slate-400 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                         />
                     </div>
                 </div>
 
-                {/* Tuition Fee (USD) */}
+                {/* Tuition Fee */}
                 <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    <label className="mb-1.5 block text-xs font-bold text-slate-800">
                         Tuition Fee (USD)
                     </label>
                     <div className="flex items-center gap-2">
@@ -127,23 +182,23 @@ export default function FilterUniversities({ onApply, onReset }: FilterUniversit
                             value={filters.minTuition}
                             onChange={handleChange}
                             placeholder="Min"
-                            className="w-full rounded-xl border border-gray-200 py-2 px-3 text-xs text-slate-700 placeholder-slate-400 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                         />
-                        <span className="text-slate-400 font-medium text-xs">-</span>
+                        <span className="text-xs text-slate-400">-</span>
                         <input
                             type="number"
                             name="maxTuition"
                             value={filters.maxTuition}
                             onChange={handleChange}
                             placeholder="Max"
-                            className="w-full rounded-xl border border-gray-200 py-2 px-3 text-xs text-slate-700 placeholder-slate-400 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                         />
                     </div>
                 </div>
 
                 {/* Programs */}
                 <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    <label className="mb-1.5 block text-xs font-bold text-slate-800">
                         Programs
                     </label>
                     <div className="relative">
@@ -151,21 +206,22 @@ export default function FilterUniversities({ onApply, onReset }: FilterUniversit
                             name="programs"
                             value={filters.programs}
                             onChange={handleChange}
-                            className="w-full appearance-none rounded-xl border border-gray-200 bg-white py-2 px-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600 cursor-pointer"
+                            className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                         >
                             <option value="All Programs">All Programs</option>
-                            <option value="Computer Science">Computer Science</option>
-                            <option value="Business & Management">Business & Management</option>
-                            <option value="Engineering">Engineering</option>
-                            <option value="Medicine">Medicine</option>
+                            {PROGRAMS.map((prog) => (
+                                <option key={prog} value={prog}>
+                                    {prog}
+                                </option>
+                            ))}
                         </select>
-                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-600" />
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
                     </div>
                 </div>
 
                 {/* Degree Level */}
                 <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    <label className="mb-1.5 block text-xs font-bold text-slate-800">
                         Degree Level
                     </label>
                     <div className="relative">
@@ -173,28 +229,30 @@ export default function FilterUniversities({ onApply, onReset }: FilterUniversit
                             name="degreeLevel"
                             value={filters.degreeLevel}
                             onChange={handleChange}
-                            className="w-full appearance-none rounded-xl border border-gray-200 bg-white py-2 px-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600 cursor-pointer"
+                            className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                         >
                             <option value="All Degree Levels">All Degree Levels</option>
-                            <option value="Undergraduate">Undergraduate</option>
-                            <option value="Postgraduate">Postgraduate</option>
-                            <option value="Doctorate">Doctorate</option>
+                            <option value="Bachelor">Bachelor</option>
+                            <option value="Master">Master</option>
+                            <option value="PhD">PhD</option>
                         </select>
-                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-600" />
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
                     </div>
                 </div>
 
-                {/* Action Buttons (Side by Side) */}
-                <div className="pt-3 flex items-center justify-between gap-3">
+                {/* Buttons */}
+                <div className="flex items-center justify-between gap-3 pt-3">
                     <button
+                        type="button"
                         onClick={handleApply}
-                        className="flex-1 rounded-xl bg-blue-600 py-2.5 px-4 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition active:scale-[0.98]"
+                        className="flex-1 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.98]"
                     >
                         Apply Filters
                     </button>
                     <button
+                        type="button"
                         onClick={handleReset}
-                        className="rounded-xl py-2.5 px-4 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition"
+                        className="rounded-xl px-4 py-2.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 hover:text-blue-700"
                     >
                         Reset
                     </button>
