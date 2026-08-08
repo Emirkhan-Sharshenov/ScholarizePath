@@ -1,113 +1,112 @@
 'use client';
 
-import { useState } from 'react';
-import { Search, ChevronDown } from 'lucide-react';
+import React from 'react';
+import { ChevronDown } from 'lucide-react';
 
-export default function FilterScholarships({ onApply, onReset }: { onApply?: (filters: any) => void, onReset?: () => void }) {
-  const [filters, setFilters] = useState({
-    search: '',
-    fieldOfStudy: 'All Fields',
-    studyLevel: 'All Levels',
-    country: 'All Countries',
-    scholarshipType: 'All Types',
-    minAmount: '',
-    maxAmount: '',
-    deadline: 'Any Deadline',
-  });
+export interface FilterState {
+  search: string;
+  country: string;
+  studyLevel: string;
+  fieldOfStudy: string;
+  minAmount: string;
+  maxDeadline: string;
+}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+export const initialFilters: FilterState = {
+  search: '',
+  country: 'All Countries',
+  studyLevel: 'All Study Levels',
+  fieldOfStudy: 'All Fields',
+  minAmount: '',
+  maxDeadline: '',
+};
+
+const COUNTRIES = [
+  'Australia',
+  'Canada',
+  'China',
+  'European Union (multi-country consortium)',
+  'France',
+  'Germany',
+  'Hungary',
+  'Japan',
+  'South Korea',
+  'Switzerland',
+  'Turkey',
+  'United Kingdom',
+  'United States',
+];
+
+const STUDY_LEVELS = [
+  "Bachelor's",
+  "Master's",
+  'PhD',
+  'Postdoctoral',
+  'Non-degree Research',
+];
+
+const FIELDS_OF_STUDY = [
+  'All fields',
+  'STEM',
+  'Engineering Sciences',
+  'Economics & Management',
+  'Law & Political Science',
+  'Humanities & Social Sciences',
+  'Medicine & Health Sciences',
+];
+
+interface ScholarshipsFilterProps {
+  filters: FilterState;
+  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
+  onApply?: () => void;
+  onReset?: () => void;
+}
+
+export default function ScholarshipsFilter({
+  filters,
+  setFilters,
+  onApply,
+  onReset,
+}: ScholarshipsFilterProps) {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleApply = () => {
-    if (onApply) onApply(filters);
+    if (onApply) onApply();
   };
 
   const handleReset = () => {
-    const defaultFilters = {
-      search: '',
-      fieldOfStudy: 'All Fields',
-      studyLevel: 'All Levels',
-      country: 'All Countries',
-      scholarshipType: 'All Types',
-      minAmount: '',
-      maxAmount: '',
-      deadline: 'Any Deadline',
-    };
-    setFilters(defaultFilters);
+    setFilters(initialFilters);
     if (onReset) onReset();
   };
 
   return (
-    <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-sm border border-gray-100 font-sans ">
-      <h2 className="text-xl font-bold text-slate-800 mb-6">Filter Scholarships</h2>
+    <div className="w-full max-w-xs rounded-2xl border border-gray-100 bg-white p-5 font-sans shadow-sm">
+      <h2 className="mb-5 text-lg font-bold text-slate-900">Filter Scholarships</h2>
 
       <div className="space-y-4">
-        {/* Search Keywords */}
+        {/* Поиск */}
         <div>
-          <label className="block text-xs font-bold text-slate-800 mb-1.5">
-            Search Keywords
+          <label className="mb-1.5 block text-xs font-bold text-slate-800">
+            Search
           </label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input
-              type="text"
-              name="search"
-              value={filters.search}
-              onChange={handleChange}
-              placeholder="Search scholarships..."
-              className="w-full rounded-xl border border-gray-200 py-2.5 pl-9 pr-3 text-sm text-slate-700 placeholder-slate-400 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-            />
-          </div>
+          <input
+            type="text"
+            name="search"
+            value={filters.search}
+            onChange={handleChange}
+            placeholder="Search by name, provider..."
+            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+          />
         </div>
 
-        {/* Field of Study */}
+        {/* Страна */}
         <div>
-          <label className="block text-xs font-bold text-slate-800 mb-1.5">
-            Field of Study
-          </label>
-          <div className="relative">
-            <select
-              name="fieldOfStudy"
-              value={filters.fieldOfStudy}
-              onChange={handleChange}
-              className="w-full appearance-none rounded-xl border border-gray-200 bg-white py-2.5 pl-3 pr-8 text-sm text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-            >
-              <option value="All Fields">All Fields</option>
-              <option value="Computer Science">Computer Science</option>
-              <option value="Engineering">Engineering</option>
-              <option value="Medicine">Medicine</option>
-              <option value="Business">Business</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
-          </div>
-        </div>
-
-        {/* Study Level */}
-        <div>
-          <label className="block text-xs font-bold text-slate-800 mb-1.5">
-            Study Level
-          </label>
-          <div className="relative">
-            <select
-              name="studyLevel"
-              value={filters.studyLevel}
-              onChange={handleChange}
-              className="w-full appearance-none rounded-xl border border-gray-200 bg-white py-2.5 pl-3 pr-8 text-sm text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-            >
-              <option value="All Levels">All Levels</option>
-              <option value="Bachelor">Bachelor</option>
-              <option value="Master">Master</option>
-              <option value="PhD">PhD</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
-          </div>
-        </div>
-
-        {/* Country */}
-        <div>
-          <label className="block text-xs font-bold text-slate-800 mb-1.5">
+          <label className="mb-1.5 block text-xs font-bold text-slate-800">
             Country
           </label>
           <div className="relative">
@@ -115,98 +114,109 @@ export default function FilterScholarships({ onApply, onReset }: { onApply?: (fi
               name="country"
               value={filters.country}
               onChange={handleChange}
-              className="w-full appearance-none rounded-xl border border-gray-200 bg-white py-2.5 pl-3 pr-8 text-sm text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+              className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
             >
               <option value="All Countries">All Countries</option>
-              <option value="United States">United States</option>
-              <option value="United Kingdom">United Kingdom</option>
-              <option value="Canada">Canada</option>
-              <option value="Germany">Germany</option>
+              {COUNTRIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
           </div>
         </div>
 
-        {/* Scholarship Type */}
+        {/* Уровень обучения (Scholarship Type / Level) */}
         <div>
-          <label className="block text-xs font-bold text-slate-800 mb-1.5">
-            Scholarship Type
+          <label className="mb-1.5 block text-xs font-bold text-slate-800">
+            Study Level
           </label>
           <div className="relative">
             <select
-              name="scholarshipType"
-              value={filters.scholarshipType}
+              name="studyLevel"
+              value={filters.studyLevel}
               onChange={handleChange}
-              className="w-full appearance-none rounded-xl border border-gray-200 bg-white py-2.5 pl-3 pr-8 text-sm text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+              className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
             >
-              <option value="All Types">All Types</option>
-              <option value="Fully Funded">Fully Funded</option>
-              <option value="Partially Funded">Partially Funded</option>
-              <option value="Tuition Waiver">Tuition Waiver</option>
+              <option value="All Study Levels">All Study Levels</option>
+              {STUDY_LEVELS.map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
           </div>
         </div>
 
-        {/* Award Amount */}
+        {/* Область знаний */}
         <div>
-          <label className="block text-xs font-bold text-slate-800 mb-1.5">
-            Award Amount
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <input
-              type="number"
-              name="minAmount"
-              value={filters.minAmount}
-              onChange={handleChange}
-              placeholder="Min ($)"
-              className="w-full rounded-xl border border-gray-200 py-2.5 px-3 text-sm text-slate-700 placeholder-slate-400 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-            />
-            <input
-              type="number"
-              name="maxAmount"
-              value={filters.maxAmount}
-              onChange={handleChange}
-              placeholder="Max ($)"
-              className="w-full rounded-xl border border-gray-200 py-2.5 px-3 text-sm text-slate-700 placeholder-slate-400 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-            />
-          </div>
-        </div>
-
-        {/* Deadline */}
-        <div>
-          <label className="block text-xs font-bold text-slate-800 mb-1.5">
-            Deadline
+          <label className="mb-1.5 block text-xs font-bold text-slate-800">
+            Field of Study
           </label>
           <div className="relative">
             <select
-              name="deadline"
-              value={filters.deadline}
+              name="fieldOfStudy"
+              value={filters.fieldOfStudy}
               onChange={handleChange}
-              className="w-full appearance-none rounded-xl border border-gray-200 bg-white py-2.5 pl-3 pr-8 text-sm text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+              className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
             >
-              <option value="Any Deadline">Any Deadline</option>
-              <option value="Next 7 Days">Next 7 Days</option>
-              <option value="This Month">This Month</option>
-              <option value="Next 3 Months">Next 3 Months</option>
+              <option value="All Fields">All Fields</option>
+              {FIELDS_OF_STUDY.map((field) => (
+                <option key={field} value={field}>
+                  {field}
+                </option>
+              ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="pt-2 space-y-2">
+        {/* Минимальная сумма (Min Award Amount) */}
+        <div>
+          <label className="mb-1.5 block text-xs font-bold text-slate-800">
+            Min Award Amount ($)
+          </label>
+          <input
+            type="number"
+            name="minAmount"
+            value={filters.minAmount}
+            onChange={handleChange}
+            placeholder="e.g. 5000"
+            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+          />
+        </div>
+
+        {/* Дедлайн до даты (Deadline Before) */}
+        <div>
+          <label className="mb-1.5 block text-xs font-bold text-slate-800">
+            Deadline Before
+          </label>
+          <input
+            type="date"
+            name="maxDeadline"
+            value={filters.maxDeadline}
+            onChange={handleChange}
+            className="w-full cursor-pointer rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+          />
+        </div>
+
+        {/* Кнопки */}
+        <div className="flex items-center justify-between gap-3 pt-3">
           <button
+            type="button"
             onClick={handleApply}
-            className="w-full rounded-xl bg-blue-650 bg-blue-600 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition duration-150 active:scale-[0.99]"
+            className="flex-1 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.98]"
           >
             Apply Filters
           </button>
           <button
+            type="button"
             onClick={handleReset}
-            className="w-full rounded-xl py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition duration-150"
+            className="rounded-xl px-4 py-2.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 hover:text-blue-700"
           >
-            Reset Filters
+            Reset
           </button>
         </div>
       </div>

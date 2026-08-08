@@ -1,19 +1,20 @@
 "use client";
 
 import type { MouseEvent } from "react";
+import { useState } from "react";
 import {
     ComposableMap,
     Geographies,
     Geography,
 } from "react-simple-maps";
-import { useState } from "react";
 
 const geoUrl =
     "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
 
-
 interface HoveredCountry {
     name: string;
+    unis: number;
+    scholarships: number;
     x: number;
     y: number;
 }
@@ -23,227 +24,54 @@ interface GeoProperties {
     [key: string]: unknown;
 }
 
-const CONTINENT_COLORS: Record<string, string> = {
-    "North America": "#1E3A8A", // dark blue
-    Europe: "#7C3AED", // purple
-    Asia: "#7DD3FC", // light blue
-    Oceania: "#22C55E", // green
-    "South America": "#EAB308", // yellow
-    Africa: "#EC4899", // pink
+// Количество университетов по странам
+const UNIVERSITIES_COUNT: Record<string, number> = {
+    Argentina: 1, Armenia: 1, Australia: 3, Austria: 1, Azerbaijan: 1, Bahrain: 1,
+    Bangladesh: 1, Belgium: 1, Brazil: 1, Brunei: 1, Bulgaria: 1, Cambodia: 1,
+    Canada: 4, Chile: 1, China: 5, Colombia: 1, "Costa Rica": 1, Croatia: 1,
+    Cyprus: 1, "Czech Republic": 1, Czechia: 1, Denmark: 1, Ecuador: 1, Egypt: 1,
+    Estonia: 1, Ethiopia: 1, Fiji: 1, Finland: 1, France: 3, Georgia: 1,
+    Germany: 5, Ghana: 1, Greece: 1, "Hong Kong": 2, Hungary: 1, Iceland: 1,
+    India: 4, Indonesia: 1, Iran: 1, Ireland: 1, Israel: 1, Italy: 2, Japan: 3,
+    Jordan: 1, Kazakhstan: 2, Kenya: 1, Kuwait: 1, Kyrgyzstan: 2, Laos: 1,
+    Latvia: 1, Lebanon: 1, Lithuania: 1, Malaysia: 1, Malta: 1, Mexico: 2,
+    Mongolia: 1, Morocco: 1, Nepal: 1, Netherlands: 2, "New Zealand": 2,
+    Nigeria: 1, Norway: 1, Oman: 1, Pakistan: 1, Palestine: 1, Peru: 1,
+    Philippines: 1, Poland: 1, Portugal: 1, Qatar: 1, Romania: 1, Russia: 1,
+    "Saudi Arabia": 1, Senegal: 1, Serbia: 1, Singapore: 1, Slovakia: 1,
+    Slovenia: 1, "South Africa": 2, "South Korea": 3, Spain: 2, "Sri Lanka": 1,
+    Sweden: 2, Switzerland: 3, Taiwan: 1, Tanzania: 1, Thailand: 1, Tunisia: 1,
+    Turkey: 2, Uganda: 1, "United Arab Emirates": 1, "United Kingdom": 5,
+    "United States of America": 2, "United States": 2, Uruguay: 1, Uzbekistan: 1,
+    Vietnam: 1,
 };
 
-const CONTINENT_HOVER_COLORS: Record<string, string> = {
-    "North America": "#3B5BDB",
-    Europe: "#9F67F5",
-    Asia: "#A5E4FC",
-    Oceania: "#4ADE80",
-    "South America": "#FDE047",
-    Africa: "#F472B6",
+// Количество стипендий по странам
+const SCHOLARSHIPS_COUNT: Record<string, number> = {
+    Australia: 1,
+    Canada: 1,
+    China: 1,
+    France: 1,
+    Germany: 1,
+    Hungary: 1,
+    Japan: 1,
+    "South Korea": 1,
+    Switzerland: 1,
+    Turkey: 1,
+    "United Kingdom": 3,
+    "United States of America": 2,
+    "United States": 2,
 };
 
-// Maps country names as they appear in the world-atlas countries-110m.json
-// "name" property to their continent.
-const COUNTRY_CONTINENTS: Record<string, string> = {
-    // North America
-    "United States of America": "North America",
-    Canada: "North America",
-    Mexico: "North America",
-    Guatemala: "North America",
-    Belize: "North America",
-    Honduras: "North America",
-    "El Salvador": "North America",
-    Nicaragua: "North America",
-    "Costa Rica": "North America",
-    Panama: "North America",
-    Cuba: "North America",
-    "The Bahamas": "North America",
-    Bahamas: "North America",
-    Jamaica: "North America",
-    Haiti: "North America",
-    "Dominican Republic": "North America",
-    "Trinidad and Tobago": "North America",
-    Greenland: "North America",
+// Расчет цвета на основе общего количества (чем больше сумма, тем темнее синий)
+function getCountryColor(unis: number, scholarships: number): string {
+    const total = unis + scholarships;
 
-    // Europe
-    Portugal: "Europe",
-    Spain: "Europe",
-    France: "Europe",
-    "United Kingdom": "Europe",
-    Ireland: "Europe",
-    Iceland: "Europe",
-    Norway: "Europe",
-    Sweden: "Europe",
-    Finland: "Europe",
-    Denmark: "Europe",
-    Germany: "Europe",
-    Netherlands: "Europe",
-    Belgium: "Europe",
-    Luxembourg: "Europe",
-    Switzerland: "Europe",
-    Austria: "Europe",
-    Italy: "Europe",
-    Poland: "Europe",
-    "Czech Republic": "Europe",
-    Czechia: "Europe",
-    Slovakia: "Europe",
-    Hungary: "Europe",
-    Romania: "Europe",
-    Bulgaria: "Europe",
-    Greece: "Europe",
-    Albania: "Europe",
-    "North Macedonia": "Europe",
-    Macedonia: "Europe",
-    Serbia: "Europe",
-    Croatia: "Europe",
-    Slovenia: "Europe",
-    "Bosnia and Herzegovina": "Europe",
-    Montenegro: "Europe",
-    Kosovo: "Europe",
-    Ukraine: "Europe",
-    Moldova: "Europe",
-    Lithuania: "Europe",
-    Latvia: "Europe",
-    Estonia: "Europe",
-    Belarus: "Europe",
-    Russia: "Europe",
-    Malta: "Europe",
-    Cyprus: "Europe",
-
-    // Asia
-    Turkey: "Asia",
-    Georgia: "Asia",
-    Armenia: "Asia",
-    Azerbaijan: "Asia",
-    Kazakhstan: "Asia",
-    Uzbekistan: "Asia",
-    Turkmenistan: "Asia",
-    Tajikistan: "Asia",
-    Kyrgyzstan: "Asia",
-    Afghanistan: "Asia",
-    Pakistan: "Asia",
-    India: "Asia",
-    Nepal: "Asia",
-    Bhutan: "Asia",
-    Bangladesh: "Asia",
-    "Sri Lanka": "Asia",
-    Myanmar: "Asia",
-    Thailand: "Asia",
-    Laos: "Asia",
-    Vietnam: "Asia",
-    Cambodia: "Asia",
-    Malaysia: "Asia",
-    Singapore: "Asia",
-    Indonesia: "Asia",
-    Philippines: "Asia",
-    Brunei: "Asia",
-    China: "Asia",
-    Mongolia: "Asia",
-    "North Korea": "Asia",
-    "South Korea": "Asia",
-    Japan: "Asia",
-    Taiwan: "Asia",
-    Iran: "Asia",
-    Iraq: "Asia",
-    Syria: "Asia",
-    Lebanon: "Asia",
-    Israel: "Asia",
-    Palestine: "Asia",
-    Jordan: "Asia",
-    "Saudi Arabia": "Asia",
-    Yemen: "Asia",
-    Oman: "Asia",
-    "United Arab Emirates": "Asia",
-    Qatar: "Asia",
-    Kuwait: "Asia",
-    Bahrain: "Asia",
-    "Timor-Leste": "Asia",
-
-    // Oceania
-    Australia: "Oceania",
-    "New Zealand": "Oceania",
-    "Papua New Guinea": "Oceania",
-    Fiji: "Oceania",
-    "Solomon Islands": "Oceania",
-    Vanuatu: "Oceania",
-    "New Caledonia": "Oceania",
-
-    // South America
-    Colombia: "South America",
-    Venezuela: "South America",
-    Guyana: "South America",
-    Suriname: "South America",
-    Ecuador: "South America",
-    Peru: "South America",
-    Brazil: "South America",
-    Bolivia: "South America",
-    Paraguay: "South America",
-    Chile: "South America",
-    Argentina: "South America",
-    Uruguay: "South America",
-
-    // Africa
-    Morocco: "Africa",
-    Algeria: "Africa",
-    Tunisia: "Africa",
-    Libya: "Africa",
-    Egypt: "Africa",
-    Sudan: "Africa",
-    "South Sudan": "Africa",
-    Chad: "Africa",
-    Niger: "Africa",
-    Mali: "Africa",
-    Mauritania: "Africa",
-    Senegal: "Africa",
-    Gambia: "Africa",
-    "Guinea-Bissau": "Africa",
-    Guinea: "Africa",
-    "Sierra Leone": "Africa",
-    Liberia: "Africa",
-    "Ivory Coast": "Africa",
-    "Cote d'Ivoire": "Africa",
-    Ghana: "Africa",
-    Togo: "Africa",
-    Benin: "Africa",
-    Nigeria: "Africa",
-    Cameroon: "Africa",
-    "Central African Republic": "Africa",
-    "Republic of the Congo": "Africa",
-    "Democratic Republic of the Congo": "Africa",
-    Gabon: "Africa",
-    "Equatorial Guinea": "Africa",
-    "Western Sahara": "Africa",
-    Eritrea: "Africa",
-    Djibouti: "Africa",
-    Ethiopia: "Africa",
-    Somalia: "Africa",
-    Kenya: "Africa",
-    Uganda: "Africa",
-    Rwanda: "Africa",
-    Burundi: "Africa",
-    Tanzania: "Africa",
-    Zambia: "Africa",
-    Malawi: "Africa",
-    Mozambique: "Africa",
-    Zimbabwe: "Africa",
-    Botswana: "Africa",
-    Namibia: "Africa",
-    "South Africa": "Africa",
-    Lesotho: "Africa",
-    Eswatini: "Africa",
-    Swaziland: "Africa",
-    Angola: "Africa",
-    Madagascar: "Africa",
-    "Burkina Faso": "Africa",
-};
-
-function getCountryColor(name: string): string {
-    const continent = COUNTRY_CONTINENTS[name];
-    return continent ? CONTINENT_COLORS[continent] : "#D6D6DA";
-}
-
-function getHoverColor(name: string): string {
-    const continent = COUNTRY_CONTINENTS[name];
-    return continent ? CONTINENT_HOVER_COLORS[continent] : "#93C5FD";
+    if (total === 0) return "#FFFFFF"; // Белый, если нет данных
+    if (total <= 1) return "#93C5FD";  // Светло-синий
+    if (total <= 3) return "#3B82F6";  // Умеренно-синий
+    if (total <= 5) return "#1D4ED8";  // Насыщенный синий
+    return "#1E3A8A";                  // Тёмно-синий (для высших показателей)
 }
 
 export default function WorldMap() {
@@ -251,7 +79,7 @@ export default function WorldMap() {
         useState<HoveredCountry | null>(null);
 
     return (
-        <div className="w-full h-full">
+        <div className="w-full h-full relative">
             <ComposableMap
                 projectionConfig={{ scale: 160 }}
                 width={800}
@@ -263,33 +91,49 @@ export default function WorldMap() {
                     {({ geographies }: { geographies: any[] }) =>
                         geographies.map((geo: any) => {
                             const properties = geo.properties as GeoProperties;
-                            const fillColor = getCountryColor(properties.name);
-                            const hoverColor = getHoverColor(properties.name);
+                            const name = properties.name;
+
+                            const unis = UNIVERSITIES_COUNT[name] || 0;
+                            const scholarships = SCHOLARSHIPS_COUNT[name] || 0;
+                            const hasData = unis > 0 || scholarships > 0;
+
+                            const fillColor = getCountryColor(unis, scholarships);
+
                             return (
                                 <Geography
                                     key={geo.rsmKey}
                                     geography={geo}
                                     onMouseMove={(e: MouseEvent<HTMLDivElement>) => {
-                                        setHoveredCountry({
-                                            name: properties.name,
-                                            x: e.clientX,
-                                            y: e.clientY,
-                                        });
+                                        if (hasData) {
+                                            setHoveredCountry({
+                                                name,
+                                                unis,
+                                                scholarships,
+                                                x: e.clientX,
+                                                y: e.clientY,
+                                            });
+                                        }
                                     }}
                                     onMouseLeave={() => setHoveredCountry(null)}
                                     style={{
                                         default: {
                                             fill: fillColor,
+                                            stroke: "#D1D5DB",
+                                            strokeWidth: 0.5,
                                             outline: "none",
-                                            cursor: "pointer",
+                                            cursor: hasData ? "pointer" : "default",
                                         },
                                         hover: {
-                                            fill: hoverColor,
+                                            fill: hasData ? "#60A5FA" : "#FFFFFF",
+                                            stroke: "#9CA3AF",
+                                            strokeWidth: 0.5,
                                             outline: "none",
-                                            cursor: "pointer",
+                                            cursor: hasData ? "pointer" : "default",
                                         },
                                         pressed: {
-                                            fill: hoverColor,
+                                            fill: fillColor,
+                                            stroke: "#D1D5DB",
+                                            strokeWidth: 0.5,
                                             outline: "none",
                                         },
                                     }}
@@ -305,22 +149,22 @@ export default function WorldMap() {
                     style={{
                         position: "fixed",
                         zIndex: 9999,
-                        left: hoveredCountry.x + 20,
-                        top: hoveredCountry.y - 20,
-                        borderRadius: 16,
+                        left: hoveredCountry.x + 15,
+                        top: hoveredCountry.y - 15,
+                        borderRadius: 12,
                         backgroundColor: "white",
-                        padding: 20,
+                        padding: "12px 16px",
                         pointerEvents: "none",
+                        border: "1px solid #E5E7EB",
                     }}
                 >
-                    <h2 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>
+                    <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#111827" }}>
                         {hoveredCountry.name}
                     </h2>
-                    <p style={{ color: "#6b7280", fontSize: 12 }}>Top universities</p>
-                    <button className="mt-4 w-full rounded-xl bg-[rgb(220,231,251)] py-2 text-[rgb(33,94,201)]">
-                        Explore
-                    </button>
-                        
+                    <div style={{ marginTop: 6, fontSize: 12, color: "#4B5563" }}>
+                        <div>🏛️ Университеты: <strong>{hoveredCountry.unis}</strong></div>
+                        <div>🎓 Стипендии: <strong>{hoveredCountry.scholarships}</strong></div>
+                    </div>
                 </div>
             )}
         </div>
