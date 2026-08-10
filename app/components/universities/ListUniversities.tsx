@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { FilterState } from './FilterUniversities';
+import Link from "next/link";
 
 interface UniversitiesListUIProps {
     filters: FilterState;
@@ -22,7 +23,14 @@ export default function ListUniversities({ filters }: UniversitiesListUIProps) {
                 const res = await fetch('/api/universities');
                 if (!res.ok) throw new Error('Failed to fetch universities');
                 const data = await res.json();
-                setUniversities(data);
+
+                if (Array.isArray(data)) {
+                    setUniversities(data);
+                } else if (data && Array.isArray(data.data)) {
+                    setUniversities(data.data);
+                } else {
+                    setUniversities([]);
+                }
             } catch (error) {
                 console.error(error);
             } finally {
@@ -36,6 +44,43 @@ export default function ListUniversities({ filters }: UniversitiesListUIProps) {
         setCurrentPage(1);
     }, [filters]);
 
+    // Вспомогательные функции безопасного извлечения значений
+    const getCountryName = (uni: any): string => {
+        if (typeof uni.country === 'string') return uni.country;
+        if (typeof uni.location === 'string') return uni.location;
+        if (uni.location && typeof uni.location === 'object') {
+            return uni.location.country || '';
+        }
+        return '';
+    };
+
+    const getCityName = (uni: any): string => {
+        if (uni.location && typeof uni.location === 'object') {
+            return uni.location.city || '';
+        }
+        return '';
+    };
+
+    const formatLocation = (uni: any): string => {
+        const city = getCityName(uni);
+        const country = getCountryName(uni);
+        const parts = [city, country].filter(Boolean);
+        return parts.length > 0 ? parts.join(', ') : 'N/A';
+    };
+
+    const getGlobalRank = (uni: any): number | null => {
+        if (typeof uni.ranking === 'number') return uni.ranking;
+        if (typeof uni.rank === 'number') return uni.rank;
+        if (uni.ranking && typeof uni.ranking.global === 'number') return uni.ranking.global;
+        return null;
+    };
+
+    const getTuitionFee = (uni: any): number | null => {
+        if (typeof uni.tuition === 'number') return uni.tuition;
+        if (uni.tuition && typeof uni.tuition.bachelor === 'number') return uni.tuition.bachelor;
+        return null;
+    };
+
     const processedUniversities = useMemo(() => {
         let list = [...universities];
 
@@ -44,11 +89,12 @@ export default function ListUniversities({ filters }: UniversitiesListUIProps) {
             if (filters.search && filters.search.trim() !== '') {
                 const query = filters.search.toLowerCase().trim();
                 list = list.filter((uni) => {
-                    const nameMatch = uni.name?.toLowerCase().includes(query);
+                    const nameStr = typeof uni.name === 'string' ? uni.name : (uni.name?.name || '');
+                    const nameMatch = nameStr.toLowerCase().includes(query);
                     const keywordMatch =
                         Array.isArray(uni.searchKeywords) &&
                         uni.searchKeywords.some((k: string) =>
-                            k.toLowerCase().includes(query)
+                            typeof k === 'string' && k.toLowerCase().includes(query)
                         );
                     return nameMatch || keywordMatch;
                 });
@@ -57,33 +103,36 @@ export default function ListUniversities({ filters }: UniversitiesListUIProps) {
             // 2. Страна
             if (filters.country && filters.country !== 'All Countries') {
                 list = list.filter(
-                    (uni) =>
-                        uni.location?.country?.toLowerCase() === filters.country.toLowerCase()
+                    (uni) => getCountryName(uni).toLowerCase() === filters.country.toLowerCase()
                 );
             }
 
             // 3. Диапазон рейтинга
             if (filters.minRanking !== '') {
-                list = list.filter(
-                    (uni) => (uni.ranking?.global ?? Infinity) >= Number(filters.minRanking)
-                );
+                list = list.filter((uni) => {
+                    const rank = getGlobalRank(uni);
+                    return rank !== null && rank >= Number(filters.minRanking);
+                });
             }
             if (filters.maxRanking !== '') {
-                list = list.filter(
-                    (uni) => (uni.ranking?.global ?? -1) <= Number(filters.maxRanking)
-                );
+                list = list.filter((uni) => {
+                    const rank = getGlobalRank(uni);
+                    return rank !== null && rank <= Number(filters.maxRanking);
+                });
             }
 
             // 4. Стоимость
             if (filters.minTuition !== '') {
-                list = list.filter(
-                    (uni) => (uni.tuition?.bachelor ?? Infinity) >= Number(filters.minTuition)
-                );
+                list = list.filter((uni) => {
+                    const tuition = getTuitionFee(uni);
+                    return tuition !== null && tuition >= Number(filters.minTuition);
+                });
             }
             if (filters.maxTuition !== '') {
-                list = list.filter(
-                    (uni) => (uni.tuition?.bachelor ?? -1) <= Number(filters.maxTuition)
-                );
+                list = list.filter((uni) => {
+                    const tuition = getTuitionFee(uni);
+                    return tuition !== null && tuition <= Number(filters.maxTuition);
+                });
             }
 
             // 5. Программы
@@ -104,7 +153,7 @@ export default function ListUniversities({ filters }: UniversitiesListUIProps) {
                 list = list.filter((uni) => {
                     if (Array.isArray(uni.degreeLevels)) {
                         return uni.degreeLevels.some(
-                            (d: string) => d.toLowerCase() === filters.degreeLevel.toLowerCase()
+                            (d: string) => typeof d === 'string' && d.toLowerCase() === filters.degreeLevel.toLowerCase()
                         );
                     }
                     return false;
@@ -114,10 +163,10 @@ export default function ListUniversities({ filters }: UniversitiesListUIProps) {
 
         // Сортировка
         return list.sort((a, b) => {
-            const rankA = a.ranking?.global;
-            const rankB = b.ranking?.global;
-            const tuitionA = a.tuition?.bachelor;
-            const tuitionB = b.tuition?.bachelor;
+            const rankA = getGlobalRank(a);
+            const rankB = getGlobalRank(b);
+            const tuitionA = getTuitionFee(a);
+            const tuitionB = getTuitionFee(b);
 
             switch (sortBy) {
                 case 'Ranking: High to Low': {
@@ -161,7 +210,11 @@ export default function ListUniversities({ filters }: UniversitiesListUIProps) {
     const showingEnd = Math.min(endIndex, totalCount);
 
     if (loading) {
-        return <div className="p-8 text-sm text-gray-500">Loading universities...</div>;
+        return (
+            <div className="flex h-64 items-center justify-center rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+                <p className="text-sm font-medium text-slate-500">Loading universities...</p>
+            </div>
+        );
     }
 
     return (
@@ -218,27 +271,30 @@ export default function ListUniversities({ filters }: UniversitiesListUIProps) {
                             </tr>
                         ) : (
                             currentUniversities.map((uni: any, index: number) => {
-                                const rowKey = uni._id || uni.id || `uni-${index}`;
-                                const locationText = uni.location
-                                    ? `${uni.location.city || ''}${uni.location.city && uni.location.country ? ', ' : ''}${uni.location.country || ''}`
-                                    : 'N/A';
-                                const tuitionFormatted = uni.tuition?.bachelor
-                                    ? `$${uni.tuition.bachelor.toLocaleString('en-US')}`
-                                    : 'N/A';
+                                // БЕРЕМ ПРАВИЛЬНЫЙ ID ВНЕ ЗАВИСИМОСТИ ОТ ИМЕНИ ПОЛЯ
+                                const targetId = uni._id || uni.id || `uni-${index}`;
+                                const uniName = typeof uni.name === 'string' ? uni.name : (uni.name?.name || 'University');
+                                const locationText = formatLocation(uni);
+                                const rank = getGlobalRank(uni);
+                                const tuition = getTuitionFee(uni);
 
                                 return (
-                                    <tr key={rowKey} className="h-[76px] transition-colors hover:bg-slate-50/40">
-                                        <td className="line-clamp-2 break-words py-4 pr-3 align-top text-xs font-bold text-slate-900">
-                                            {uni.name}
+                                    <tr key={targetId} className="transition-colors hover:bg-slate-50/40">
+                                        <td className="py-4 pr-3 align-top">
+                                            <div className="line-clamp-2 break-words font-bold text-slate-900">
+                                                {uniName}
+                                            </div>
                                         </td>
-                                        <td className="break-words py-4 pr-3 align-top font-normal text-slate-600">
-                                            {locationText}
+                                        <td className="py-4 pr-3 align-top">
+                                            <div className="line-clamp-2 break-words font-normal text-slate-600">
+                                                {locationText}
+                                            </div>
                                         </td>
                                         <td className="py-4 pr-3 align-top font-bold text-slate-900">
-                                            {uni.ranking?.global ? `#${uni.ranking.global}` : 'N/A'}
+                                            {rank ? `#${rank}` : 'N/A'}
                                         </td>
                                         <td className="py-4 pr-3 align-top font-bold text-slate-900">
-                                            {tuitionFormatted}
+                                            {tuition ? `$${tuition.toLocaleString('en-US')}` : 'N/A'}
                                         </td>
                                         <td className="py-4 pr-3 align-top">
                                             <p className="line-clamp-2 overflow-hidden break-words font-normal leading-relaxed text-slate-500">
@@ -246,9 +302,12 @@ export default function ListUniversities({ filters }: UniversitiesListUIProps) {
                                             </p>
                                         </td>
                                         <td className="whitespace-nowrap py-4 text-right align-top">
-                                            <button className="text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700">
+                                            <Link
+                                                href={`/universities/${uni._id}`}
+                                                className="text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700"
+                                            >
                                                 View Details
-                                            </button>
+                                            </Link>
                                         </td>
                                     </tr>
                                 );

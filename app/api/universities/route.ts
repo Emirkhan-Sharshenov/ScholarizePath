@@ -4,11 +4,11 @@ import Universities from "@/models/Universities";
 
 export async function GET() {
     try {
-        await connectDB()
+        await connectDB();
 
-        const universities = await Universities.find()
+        const universities = await Universities.find().lean();
 
-        return NextResponse.json(universities)
+        return NextResponse.json(universities);
     } catch (error) {
         console.error("Universities API error:", error);
 
