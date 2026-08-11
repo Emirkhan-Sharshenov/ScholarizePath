@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
+import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { FilterState } from './ScholarshipsFilter';
 
@@ -329,7 +330,7 @@ export default function ScholarshipsListUI({ filters }: ScholarshipsListProps) {
                                                 {scholarship.scholarshipName}
                                             </div>
 
-                                            <p className="line-clamp-2 mt-1.5 overflow-hidden break-words font-normal leading-relaxed text-slate-500 text-xs">
+                                            <p className="line-clamp-2 mt-1.5 overflow-hidden break-words text-xs font-normal leading-relaxed text-slate-500">
                                                 {scholarship.description ||
                                                     scholarship.details ||
                                                     'No description provided.'}
@@ -349,9 +350,12 @@ export default function ScholarshipsListUI({ filters }: ScholarshipsListProps) {
                                         </td>
 
                                         <td className="whitespace-nowrap py-5 text-right align-top">
-                                            <button className="rounded-lg bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700">
-                                                Apply
-                                            </button>
+                                            <Link
+                                                href={`/scholarships/${scholarship._id}`}
+                                                className="rounded-lg bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+                                            >
+                                                View Details
+                                            </Link>
                                         </td>
                                     </tr>
                                 );
