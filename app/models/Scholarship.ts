@@ -1,12 +1,17 @@
 import { Schema, model, models } from "mongoose";
 
 const ScholarshipSchema = new Schema(
-    {},
     {
-        strict: false, 
+        _id: {
+            type: String,
+            required: true,
+        }
+    },
+    {
+        strict: false,
         collection: "scholarships",
     }
 );
 
-export default models.Scholarship ||
-    model("Scholarship", ScholarshipSchema);
+export default models.Scholarships ||
+    model("Scholarships", ScholarshipSchema);

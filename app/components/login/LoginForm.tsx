@@ -31,7 +31,7 @@ function LoginForm() {
         const data = await response.json()
 
         if (data.success) {
-            router.push("/dashboard")
+            router.push("/profile/setup")
         }
         
         

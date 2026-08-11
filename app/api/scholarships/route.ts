@@ -6,7 +6,7 @@ export async function GET() {
     try {
         await connectDB()
 
-        const scholarships = await Scholarship.find()
+        const scholarships = await Scholarship.find().lean()
 
         return NextResponse.json(scholarships)
     } catch (error) {
