@@ -12,7 +12,6 @@ const UserSchema = new Schema(
             required: true,
         },
 
-
         email: {
             type: String,
             required: true,
@@ -22,6 +21,56 @@ const UserSchema = new Schema(
         password: {
             type: String,
             required: true,
+        },
+
+        profile: {
+            age: {
+                type: Number,
+                default: null,
+            },
+
+            nationality: {
+                type: String,
+                default: null,
+            },
+
+            gpa: {
+                type: Number,
+                default: null,
+            },
+
+            sat: {
+                type: Number,
+                default: null,
+            },
+
+            englishTest: {
+                type: {
+                    type: String,
+                    enum: ["IELTS", "TOEFL", null],
+                    default: null,
+                },
+
+                score: {
+                    type: Number,
+                    default: null,
+                },
+            },
+
+            preferredField: {
+                type: String,
+                default: null,
+            },
+
+            preferredCountry: {
+                type: String,
+                default: null,
+            },
+
+            programLevel: {
+                type: String,
+                default: null,
+            },
         },
     },
     {
