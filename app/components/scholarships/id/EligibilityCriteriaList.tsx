@@ -3,50 +3,69 @@
 import React from 'react';
 import { BarChart2, Globe, User, BookOpen, GraduationCap, FileText, ChevronRight } from 'lucide-react';
 import { Scholarship } from '@/types/scholarship';
+import { UserProfile } from './ScholarshipDetailsPage';
 
-export function EligibilityCriteriaList({ scholarship }: { scholarship: Scholarship }) {
+interface EligibilityCriteriaListProps {
+    scholarship: Scholarship;
+    userProfile: UserProfile | null;
+}
+
+export function EligibilityCriteriaList({ scholarship, userProfile }: EligibilityCriteriaListProps) {
     const reqs = scholarship?.requirements || {};
+
+    const minGpaRaw = reqs.gpa?.minimum ?? 0;
+    const userGpa = userProfile?.gpa ?? 0;
+
+    // Конвертация для сравнения
+    const minGpaNormalized = minGpaRaw > 4.0 ? (minGpaRaw / 100) * 4.0 : minGpaRaw;
+    const isGpaOk = userGpa >= minGpaNormalized;
 
     const criteria = [
         {
             icon: <BarChart2 className="h-4 w-4 text-slate-500" />,
             title: 'GPA Requirement',
-            desc: reqs.gpa?.description || `Minimum ${reqs.gpa?.minimum || 3.75} out of ${reqs.gpa?.scale || 4.0} or equivalent`,
-            status: 'You meet this requirement',
+            desc: reqs.gpa?.description || (minGpaRaw > 4.0 ? `Minimum ${minGpaRaw}%` : `Minimum ${minGpaRaw} / 4.0`),
+            status: isGpaOk
+                ? `You meet this requirement (${userGpa} / 4.0)`
+                : `Your GPA is ${userGpa} (Requires ~${minGpaNormalized.toFixed(1)} / 4.0)`,
+            isOk: isGpaOk,
         },
         {
             icon: <Globe className="h-4 w-4 text-slate-500" />,
             title: 'Nationality',
-            desc: reqs.nationality?.eligibleCountries || 'Open to all nationalities except French',
+            desc: reqs.nationality?.eligibleCountries || 'Open to all international applicants',
             status: 'You meet this requirement',
+            isOk: true,
         },
         {
             icon: <User className="h-4 w-4 text-slate-500" />,
             title: 'Age Limit',
-            desc: reqs.age?.description || `Applicants must be under ${reqs.age?.max || 35} years old`,
+            desc: reqs.age?.description || `Under ${reqs.age?.max || 35} years old`,
             status: 'You meet this requirement',
+            isOk: true,
         },
         {
             icon: <BookOpen className="h-4 w-4 text-slate-500" />,
             title: 'Field of Study',
-            desc: scholarship.fieldOfStudy || 'Engineering, Law, Economics, Political Science',
+            desc: scholarship?.fieldOfStudy || 'All fields',
             status: 'You meet this requirement',
+            isOk: true,
         },
         {
             icon: <GraduationCap className="h-4 w-4 text-slate-500" />,
             title: 'Program Level',
-            desc: Array.isArray(scholarship.studyLevel) ? scholarship.studyLevel.join(' and ') : scholarship.studyLevel,
+            desc: Array.isArray(scholarship?.studyLevel) ? scholarship.studyLevel.join(', ') : scholarship?.studyLevel || 'All levels',
             status: 'You meet this requirement',
+            isOk: true,
         },
         {
             icon: <FileText className="h-4 w-4 text-slate-500" />,
             title: 'Other Requirements',
             isList: true,
-            descList: reqs.other || [
-                'Strong academic record',
-                'Statement of Purpose',
-                '2 Letters of Recommendation',
-                'Proof of Language Proficiency',
+            descList: reqs.other && reqs.other.length > 0 ? reqs.other : [
+                reqs.education?.minimumDegree || 'High school diploma or University degree',
+                reqs.language?.description || 'Language proficiency certificates if required',
+                'Academic Transcripts and Recommendation Letters',
             ],
         },
     ];
@@ -75,8 +94,8 @@ export function EligibilityCriteriaList({ scholarship }: { scholarship: Scholars
                             )}
 
                             {item.status && (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 pt-0.5">
-                                    ✓ {item.status}
+                                <span className={`inline-flex items-center gap-1 text-[11px] font-semibold pt-0.5 ${item.isOk ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                    {item.isOk ? '✓' : 'ℹ'} {item.status}
                                 </span>
                             )}
                         </div>
