@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,29 +20,30 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`left-0 top-0 h-screen bg-[rgb(252,253,255)] flex flex-col items-start transition-all duration-300 ${collapsed ? "w-20" : "w-62"
+      className={`left-0 top-0 h-screen bg-[rgb(252,253,255)] flex flex-col items-start transition-[width] duration-300 ease-in-out ${collapsed ? "w-20" : "w-64"
         }`}
     >
+      {/* Кнопка Hamburger */}
       <button
         onClick={() => setCollapsed(!collapsed)}
         aria-label="Toggle sidebar"
-        className={`mt-4 mb-4 flex h-9 w-9 flex-col items-center justify-center gap-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300 ${collapsed ? "ml-[22px]" : "ml-4"
-          }`}
+        className="mt-4 mb-4 ml-4 flex h-9 w-9 flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-gray-100 transition-colors"
       >
         <span
-          className={`block h-0.5 w-5 rounded-full bg-black transition-all duration-300 ${!collapsed ? "translate-y-2 rotate-45" : ""
+          className={`block h-0.5 w-5 rounded-full bg-black transition-transform duration-300 ${!collapsed ? "translate-y-2 rotate-45" : ""
             }`}
         />
         <span
-          className={`block h-0.5 w-5 rounded-full bg-black transition-all duration-300 ${!collapsed ? "opacity-0" : "opacity-100"
+          className={`block h-0.5 w-5 rounded-full bg-black transition-opacity duration-300 ${!collapsed ? "opacity-0" : "opacity-100"
             }`}
         />
         <span
-          className={`block h-0.5 w-5 rounded-full bg-black transition-all duration-300 ${!collapsed ? "-translate-y-2 -rotate-45" : ""
+          className={`block h-0.5 w-5 rounded-full bg-black transition-transform duration-300 ${!collapsed ? "-translate-y-2 -rotate-45" : ""
             }`}
         />
       </button>
 
+      {/* Навигация */}
       <nav className="flex w-full flex-col gap-1 px-3">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href;
@@ -50,9 +51,10 @@ export default function Sidebar() {
             <Link
               key={href}
               href={href}
-              className={`relative flex items-center justify-start rounded-xl py-2 pl-[18px] pr-3 transition-colors duration-300 ${isActive ? "text-white" : "text-gray-700 hover:bg-gray-100"
-                } ${collapsed ? "gap-0" : "gap-3"}`}
+              className={`relative flex h-11 items-center rounded-xl px-3.5 transition-colors duration-200 ${isActive ? "text-white" : "text-gray-700 hover:bg-gray-100"
+                }`}
             >
+              {/* Синяя плашка активного пункта */}
               {isActive && (
                 <motion.div
                   layoutId="sidebar-active-pill"
@@ -61,9 +63,17 @@ export default function Sidebar() {
                   style={{ zIndex: 0 }}
                 />
               )}
-              <Icon className="relative z-10 h-5 w-5 shrink-0" />
+
+              {/* Иконка (фиксированное место) */}
+              <div className="relative z-10 flex h-5 w-5 shrink-0 items-center justify-center">
+                <Icon className="h-5 w-5" />
+              </div>
+
+              {/* Текст с чистым opacity/transform (без подёргиваний ширины) */}
               <span
-                className={`relative z-10 overflow-hidden whitespace-nowrap transition-all duration-300 ${collapsed ? "max-w-0 opacity-0" : "max-w-[160px] opacity-100"
+                className={`relative z-10 ml-3 whitespace-nowrap font-medium transition-all duration-200 ease-in-out ${collapsed
+                    ? "pointer-events-none -translate-x-2 opacity-0"
+                    : "translate-x-0 opacity-100"
                   }`}
               >
                 {label}

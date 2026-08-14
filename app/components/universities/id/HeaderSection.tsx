@@ -18,6 +18,14 @@ interface HeaderSectionProps {
 export default function HeaderSection({
     name, location, rank, type, desc, website, eligibilityScore, chancesScore
 }: HeaderSectionProps) {
+    const getChancesText = (score: number) => {
+        if (score >= 75) return { text: 'High', color: 'text-emerald-500' };
+        if (score >= 45) return { text: 'Moderate', color: 'text-blue-500' };
+        return { text: 'Low', color: 'text-amber-500' };
+    };
+
+    const chanceInfo = getChancesText(chancesScore);
+
     return (
         <div className="mb-8 flex flex-col gap-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm xl:flex-row">
             <div className="flex-1">
@@ -70,14 +78,24 @@ export default function HeaderSection({
                         <span className="text-xs font-bold text-slate-700">Am I Eligible to Apply?</span>
                         <Info className="h-3.5 w-3.5 text-slate-400" />
                     </div>
-                    <CircularProgress value={eligibilityScore} color="text-emerald-500" text="Yes" subtext="You meet most of the eligibility criteria" />
+                    <CircularProgress
+                        value={eligibilityScore}
+                        color="text-emerald-500"
+                        text={eligibilityScore >= 70 ? "Yes" : "Partial"}
+                        subtext="You meet most of the eligibility criteria"
+                    />
                 </div>
                 <div className="flex-1 rounded-xl border border-gray-100 p-4">
                     <div className="mb-2 flex items-center justify-between">
                         <span className="text-xs font-bold text-slate-700">My Chances of Admission</span>
                         <Info className="h-3.5 w-3.5 text-slate-400" />
                     </div>
-                    <CircularProgress value={chancesScore} color="text-blue-500" text="Moderate" subtext="Good chance! Strengthen your profile for better outcomes." />
+                    <CircularProgress
+                        value={chancesScore}
+                        color={chanceInfo.color}
+                        text={chanceInfo.text}
+                        subtext="Good chance! Strengthen your profile for better outcomes."
+                    />
                 </div>
             </div>
         </div>

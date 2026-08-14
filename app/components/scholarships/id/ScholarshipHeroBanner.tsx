@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle2, ShieldCheck, Globe, GraduationCap, BookOpen } from 'lucide-react';
 import { Scholarship } from '@/types/scholarship';
 
@@ -10,7 +10,37 @@ export function ScholarshipHeroBanner({ scholarship }: { scholarship: Scholarshi
         ? `$${(estVal.max || estVal.min || 0).toLocaleString()} USD`
         : '$25,000 USD';
 
-    const deadlineDate = scholarship?.deadlines?.[0]?.date || '2026-01-08';
+    const rawDeadline = scholarship?.deadlines?.[0]?.date || '2026-12-31';
+    const deadlineDate = typeof rawDeadline === 'string'
+        ? rawDeadline
+        : new Date(rawDeadline).toISOString().split('T')[0];
+
+    // Динамический расчёт обратного отсчёта
+    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
+
+    useEffect(() => {
+        const targetDate = new Date(deadlineDate).getTime();
+
+        const updateTimer = () => {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            if (difference > 0) {
+                setTimeLeft({
+                    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+                    hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                    mins: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+                    secs: Math.floor((difference % (1000 * 60)) / 1000),
+                });
+            } else {
+                setTimeLeft({ days: 0, hours: 0, mins: 0, secs: 0 });
+            }
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+    }, [deadlineDate]);
 
     return (
         <div className="mb-6 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm md:p-8">
@@ -20,29 +50,29 @@ export function ScholarshipHeroBanner({ scholarship }: { scholarship: Scholarshi
                 <div className="space-y-4 lg:max-w-[55%]">
                     <div className="flex items-center gap-2">
                         <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
-                            {scholarship.scholarshipName}
+                            {scholarship?.scholarshipName || 'Scholarship Title'}
                         </h1>
-                        {scholarship.verified && (
+                        {scholarship?.verified && (
                             <CheckCircle2 className="h-6 w-6 shrink-0 text-blue-600 fill-blue-100" />
                         )}
                     </div>
 
                     <p className="text-xs font-normal leading-relaxed text-slate-500">
-                        {scholarship.description}
+                        {scholarship?.description}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-2 pt-1 text-xs font-medium text-slate-700">
                         <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-slate-50 px-3 py-1.5">
                             <ShieldCheck className="h-3.5 w-3.5 text-blue-600" />
-                            {scholarship.award?.type || 'Fully Funded'}
+                            {scholarship?.award?.type || 'Fully Funded'}
                         </span>
                         <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-slate-50 px-3 py-1.5">
                             <Globe className="h-3.5 w-3.5 text-slate-500" />
-                            {scholarship.country || 'International'}
+                            {scholarship?.country || 'International'}
                         </span>
                         <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-slate-50 px-3 py-1.5">
                             <GraduationCap className="h-3.5 w-3.5 text-slate-500" />
-                            {Array.isArray(scholarship.studyLevel) ? scholarship.studyLevel.join(', ') : scholarship.studyLevel}
+                            {Array.isArray(scholarship?.studyLevel) ? scholarship.studyLevel.join(', ') : scholarship?.studyLevel || 'All Levels'}
                         </span>
                         <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-slate-50 px-3 py-1.5">
                             <BookOpen className="h-3.5 w-3.5 text-slate-500" />
@@ -53,7 +83,7 @@ export function ScholarshipHeroBanner({ scholarship }: { scholarship: Scholarshi
 
                 {/* Блок таймера и суммы справа */}
                 <div className="flex flex-col sm:flex-row items-center gap-6 rounded-2xl border border-slate-100 bg-slate-50/50 p-5 lg:bg-transparent lg:p-0">
-                    {/* Дедлайн и счетчик */}
+                    {/* Дедлайн и живой счетчик */}
                     <div className="text-center sm:text-right">
                         <span className="text-xs font-medium text-slate-500">Application Deadline</span>
                         <div className="mt-0.5 text-base font-bold text-rose-600">
@@ -61,19 +91,19 @@ export function ScholarshipHeroBanner({ scholarship }: { scholarship: Scholarshi
                         </div>
                         <div className="mt-2 flex items-center justify-center sm:justify-end gap-3 text-center">
                             <div>
-                                <div className="text-sm font-extrabold text-slate-800">42</div>
+                                <div className="text-sm font-extrabold text-slate-800">{timeLeft.days}</div>
                                 <div className="text-[10px] text-slate-400">Days</div>
                             </div>
                             <div>
-                                <div className="text-sm font-extrabold text-slate-800">14</div>
+                                <div className="text-sm font-extrabold text-slate-800">{timeLeft.hours}</div>
                                 <div className="text-[10px] text-slate-400">Hours</div>
                             </div>
                             <div>
-                                <div className="text-sm font-extrabold text-slate-800">28</div>
+                                <div className="text-sm font-extrabold text-slate-800">{timeLeft.mins}</div>
                                 <div className="text-[10px] text-slate-400">Mins</div>
                             </div>
                             <div>
-                                <div className="text-sm font-extrabold text-slate-800">36</div>
+                                <div className="text-sm font-extrabold text-slate-800">{timeLeft.secs}</div>
                                 <div className="text-[10px] text-slate-400">Secs</div>
                             </div>
                         </div>
