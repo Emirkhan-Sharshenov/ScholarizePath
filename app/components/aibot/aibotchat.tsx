@@ -13,17 +13,22 @@ import {
     Award,
     FileCheck,
 } from 'lucide-react';
-import AIRecommendationsCard, {
-    ScholarshipCardData,
-    UniversityCardData,
-} from './aiRecommendation';
+import type { ScholarshipCardData, UniversityCardData } from './aiRecommendation';
 
 interface Message {
     role: 'user' | 'assistant';
     content: string;
     timestamp: string;
-    scholarships?: ScholarshipCardData[];
-    universities?: UniversityCardData[];
+}
+
+interface AIChatCardProps {
+    // Fired whenever a fresh batch of results comes back from the AI, so a
+    // parent page can render them in the persistent sidebar recommendations
+    // card instead of inline in the chat thread.
+    onRecommendations?: (data: {
+        scholarships: ScholarshipCardData[];
+        universities: UniversityCardData[];
+    }) => void;
 }
 
 const suggestedQuestions = [
@@ -37,7 +42,7 @@ function timeNow() {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-export default function AIChatCard() {
+export default function AIChatCard({ onRecommendations }: AIChatCardProps) {
     const [inputMessage, setInputMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -81,10 +86,14 @@ export default function AIChatCard() {
                     role: 'assistant',
                     content: data.reply ?? "Here's what I found.",
                     timestamp: timeNow(),
-                    scholarships: data.scholarships ?? [],
-                    universities: data.universities ?? [],
                 },
             ]);
+
+            // Push results up to the parent page — it owns the sidebar card.
+            onRecommendations?.({
+                scholarships: data.scholarships ?? [],
+                universities: data.universities ?? [],
+            });
         } catch {
             setMessages((prev) => [
                 ...prev,
@@ -138,27 +147,16 @@ export default function AIChatCard() {
                                 </div>
                             </div>
                         ) : (
-                            <div key={i} className="flex flex-col gap-3">
-                                <div className="flex items-start gap-3 max-w-[90%] sm:max-w-xl">
-                                    <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                        <Image src="/images/aibot/bot-avatar.png" alt="AI Assistant" width={32} height={32} className="rounded-full" />
-                                    </div>
-                                    <div>
-                                        <div className="bg-blue-50/60 rounded-2xl rounded-tl-xs px-4 py-3 text-slate-800 text-xs md:text-sm leading-relaxed">
-                                            {msg.content}
-                                        </div>
-                                        <span className="text-[10px] text-slate-400 mt-1 pl-1 block">{msg.timestamp}</span>
-                                    </div>
+                            <div key={i} className="flex items-start gap-3 max-w-[90%] sm:max-w-xl">
+                                <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <Image src="/images/aibot/bot-avatar.png" alt="AI Assistant" width={32} height={32} className="rounded-full" />
                                 </div>
-
-                                {(msg.scholarships?.length || msg.universities?.length) ? (
-                                    <div className="pl-11">
-                                        <AIRecommendationsCard
-                                            scholarships={msg.scholarships}
-                                            universities={msg.universities}
-                                        />
+                                <div>
+                                    <div className="bg-blue-50/60 rounded-2xl rounded-tl-xs px-4 py-3 text-slate-800 text-xs md:text-sm leading-relaxed">
+                                        {msg.content}
                                     </div>
-                                ) : null}
+                                    <span className="text-[10px] text-slate-400 mt-1 pl-1 block">{msg.timestamp}</span>
+                                </div>
                             </div>
                         )
                     )}
