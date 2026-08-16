@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Home, GraduationCap, University, Bot, Settings } from "lucide-react";
+import { Home, GraduationCap, University, Bot, Settings, Scale} from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/universities", label: "University", icon: University },
   { href: "/aibot", label: "AI Bot", icon: Bot },
   { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/compare", label: "Compare", icon: Scale },
 ];
 
 export default function Sidebar() {

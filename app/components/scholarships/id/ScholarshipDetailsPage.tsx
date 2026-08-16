@@ -1,54 +1,43 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { Scholarship } from '@/types/scholarship';
-import { ScholarshipBreadcrumbsHeader } from './ScholarshipBreadcrumbsHeader';
-import { ScholarshipHeroBanner } from './ScholarshipHeroBanner';
-import { EligibilityChecker } from './EligibilityChecker';
-import { EligibilityCriteriaList } from './EligibilityCriteriaList';
-import { ApplySidebarCard } from './ApplySidebarCard';
-import { AboutScholarship } from './AboutScholarship';
-
-export interface UserProfile {
-    gpa: number;
-    sat: number;
-    nationality?: string;
-    age?: number;
-    degree?: string;
-    fieldOfStudy?: string;
-    englishTest: {
-        type: string;
-        score: number;
-    };
-}
+import React, { useEffect, useState } from "react";
+import { Scholarship } from "@/types/scholarship";
+import { ScholarshipBreadcrumbsHeader } from "./ScholarshipBreadcrumbsHeader";
+import { ScholarshipHeroBanner } from "./ScholarshipHeroBanner";
+import { EligibilityChecker } from "./EligibilityChecker";
+import { EligibilityCriteriaList } from "./EligibilityCriteriaList";
+import { ApplySidebarCard } from "./ApplySidebarCard";
+import { useScholarshipCompare } from "@/lib/useScholarshipCompare";
 
 export default function ScholarshipDetailsPage({ scholarship }: { scholarship: Scholarship }) {
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [userProfile, setUserProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
-    // Загружаем данные профиля пользователя
+    // Используем отдельное хранилище для стипендий
+    const { compareList, addToCompare, removeFromCompare } = useScholarshipCompare();
+
+    const currentId = scholarship?.id || scholarship?._id;
+    const isCompared = compareList.some((item) => (item.id || item._id) === currentId);
+
+    const handleToggleCompare = () => {
+        if (!scholarship) return;
+        if (isCompared) {
+            removeFromCompare(currentId);
+        } else {
+            addToCompare(scholarship);
+        }
+    };
+
     useEffect(() => {
         async function fetchUserData() {
             try {
-                const res = await fetch('/api/auth/self');
+                const res = await fetch("/api/auth/self");
                 const data = await res.json();
                 if (data.success && data.user?.profile) {
-                    const prof = data.user.profile;
-                    setUserProfile({
-                        gpa: prof.gpa ?? 0,
-                        sat: prof.sat ?? 0,
-                        nationality: prof.nationality || 'International',
-                        age: prof.age || 22,
-                        degree: prof.degree || 'Bachelor',
-                        fieldOfStudy: prof.fieldOfStudy || 'Computer Science',
-                        englishTest: {
-                            type: prof.englishTest?.type || 'IELTS',
-                            score: prof.englishTest?.score ?? 0,
-                        },
-                    });
+                    setUserProfile(data.user.profile);
                 }
             } catch (err) {
-                console.error('Failed to load user profile for scholarship:', err);
+                console.error("Failed to load user profile:", err);
             } finally {
                 setLoading(false);
             }
@@ -56,18 +45,19 @@ export default function ScholarshipDetailsPage({ scholarship }: { scholarship: S
         fetchUserData();
     }, []);
 
-    const officialSite = scholarship?.officialWebsite || scholarship?.applicationLink || '#';
+    const officialSite = scholarship?.officialWebsite || scholarship?.applicationLink || "#";
 
     return (
         <div className="min-h-screen bg-[rgb(246,247,251)] p-4 font-sans md:p-8 text-slate-800">
             <div className="mx-auto max-w-7xl">
-                {/* Хлебные крошки */}
-                <ScholarshipBreadcrumbsHeader title={scholarship?.scholarshipName || 'Scholarship Details'} />
+                <ScholarshipBreadcrumbsHeader
+                    title={scholarship?.scholarshipName || "Scholarship Details"}
+                    isCompared={isCompared}
+                    onToggleCompare={handleToggleCompare}
+                />
 
-                {/* Герой баннер с таймером и суммой */}
                 <ScholarshipHeroBanner scholarship={scholarship} />
 
-                {/* Основной контент */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -80,9 +70,6 @@ export default function ScholarshipDetailsPage({ scholarship }: { scholarship: S
                         <ApplySidebarCard applyUrl={officialSite} />
                     </div>
                 </div>
-
-                {/* Описание */}
-                <AboutScholarship description={scholarship?.description || 'No description provided.'} />
             </div>
         </div>
     );

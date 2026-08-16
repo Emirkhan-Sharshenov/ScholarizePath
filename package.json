@@ -26,7 +26,8 @@
     "react-mui-sidebar": "^1.6.10",
     "react-simple-maps": "^3.0.0",
     "react-svg-worldmap": "^2.0.2",
-    "react-type-animation": "^3.2.0"
+    "react-type-animation": "^3.2.0",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
