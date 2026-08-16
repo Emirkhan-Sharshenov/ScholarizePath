@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Heart, Scale, Loader2 } from 'lucide-react';
+import { useCompare } from '@/lib/useCompare'; // Путь к нашему хуку
 
 import HeaderSection from './HeaderSection';
 import EligibilityCard from './EligibilityCard';
@@ -22,8 +24,20 @@ interface UserProfile {
 }
 
 export default function UniversityDetailsPage({ university }: { university: any }) {
+    const router = useRouter();
+    const { addToCompare, compareList } = useCompare();
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const uniId = university?.id || university?._id;
+    const isCompared = compareList.some((item) => (item.id || item._id) === uniId);
+
+    const handleCompareClick = () => {
+        if (university) {
+            addToCompare(university);
+            router.push('/compare');
+        }
+    };
 
     // Загружаем данные пользователя из твоего API
     useEffect(() => {
@@ -76,28 +90,23 @@ export default function UniversityDetailsPage({ university }: { university: any 
     const programs = university?.programs || university?.majors || [];
     const deadlines = university?.applicationDeadlines || university?.deadlines || [];
 
-    // ----------------------------------------------------
     // Алгоритм расчёта Eligibility & Chances
-    // ----------------------------------------------------
     const calculateScores = () => {
         if (!userProfile) return { eligibilityScore: 0, chancesScore: 0 };
 
         let metCriteria = 0;
         let totalCriteria = 0;
 
-        // GPA Check
         if (minGpa > 0) {
             totalCriteria++;
             if (userProfile.gpa >= minGpa) metCriteria++;
         }
 
-        // English Test Check (IELTS/TOEFL)
         if (minIelts > 0 || minToefl > 0) {
             totalCriteria++;
             if (userProfile.englishTest.score >= minIelts) metCriteria++;
         }
 
-        // SAT Check
         if (minSat > 0) {
             totalCriteria++;
             if (userProfile.sat >= minSat) metCriteria++;
@@ -107,7 +116,6 @@ export default function UniversityDetailsPage({ university }: { university: any 
             ? Math.round((metCriteria / totalCriteria) * 100)
             : 100;
 
-        // Chances Score (учитываем процент поступающих + насколько оценки выше минималок)
         let extraPoints = 0;
         if (minGpa > 0 && userProfile.gpa >= minGpa) extraPoints += 15;
         if (minSat > 0 && userProfile.sat >= minSat) extraPoints += 15;
@@ -121,7 +129,6 @@ export default function UniversityDetailsPage({ university }: { university: any 
 
     const { eligibilityScore, chancesScore } = calculateScores();
 
-    // Дефолтный профиль на случай ожидания или если юзер не авторизован
     const currentProfile = userProfile || {
         gpa: 0,
         sat: 0,
@@ -146,13 +153,20 @@ export default function UniversityDetailsPage({ university }: { university: any 
                         <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 active:scale-95">
                             <Heart className="h-4 w-4 text-slate-400" />
                         </button>
-                        <button className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 active:scale-95">
+                        <button
+                            onClick={handleCompareClick}
+                            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition-all duration-200 active:scale-95 ${isCompared
+                                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                                    : "bg-blue-600 text-white hover:bg-blue-700"
+                                }`}
+                        >
                             <Scale className="h-4 w-4" />
+                            <span>{isCompared ? "In Comparison" : "Compare"}</span>
                         </button>
                     </div>
                 </div>
 
-                {/* Header Section с живыми баллами */}
+                {/* Header Section */}
                 <HeaderSection
                     name={name}
                     location={location}
@@ -164,7 +178,7 @@ export default function UniversityDetailsPage({ university }: { university: any 
                     chancesScore={loading ? 0 : chancesScore}
                 />
 
-                {/* Основная сетка карточек */}
+                {/* Cards Grid */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     <EligibilityCard
                         userProfile={{
