@@ -4,15 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Home, GraduationCap, University, Bot, Settings, Scale} from "lucide-react";
+import { Home, GraduationCap, University, Bot, Settings, Scale, BookOpen} from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/scholarships", label: "Scholarships", icon: GraduationCap },
   { href: "/universities", label: "University", icon: University },
   { href: "/aibot", label: "AI Bot", icon: Bot },
-  { href: "/settings", label: "Settings", icon: Settings },
   { href: "/compare", label: "Compare", icon: Scale },
+  { href: "/student", label: "Student", icon: BookOpen },
 ];
 
 export default function Sidebar() {

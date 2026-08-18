@@ -1,30 +1,39 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Scholarship } from "@/types/scholarship";
 import { ScholarshipBreadcrumbsHeader } from "./ScholarshipBreadcrumbsHeader";
 import { ScholarshipHeroBanner } from "./ScholarshipHeroBanner";
 import { EligibilityChecker } from "./EligibilityChecker";
 import { EligibilityCriteriaList } from "./EligibilityCriteriaList";
 import { ApplySidebarCard } from "./ApplySidebarCard";
-import { useScholarshipCompare } from "@/lib/useScholarshipCompare";
+import { useCompare } from "@/lib/useCompare";
 
 export default function ScholarshipDetailsPage({ scholarship }: { scholarship: Scholarship }) {
+    const router = useRouter();
     const [userProfile, setUserProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
-    // Используем отдельное хранилище для стипендий
-    const { compareList, addToCompare, removeFromCompare } = useScholarshipCompare();
+    const {
+        scholarshipCompareList,
+        addToScholarshipCompare,
+        removeFromScholarshipCompare,
+    } = useCompare();
 
     const currentId = scholarship?.id || scholarship?._id;
-    const isCompared = compareList.some((item) => (item.id || item._id) === currentId);
+    const isCompared = scholarshipCompareList.some(
+        (item: any) => (item.id || item._id) === currentId
+    );
 
     const handleToggleCompare = () => {
         if (!scholarship) return;
+
         if (isCompared) {
-            removeFromCompare(currentId);
+            removeFromScholarshipCompare(currentId);
         } else {
-            addToCompare(scholarship);
+            addToScholarshipCompare(scholarship);
+            router.push("/compare"); // Переход на страницу сравнения
         }
     };
 
@@ -52,6 +61,7 @@ export default function ScholarshipDetailsPage({ scholarship }: { scholarship: S
             <div className="mx-auto max-w-7xl">
                 <ScholarshipBreadcrumbsHeader
                     title={scholarship?.scholarshipName || "Scholarship Details"}
+                    scholarship={scholarship}
                     isCompared={isCompared}
                     onToggleCompare={handleToggleCompare}
                 />
@@ -61,8 +71,15 @@ export default function ScholarshipDetailsPage({ scholarship }: { scholarship: S
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <EligibilityChecker scholarship={scholarship} userProfile={userProfile} loading={loading} />
-                            <EligibilityCriteriaList scholarship={scholarship} userProfile={userProfile} />
+                            <EligibilityChecker
+                                scholarship={scholarship}
+                                userProfile={userProfile}
+                                loading={loading}
+                            />
+                            <EligibilityCriteriaList
+                                scholarship={scholarship}
+                                userProfile={userProfile}
+                            />
                         </div>
                     </div>
 
