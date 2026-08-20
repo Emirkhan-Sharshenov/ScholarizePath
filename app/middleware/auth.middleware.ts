@@ -1,40 +1,34 @@
-import jwt from "jsonwebtoken"
-import { NextResponse, NextRequest } from "next/server"
-import { AuthRequest } from "../types/auth"
+import jwt from "jsonwebtoken";
+import { NextResponse, NextRequest } from "next/server";
 
-const JWT_SECRET = process.env.JWT_SECRET!
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function authMiddleware(request: NextRequest) {
-    const token = request.cookies.get("token")?.value
+    const token = request.cookies.get("token")?.value;
 
-    if(!token) {
+    if (!token) {
         return NextResponse.json(
             {
-                sucess: false,
-                message: "Unauthorized"
-           
+                success: false,
+                message: "Unauthorized",
             },
-            {
-                status: 401
-            }
-        )
+            { status: 401 }
+        );
     }
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET) as {
-            userId: string
-        }
+            userId: string;
+        };
 
-        return decoded.userId
+        return decoded.userId;
     } catch {
         return NextResponse.json(
             {
                 success: false,
-                message: "Invalid token"
+                message: "Invalid token",
             },
-            {
-                status: 401
-            }
-        )
+            { status: 401 }
+        );
     }
 }

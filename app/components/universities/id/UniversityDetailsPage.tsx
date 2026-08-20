@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Heart, Scale, Loader2 } from 'lucide-react';
-import { useCompare } from '@/lib/useCompare'; // Путь к нашему хуку
+import { useCompare } from '@/lib/useCompare';
+import { useFavorites } from '@/lib/useFavorites'; // Наш хук
 
 import HeaderSection from './HeaderSection';
 import EligibilityCard from './EligibilityCard';
@@ -29,7 +30,11 @@ export default function UniversityDetailsPage({ university }: { university: any 
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const uniId = university?.id || university?._id;
+    const uniId = university?._id || university?.id;
+
+    // Подключаем хук избранного
+    const { isFavorite, toggleFavorite } = useFavorites(uniId, 'university');
+
     const isCompared = compareList.some((item) => (item.id || item._id) === uniId);
 
     const handleCompareClick = () => {
@@ -39,7 +44,6 @@ export default function UniversityDetailsPage({ university }: { university: any 
         }
     };
 
-    // Загружаем данные пользователя из твоего API
     useEffect(() => {
         async function fetchUserData() {
             try {
@@ -64,7 +68,6 @@ export default function UniversityDetailsPage({ university }: { university: any 
         fetchUserData();
     }, []);
 
-    // Базовые переменные университета
     const name = university?.name || university?.title || 'Unknown University';
     const location = university?.location
         ? `${university.location.city || ''}, ${university.location.country || ''}`
@@ -90,7 +93,6 @@ export default function UniversityDetailsPage({ university }: { university: any 
     const programs = university?.programs || university?.majors || [];
     const deadlines = university?.applicationDeadlines || university?.deadlines || [];
 
-    // Алгоритм расчёта Eligibility & Chances
     const calculateScores = () => {
         if (!userProfile) return { eligibilityScore: 0, chancesScore: 0 };
 
@@ -150,9 +152,19 @@ export default function UniversityDetailsPage({ university }: { university: any 
                     </Link>
 
                     <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 active:scale-95">
-                            <Heart className="h-4 w-4 text-slate-400" />
+                        {/* Кнопка добавления в избранное */}
+                        <button
+                            type="button"
+                            onClick={toggleFavorite}
+                            className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-sm transition-all duration-200 active:scale-95 ${isFavorite
+                                    ? 'border-rose-200 bg-rose-50 text-rose-600'
+                                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                                }`}
+                        >
+                            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}`} />
+                            <span>{isFavorite ? 'Saved' : 'Save'}</span>
                         </button>
+
                         <button
                             onClick={handleCompareClick}
                             className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition-all duration-200 active:scale-95 ${isCompared

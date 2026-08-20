@@ -1,4 +1,4 @@
-'react';
+'use client';
 
 interface PersonalPreferencesProps {
     firstName: string;
@@ -30,7 +30,7 @@ export function PersonalPreferences({
                     {isEditing ? (
                         <input
                             type="text"
-                            value={firstName}
+                            value={firstName || ''}
                             onChange={(e) => onChange('firstName', e.target.value)}
                             className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm font-medium text-gray-800"
                         />
@@ -45,7 +45,7 @@ export function PersonalPreferences({
                     {isEditing ? (
                         <input
                             type="text"
-                            value={lastName}
+                            value={lastName || ''}
                             onChange={(e) => onChange('lastName', e.target.value)}
                             className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm font-medium text-gray-800"
                         />
@@ -60,7 +60,7 @@ export function PersonalPreferences({
                     {isEditing ? (
                         <input
                             type="text"
-                            value={preferredField}
+                            value={preferredField || ''}
                             onChange={(e) => onChange('profile.preferredField', e.target.value)}
                             className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm font-medium text-gray-800"
                         />
@@ -75,7 +75,7 @@ export function PersonalPreferences({
                     {isEditing ? (
                         <input
                             type="text"
-                            value={preferredCountry}
+                            value={preferredCountry || ''}
                             onChange={(e) => onChange('profile.preferredCountry', e.target.value)}
                             className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm font-medium text-gray-800"
                         />
@@ -90,7 +90,7 @@ export function PersonalPreferences({
                     {isEditing ? (
                         <input
                             type="text"
-                            value={programLevel}
+                            value={programLevel || ''}
                             onChange={(e) => onChange('profile.programLevel', e.target.value)}
                             className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-sm font-medium text-gray-800"
                         />

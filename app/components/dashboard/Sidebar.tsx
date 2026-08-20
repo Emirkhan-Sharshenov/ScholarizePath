@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Home, GraduationCap, University, Bot, Settings, Scale, BookOpen} from "lucide-react";
+import { Home, GraduationCap, University, Bot, Settings, Scale, BookOpen, Heart, SquareText } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -13,6 +13,8 @@ const NAV_ITEMS = [
   { href: "/aibot", label: "AI Bot", icon: Bot },
   { href: "/compare", label: "Compare", icon: Scale },
   { href: "/student", label: "Student", icon: BookOpen },
+  { href: "/favourites", label: "Favourites", icon: Heart },
+  { href: "/unilist", label: "Uni List", icon: SquareText }
 ];
 
 export default function Sidebar() {

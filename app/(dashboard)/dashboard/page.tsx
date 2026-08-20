@@ -11,7 +11,7 @@ export default function Page() {
   return (
     <div className="bg-[rgb(246,247,251)] min-h-screen pb-10">
       <div className="flex flex-col w-full">
-        <SearchBar />
+      
 
         {/* Блок карты */}
         <section className="w-full flex justify-center px-4 mt-4">

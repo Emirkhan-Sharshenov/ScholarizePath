@@ -12,3 +12,10 @@ export interface UniversityComparisonData {
     studentFacultyRatio: string;
     ratioStatus: "good" | "strict";
 }
+export type ComparisonStatus = "best" | "worst" | "neutral";
+
+export interface MetricItem {
+    id: string;
+    value: string;
+    status?: ComparisonStatus;
+}
