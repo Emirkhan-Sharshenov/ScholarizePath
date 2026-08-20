@@ -23,6 +23,16 @@ const UserSchema = new Schema(
             required: true,
         },
 
+        favoriteUniversities: {
+            type: [String], // Сохраняет строковые ID ("imperial-college-london-uk")
+            default: [],
+        },
+
+        favoriteScholarships: {
+            type: [String], // Сохраняет строковые ID ("banting-postdoctoral-fellowship")
+            default: [],
+        },
+
         profile: {
             age: {
                 type: Number,
@@ -78,5 +88,4 @@ const UserSchema = new Schema(
     }
 );
 
-export default mongoose.models.User ||
-    mongoose.model("User", UserSchema);
+export default mongoose.models.User || mongoose.model("User", UserSchema);
