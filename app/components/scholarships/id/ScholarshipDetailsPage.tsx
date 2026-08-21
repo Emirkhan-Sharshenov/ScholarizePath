@@ -9,32 +9,33 @@ import { EligibilityChecker } from "./EligibilityChecker";
 import { EligibilityCriteriaList } from "./EligibilityCriteriaList";
 import { ApplySidebarCard } from "./ApplySidebarCard";
 import { useCompare } from "@/lib/useCompare";
+import { useUniList } from "@/lib/useUniList";
 
 export default function ScholarshipDetailsPage({ scholarship }: { scholarship: Scholarship }) {
     const router = useRouter();
     const [userProfile, setUserProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
-    const {
-        scholarshipCompareList,
-        addToScholarshipCompare,
-        removeFromScholarshipCompare,
-    } = useCompare();
+    const { scholarshipCompareList, addToScholarshipCompare, removeFromScholarshipCompare } = useCompare();
+    const { toggleInList, isInList } = useUniList();
 
-    const currentId = scholarship?.id || scholarship?._id;
-    const isCompared = scholarshipCompareList.some(
-        (item: any) => (item.id || item._id) === currentId
-    );
+    const currentId = String(scholarship?.id || scholarship?._id || "");
+    const isCompared = scholarshipCompareList.some((item: any) => (item.id || item._id) === currentId);
+    const inList = isInList(currentId, "scholarship");
 
     const handleToggleCompare = () => {
         if (!scholarship) return;
-
         if (isCompared) {
             removeFromScholarshipCompare(currentId);
         } else {
             addToScholarshipCompare(scholarship);
-            router.push("/compare"); // Переход на страницу сравнения
+            router.push("/compare");
         }
+    };
+
+    const handleAddToList = () => {
+        if (!currentId) return;
+        toggleInList(currentId, "scholarship", scholarship?.scholarshipName || "Unnamed Scholarship");
     };
 
     useEffect(() => {
@@ -64,6 +65,8 @@ export default function ScholarshipDetailsPage({ scholarship }: { scholarship: S
                     scholarship={scholarship}
                     isCompared={isCompared}
                     onToggleCompare={handleToggleCompare}
+                    onAddToList={handleAddToList}
+                    isInList={inList}
                 />
 
                 <ScholarshipHeroBanner scholarship={scholarship} />
@@ -71,15 +74,8 @@ export default function ScholarshipDetailsPage({ scholarship }: { scholarship: S
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <EligibilityChecker
-                                scholarship={scholarship}
-                                userProfile={userProfile}
-                                loading={loading}
-                            />
-                            <EligibilityCriteriaList
-                                scholarship={scholarship}
-                                userProfile={userProfile}
-                            />
+                            <EligibilityChecker scholarship={scholarship} userProfile={userProfile} loading={loading} />
+                            <EligibilityCriteriaList scholarship={scholarship} userProfile={userProfile} />
                         </div>
                     </div>
 

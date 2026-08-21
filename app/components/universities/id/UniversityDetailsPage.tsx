@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Heart, Scale, Loader2 } from 'lucide-react';
+import { ArrowLeft, Heart, Scale, Loader2, Plus, Check } from 'lucide-react';
 import { useCompare } from '@/lib/useCompare';
-import { useFavorites } from '@/lib/useFavorites'; // Наш хук
+import { useFavorites } from '@/lib/useFavorites';
+import { useUniList } from '@/lib/useUniList';
 
 import HeaderSection from './HeaderSection';
 import EligibilityCard from './EligibilityCard';
@@ -24,18 +25,33 @@ interface UserProfile {
     };
 }
 
-export default function UniversityDetailsPage({ university }: { university: any }) {
+interface UniversityDetailsPageProps {
+    university: any;
+    onAddToList?: () => void;
+}
+
+export default function UniversityDetailsPage({ university, onAddToList }: UniversityDetailsPageProps) {
     const router = useRouter();
     const { addToCompare, compareList } = useCompare();
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
+    // Extract variables inside component body
     const uniId = university?._id || university?.id;
+    const name = university?.name || university?.title || 'Unknown University';
 
-    // Подключаем хук избранного
+    // Call hooks inside component body
+    const { toggleInList, isInList } = useUniList();
     const { isFavorite, toggleFavorite } = useFavorites(uniId, 'university');
 
+    const inList = isInList(String(uniId || ''), 'university');
     const isCompared = compareList.some((item) => (item.id || item._id) === uniId);
+
+    const handleAddToList = () => {
+        if (!uniId) return;
+        toggleInList(String(uniId), 'university', name);
+        if (onAddToList) onAddToList();
+    };
 
     const handleCompareClick = () => {
         if (university) {
@@ -68,7 +84,6 @@ export default function UniversityDetailsPage({ university }: { university: any 
         fetchUserData();
     }, []);
 
-    const name = university?.name || university?.title || 'Unknown University';
     const location = university?.location
         ? `${university.location.city || ''}, ${university.location.country || ''}`
         : university?.city ? `${university.city}, ${university.country}` : 'Unknown Location';
@@ -151,8 +166,21 @@ export default function UniversityDetailsPage({ university }: { university: any 
                         <span>Universities</span>
                     </Link>
 
-                    <div className="flex items-center gap-3">
-                        {/* Кнопка добавления в избранное */}
+                    <div className="flex flex-wrap items-center gap-3">
+                        {/* Add to List Button */}
+                        <button
+                            type="button"
+                            onClick={handleAddToList}
+                            className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-sm transition-all duration-200 active:scale-95 ${inList
+                                    ? 'border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700'
+                                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                                }`}
+                        >
+                            {inList ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4 text-slate-500" />}
+                            <span>{inList ? 'Added to List' : 'Add to List'}</span>
+                        </button>
+
+                        {/* Favorite Button */}
                         <button
                             type="button"
                             onClick={toggleFavorite}
@@ -165,15 +193,16 @@ export default function UniversityDetailsPage({ university }: { university: any 
                             <span>{isFavorite ? 'Saved' : 'Save'}</span>
                         </button>
 
+                        {/* Compare Button */}
                         <button
                             onClick={handleCompareClick}
                             className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition-all duration-200 active:scale-95 ${isCompared
-                                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                                    : "bg-blue-600 text-white hover:bg-blue-700"
+                                    ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'
                                 }`}
                         >
                             <Scale className="h-4 w-4" />
-                            <span>{isCompared ? "In Comparison" : "Compare"}</span>
+                            <span>{isCompared ? 'In Comparison' : 'Compare'}</span>
                         </button>
                     </div>
                 </div>
