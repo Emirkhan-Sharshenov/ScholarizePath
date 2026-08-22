@@ -1,13 +1,17 @@
 import Sidebar from "@/components/dashboard/Sidebar"
 import PageTransition from "@/components/dashboard/PageTransition"
+import MainContent from "@/components/dashboard/MainContent"
+import { SidebarProvider } from "@/components/dashboard/SidebarContext"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex">
-            <Sidebar />
-            <main className="flex-1">
-                <PageTransition>{children}</PageTransition>
-            </main>
-        </div>
+        <SidebarProvider>
+            <div className="flex">
+                <Sidebar />
+                <MainContent>
+                    <PageTransition>{children}</PageTransition>
+                </MainContent>
+            </div>
+        </SidebarProvider>
     );
 }

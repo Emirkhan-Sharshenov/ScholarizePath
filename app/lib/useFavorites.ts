@@ -10,37 +10,27 @@ export function useFavorites(itemId?: string, itemType?: FavoriteType) {
     const [favoriteUniversities, setFavoriteUniversities] = useState<string[]>([]);
     const [favoriteScholarships, setFavoriteScholarships] = useState<string[]>([]);
 
-    // 1. Загрузка избранного пользователя
+    // Load current user favorites
     const fetchUserData = useCallback(async () => {
-        if (!itemId && !itemType) {
-            setLoading(false);
-            return;
-        }
-
         try {
-            const res = await fetch('/api/auth/self', { cache: 'no-store' });
-            if (!res.ok) {
-                console.warn(`[useFavorites] GET /api/auth/self status: ${res.status}`);
-                return;
-            }
+            const res = await fetch('/api/auth/self');
+            if (!res.ok) return;
 
             const data = await res.json();
             if (data.success && data.user) {
-                // Приводим все ID к строкам для надежного сравнения
-                const unis: string[] = (data.user.favoriteUniversities || []).map((id: any) => String(id));
-                const schol: string[] = (data.user.favoriteScholarships || []).map((id: any) => String(id));
+                const unis = data.user.favoriteUniversities || [];
+                const schol = data.user.favoriteScholarships || [];
 
                 setFavoriteUniversities(unis);
                 setFavoriteScholarships(schol);
 
                 if (itemId && itemType) {
-                    const targetId = String(itemId);
                     const currentList = itemType === 'university' ? unis : schol;
-                    setIsFavorite(currentList.includes(targetId));
+                    setIsFavorite(currentList.includes(itemId));
                 }
             }
         } catch (error) {
-            console.error('[useFavorites] Error fetching favorites:', error);
+            console.error('Failed to fetch user favorites:', error);
         } finally {
             setLoading(false);
         }
@@ -50,7 +40,7 @@ export function useFavorites(itemId?: string, itemType?: FavoriteType) {
         fetchUserData();
     }, [fetchUserData]);
 
-    // 2. Синхронизация с сервером (PUT)
+    // Core sync logic with backend
     const syncFavoritesWithBackend = async (unis: string[], schols: string[]) => {
         try {
             const res = await fetch('/api/auth/self', {
@@ -63,26 +53,19 @@ export function useFavorites(itemId?: string, itemType?: FavoriteType) {
             });
 
             if (!res.ok) {
-                console.error(`[useFavorites] PUT sync failed with status ${res.status}`);
-                await fetchUserData(); // Откатываем UI на данные с сервера при ошибке
+                await fetchUserData(); // Rollback UI state on server error
             }
         } catch (error) {
-            console.error('[useFavorites] Network error syncing favorites:', error);
+            console.error('Error syncing favorites:', error);
             await fetchUserData();
         }
     };
 
-    // 3. Переключатель (Toggle)
+    // Toggle function (Add / Remove)
     const toggleFavorite = async () => {
-        if (!itemId || !itemType) {
-            console.error('[useFavorites] Cannot toggle: missing itemId or itemType', { itemId, itemType });
-            return;
-        }
+        if (!itemId || !itemType) return;
 
-        const targetId = String(itemId);
         const nextState = !isFavorite;
-
-        // Мгновенно обновляем UI
         setIsFavorite(nextState);
 
         let updatedUnis = [...favoriteUniversities];
@@ -90,34 +73,33 @@ export function useFavorites(itemId?: string, itemType?: FavoriteType) {
 
         if (itemType === 'university') {
             updatedUnis = nextState
-                ? Array.from(new Set([...favoriteUniversities, targetId]))
-                : favoriteUniversities.filter((id) => id !== targetId);
+                ? [...favoriteUniversities, itemId]
+                : favoriteUniversities.filter((id) => id !== itemId);
             setFavoriteUniversities(updatedUnis);
         } else {
             updatedSchols = nextState
-                ? Array.from(new Set([...favoriteScholarships, targetId]))
-                : favoriteScholarships.filter((id) => id !== targetId);
+                ? [...favoriteScholarships, itemId]
+                : favoriteScholarships.filter((id) => id !== itemId);
             setFavoriteScholarships(updatedSchols);
         }
 
         await syncFavoritesWithBackend(updatedUnis, updatedSchols);
     };
 
-    // 4. Явное удаление (Remove)
+    // Explicit Remove Function
     const removeFavorite = async (targetId: string, targetType: FavoriteType) => {
-        const idStr = String(targetId);
         let updatedUnis = [...favoriteUniversities];
         let updatedSchols = [...favoriteScholarships];
 
         if (targetType === 'university') {
-            updatedUnis = favoriteUniversities.filter((id) => id !== idStr);
+            updatedUnis = favoriteUniversities.filter((id) => id !== targetId);
             setFavoriteUniversities(updatedUnis);
         } else {
-            updatedSchols = favoriteScholarships.filter((id) => id !== idStr);
+            updatedSchols = favoriteScholarships.filter((id) => id !== targetId);
             setFavoriteScholarships(updatedSchols);
         }
 
-        if (idStr === String(itemId)) {
+        if (targetId === itemId) {
             setIsFavorite(false);
         }
 
