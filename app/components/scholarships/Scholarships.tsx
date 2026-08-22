@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { FilterState } from './ScholarshipsFilter';
@@ -14,182 +14,79 @@ export default function ScholarshipsListUI({ filters }: ScholarshipsListProps) {
     const [loading, setLoading] = useState(true);
     const [sortBy, setSortBy] = useState('Deadline (Earliest)');
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
 
     const itemsPerPage = 5;
 
+    // Debounce search so we don't fetch on every keystroke
+    const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
     useEffect(() => {
-        async function fetchScholarships() {
-            try {
-                const res = await fetch('/api/scholarships');
-                if (!res.ok) {
-                    throw new Error('Failed to fetch scholarships');
-                }
-                const data = await res.json();
-                setScholarships(data);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchScholarships();
-    }, []);
+        const timer = setTimeout(() => setDebouncedSearch(filters.search), 350);
+        return () => clearTimeout(timer);
+    }, [filters.search]);
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [filters]);
+    }, [
+        debouncedSearch,
+        filters.country,
+        filters.studyLevel,
+        filters.fieldOfStudy,
+        filters.minAmount,
+        filters.maxDeadline,
+        sortBy,
+    ]);
 
-    const getDeadlineTime = (item: any): number | null => {
-        const rawDate = item.deadlines?.[0]?.date || item.deadline;
-        if (!rawDate) return null;
-        const timestamp = new Date(rawDate).getTime();
-        return isNaN(timestamp) ? null : timestamp;
-    };
+    const fetchScholarships = useCallback(async () => {
+        setLoading(true);
+        try {
+            const params = new URLSearchParams({
+                page: String(currentPage),
+                limit: String(itemsPerPage),
+                sortBy,
+            });
 
-    const getAmountValue = (item: any): number | null => {
-        const maxVal = item.award?.estimatedValue?.max;
-        const minVal = item.award?.estimatedValue?.min;
-        if (typeof maxVal === 'number') return maxVal;
-        if (typeof minVal === 'number') return minVal;
+            if (debouncedSearch) params.set('search', debouncedSearch);
+            if (filters.country && filters.country !== 'All Countries') params.set('country', filters.country);
+            if (filters.studyLevel && filters.studyLevel !== 'All Study Levels') params.set('studyLevel', filters.studyLevel);
+            if (filters.fieldOfStudy && filters.fieldOfStudy !== 'All Fields') params.set('fieldOfStudy', filters.fieldOfStudy);
+            if (filters.minAmount) params.set('minAmount', filters.minAmount);
+            if (filters.maxDeadline) params.set('maxDeadline', filters.maxDeadline);
 
-        const altAmount = item.award?.amount || item.amount;
-        if (typeof altAmount === 'number') return altAmount;
-        if (typeof altAmount === 'string') {
-            const parsed = parseFloat(altAmount.replace(/[^0-9.-]+/g, ''));
-            return isNaN(parsed) ? null : parsed;
+            const res = await fetch(`/api/scholarships?${params.toString()}`);
+            if (!res.ok) throw new Error('Failed to fetch scholarships');
+            const json = await res.json();
+
+            setScholarships(Array.isArray(json.data) ? json.data : []);
+            setTotalCount(json.totalCount || 0);
+            setTotalPages(json.totalPages || 1);
+        } catch (error) {
+            console.error(error);
+            setScholarships([]);
+        } finally {
+            setLoading(false);
         }
+    }, [
+        currentPage,
+        sortBy,
+        debouncedSearch,
+        filters.country,
+        filters.studyLevel,
+        filters.fieldOfStudy,
+        filters.minAmount,
+        filters.maxDeadline,
+    ]);
 
-        return null;
-    };
+    useEffect(() => {
+        fetchScholarships();
+    }, [fetchScholarships]);
 
-    const processedScholarships = useMemo(() => {
-        let list = [...scholarships];
-
-        if (filters) {
-            // 1. Поиск по названию, описанию и ключевым словам
-            if (filters.search && filters.search.trim() !== '') {
-                const query = filters.search.toLowerCase().trim();
-                list = list.filter((item) => {
-                    const nameMatch = item.scholarshipName?.toLowerCase().includes(query);
-                    const descMatch = item.description?.toLowerCase().includes(query);
-                    const keywordMatch =
-                        Array.isArray(item.searchKeywords) &&
-                        item.searchKeywords.some((k: string) =>
-                            k.toLowerCase().includes(query)
-                        );
-                    return nameMatch || descMatch || keywordMatch;
-                });
-            }
-
-            // 2. Страна
-            if (filters.country && filters.country !== 'All Countries') {
-                list = list.filter(
-                    (item) => item.country?.toLowerCase() === filters.country.toLowerCase()
-                );
-            }
-
-            // 3. Уровень обучения (Study Level)
-            if (filters.studyLevel && filters.studyLevel !== 'All Study Levels') {
-                list = list.filter((item) => {
-                    if (Array.isArray(item.studyLevel)) {
-                        return item.studyLevel.some(
-                            (level: string) =>
-                                level.toLowerCase() === filters.studyLevel.toLowerCase()
-                        );
-                    }
-                    return (
-                        typeof item.studyLevel === 'string' &&
-                        item.studyLevel.toLowerCase() === filters.studyLevel.toLowerCase()
-                    );
-                });
-            }
-
-            // 4. Область знаний (Field of Study)
-            if (filters.fieldOfStudy && filters.fieldOfStudy !== 'All Fields') {
-                list = list.filter((item) => {
-                    if (!item.fieldOfStudy) return false;
-                    if (item.fieldOfStudy.toLowerCase() === 'all fields') return true;
-                    return item.fieldOfStudy
-                        .toLowerCase()
-                        .includes(filters.fieldOfStudy.toLowerCase());
-                });
-            }
-
-            // 5. Минимальная сумма (Min Amount)
-            if (filters.minAmount && filters.minAmount.trim() !== '') {
-                const minVal = parseFloat(filters.minAmount);
-                if (!isNaN(minVal)) {
-                    list = list.filter((item) => {
-                        const amount = getAmountValue(item);
-                        return amount !== null && amount >= minVal;
-                    });
-                }
-            }
-
-            // 6. Максимальный дедлайн (Max Deadline)
-            if (filters.maxDeadline && filters.maxDeadline.trim() !== '') {
-                const filterDeadlineTime = new Date(filters.maxDeadline).getTime();
-                if (!isNaN(filterDeadlineTime)) {
-                    list = list.filter((item) => {
-                        const deadlineTime = getDeadlineTime(item);
-                        return deadlineTime !== null && deadlineTime <= filterDeadlineTime;
-                    });
-                }
-            }
-        }
-
-        // Сортировка
-        return list.sort((a, b) => {
-            const deadlineA = getDeadlineTime(a);
-            const deadlineB = getDeadlineTime(b);
-            const amountA = getAmountValue(a);
-            const amountB = getAmountValue(b);
-
-            switch (sortBy) {
-                case 'Deadline (Earliest)': {
-                    if (deadlineA == null && deadlineB == null) return 0;
-                    if (deadlineA == null) return 1;
-                    if (deadlineB == null) return -1;
-                    return deadlineA - deadlineB;
-                }
-                case 'Deadline (Latest)': {
-                    if (deadlineA == null && deadlineB == null) return 0;
-                    if (deadlineA == null) return 1;
-                    if (deadlineB == null) return -1;
-                    return deadlineB - deadlineA;
-                }
-                case 'Amount (Highest)': {
-                    if (amountA == null && amountB == null) return 0;
-                    if (amountA == null) return 1;
-                    if (amountB == null) return -1;
-                    return amountB - amountA;
-                }
-                case 'Amount (Lowest)': {
-                    if (amountA == null && amountB == null) return 0;
-                    if (amountA == null) return 1;
-                    if (amountB == null) return -1;
-                    return amountA - amountB;
-                }
-                default:
-                    return 0;
-            }
-        });
-    }, [scholarships, filters, sortBy]);
-
-    const totalCount = processedScholarships.length;
-    const totalPages = Math.ceil(totalCount / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-
-    const currentScholarships = processedScholarships.slice(startIndex, endIndex);
-
-    const showingStart = totalCount === 0 ? 0 : startIndex + 1;
-    const showingEnd = Math.min(endIndex, totalCount);
+    const showingStart = totalCount === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    const showingEnd = Math.min(currentPage * itemsPerPage, totalCount);
 
     const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSortBy(e.target.value);
-        setCurrentPage(1);
     };
 
     const handlePageClick = (page: number) => {
@@ -201,52 +98,42 @@ export default function ScholarshipsListUI({ filters }: ScholarshipsListProps) {
         const range: (number | string)[] = [];
 
         if (totalPages <= 7) {
-            for (let i = 1; i <= totalPages; i++) {
-                range.push(i);
-            }
+            for (let i = 1; i <= totalPages; i++) range.push(i);
             return range;
         }
 
         const leftSibling = Math.max(currentPage - delta, 1);
         const rightSibling = Math.min(currentPage + delta, totalPages);
-
         const showLeftEllipsis = leftSibling > 2;
         const showRightEllipsis = rightSibling < totalPages - 1;
 
         if (!showLeftEllipsis && showRightEllipsis) {
-            const leftItemCount = 3 + 2 * delta;
-            for (let i = 1; i <= leftItemCount; i++) {
-                range.push(i);
-            }
+            for (let i = 1; i <= 3 + 2 * delta; i++) range.push(i);
             range.push('...');
             range.push(totalPages);
         } else if (showLeftEllipsis && !showRightEllipsis) {
-            const rightItemCount = 3 + 2 * delta;
             range.push(1);
             range.push('...');
-            for (let i = totalPages - rightItemCount + 1; i <= totalPages; i++) {
-                range.push(i);
-            }
+            for (let i = totalPages - (3 + 2 * delta) + 1; i <= totalPages; i++) range.push(i);
         } else if (showLeftEllipsis && showRightEllipsis) {
             range.push(1);
             range.push('...');
-            for (let i = leftSibling; i <= rightSibling; i++) {
-                range.push(i);
-            }
+            for (let i = leftSibling; i <= rightSibling; i++) range.push(i);
             range.push('...');
             range.push(totalPages);
+        } else {
+            for (let i = 1; i <= totalPages; i++) range.push(i);
         }
 
         return range;
     };
 
-    if (loading) {
+    if (loading && scholarships.length === 0) {
         return <div className="p-8 text-sm text-gray-500">Loading scholarships...</div>;
     }
 
     return (
         <div className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-6 font-sans shadow-sm md:p-8">
-            {/* Top Header Bar */}
             <div className="flex flex-col items-start justify-between gap-4 pb-6 sm:flex-row sm:items-center">
                 <p className="text-xs font-medium text-slate-500">
                     Showing <span className="font-semibold text-slate-800">{showingStart}</span> to{' '}
@@ -272,40 +159,32 @@ export default function ScholarshipsListUI({ filters }: ScholarshipsListProps) {
                 </div>
             </div>
 
-            {/* Table Area */}
-            <div className="my-2 w-full overflow-x-auto">
-                <table className="w-full min-w-[700px] table-fixed border-collapse text-left">
+            <div className={`my-2 w-full transition-opacity ${loading ? 'opacity-50' : 'opacity-100'}`}>
+                <table className="w-full table-fixed border-collapse text-left">
                     <thead>
                         <tr className="border-b border-gray-100 text-xs font-semibold text-slate-500">
                             <th className="w-[40%] pb-4 font-semibold">Scholarship Name</th>
-                            <th className="w-[15%] pb-4 font-semibold">Amount</th>
+                            <th className="hidden w-[15%] pb-4 font-semibold sm:table-cell">Amount</th>
                             <th className="w-[18%] pb-4 font-semibold">Deadline</th>
-                            <th className="w-[15%] pb-4 font-semibold">Country</th>
+                            <th className="hidden w-[15%] pb-4 font-semibold md:table-cell">Country</th>
                             <th className="w-[12%] pb-4 text-right font-semibold">Action</th>
                         </tr>
                     </thead>
 
                     <tbody className="divide-y divide-gray-100/80 text-xs">
-                        {currentScholarships.length === 0 ? (
+                        {scholarships.length === 0 ? (
                             <tr>
                                 <td colSpan={5} className="py-12 text-center text-slate-400">
                                     No scholarships match the selected filters.
                                 </td>
                             </tr>
                         ) : (
-                            currentScholarships.map((scholarship: any, index: number) => {
-                                const rowKey =
-                                    scholarship._id || scholarship.id || `scholarship-${index}`;
-
+                            scholarships.map((scholarship: any) => {
                                 let amountDisplay = scholarship.award?.type || 'N/A';
                                 if (scholarship.award?.estimatedValue) {
                                     const { currency, min, max } = scholarship.award.estimatedValue;
                                     const currSymbol =
-                                        currency === 'GBP'
-                                            ? '£'
-                                            : currency === 'USD'
-                                                ? '$'
-                                                : `${currency} `;
+                                        currency === 'GBP' ? '£' : currency === 'USD' ? '$' : `${currency} `;
                                     if (min && max) {
                                         amountDisplay = `${currSymbol}${min.toLocaleString()} - ${currSymbol}${max.toLocaleString()}`;
                                     } else if (max) {
@@ -315,29 +194,23 @@ export default function ScholarshipsListUI({ filters }: ScholarshipsListProps) {
                                     amountDisplay = scholarship.award?.amount || scholarship.amount;
                                 }
 
-                                const deadlineDisplay =
-                                    scholarship.deadlines?.[0]?.date ||
-                                    scholarship.deadline ||
-                                    'N/A';
+                                const deadlineDisplay = scholarship.deadlines?.[0]?.date || 'N/A';
 
                                 return (
                                     <tr
-                                        key={rowKey}
+                                        key={scholarship._id}
                                         className="h-[104px] transition-colors hover:bg-slate-50/40"
                                     >
                                         <td className="break-words py-5 pr-4 align-top">
                                             <div className="line-clamp-1 break-words text-sm font-bold text-slate-900">
                                                 {scholarship.scholarshipName}
                                             </div>
-
                                             <p className="line-clamp-2 mt-1.5 overflow-hidden break-words text-xs font-normal leading-relaxed text-slate-500">
-                                                {scholarship.description ||
-                                                    scholarship.details ||
-                                                    'No description provided.'}
+                                                {scholarship.description || scholarship.details || 'No description provided.'}
                                             </p>
                                         </td>
 
-                                        <td className="break-words py-5 pr-2 align-top text-xs font-bold text-slate-900">
+                                        <td className="hidden break-words py-5 pr-2 align-top text-xs font-bold text-slate-900 sm:table-cell">
                                             {amountDisplay}
                                         </td>
 
@@ -345,7 +218,7 @@ export default function ScholarshipsListUI({ filters }: ScholarshipsListProps) {
                                             {deadlineDisplay}
                                         </td>
 
-                                        <td className="break-words py-5 pr-2 align-top text-xs font-medium text-slate-800">
+                                        <td className="hidden break-words py-5 pr-2 align-top text-xs font-medium text-slate-800 md:table-cell">
                                             {scholarship.country || 'N/A'}
                                         </td>
 
@@ -365,7 +238,6 @@ export default function ScholarshipsListUI({ filters }: ScholarshipsListProps) {
                 </table>
             </div>
 
-            {/* Dynamic Smart Pagination Footer */}
             <div className="flex items-center justify-center gap-1.5 border-t border-gray-100 pt-6">
                 <button
                     disabled={currentPage <= 1}
@@ -375,28 +247,20 @@ export default function ScholarshipsListUI({ filters }: ScholarshipsListProps) {
                     Prev
                 </button>
 
-                {getPaginationRange().map((page, idx) => {
-                    if (page === '...') {
-                        return (
-                            <span key={`ellipsis-${idx}`} className="px-1 text-xs text-slate-400">
-                                ...
-                            </span>
-                        );
-                    }
-
-                    return (
+                {getPaginationRange().map((page, idx) =>
+                    page === '...' ? (
+                        <span key={`ellipsis-${idx}`} className="px-1 text-xs text-slate-400">...</span>
+                    ) : (
                         <button
                             key={`page-btn-${page}`}
                             onClick={() => handlePageClick(Number(page))}
-                            className={`h-8 w-8 rounded-lg text-xs font-semibold transition ${currentPage === page
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-transparent text-slate-700 hover:bg-gray-100'
+                            className={`h-8 w-8 rounded-lg text-xs font-semibold transition ${currentPage === page ? 'bg-blue-600 text-white' : 'bg-transparent text-slate-700 hover:bg-gray-100'
                                 }`}
                         >
                             {page}
                         </button>
-                    );
-                })}
+                    )
+                )}
 
                 <button
                     disabled={currentPage >= totalPages || totalPages === 0}

@@ -13,14 +13,6 @@ export interface RegionConfig {
     countries: string[];
 }
 
-export interface RegionConfig {
-    id: string;
-    label: string;
-    color: string;
-    hexColor: string;
-    countries: string[];
-}
-
 export const REGIONS_DATA: RegionConfig[] = [
     {
         id: "north-america",
@@ -75,7 +67,7 @@ export const REGIONS_DATA: RegionConfig[] = [
             "Malaysia", "Maldives", "Mongolia", "Myanmar", "Nepal", "North Korea", "Dem. Rep. Korea",
             "Oman", "Pakistan", "Palestine", "Philippines", "Qatar", "Saudi Arabia", "Singapore",
             "South Korea", "Korea, Republic of", "Sri Lanka", "Syria", "Taiwan", "Tajikistan",
-            "Thailand", "Timor-Leste", "Turkmenistan", "United Arab Emirates", "UAE", "Uzbekistan",
+            "Thailand", "Timor-Leste", "Turkmenistan", "United Arab Emirates", "UAE", "OAE", "Uzbekistan",
             "Vietnam", "Yemen"
         ],
     },
@@ -110,34 +102,47 @@ export const REGIONS_DATA: RegionConfig[] = [
     },
 ];
 
+// Universities mapping (54 assigned to United Arab Emirates)
 const UNIVERSITIES_COUNT: Record<string, number> = {
-    Argentina: 1, Armenia: 1, Australia: 3, Austria: 1, Azerbaijan: 1, Bahrain: 1,
-    Bangladesh: 1, Belgium: 1, Brazil: 1, Brunei: 1, Bulgaria: 1, Cambodia: 1,
-    Canada: 4, Chile: 1, China: 5, Colombia: 1, "Costa Rica": 1, Croatia: 1,
-    Cyprus: 1, "Czech Republic": 1, Czechia: 1, Denmark: 1, Ecuador: 1, Egypt: 1,
-    Estonia: 1, Ethiopia: 1, Fiji: 1, Finland: 1, France: 3, Georgia: 1,
-    Germany: 5, Ghana: 1, Greece: 1, "Hong Kong": 2, Hungary: 1, Iceland: 1,
-    India: 4, Indonesia: 1, Iran: 1, Ireland: 1, Israel: 1, Italy: 2, Japan: 3,
-    Jordan: 1, Kazakhstan: 2, Kenya: 1, Kuwait: 1, Kyrgyzstan: 2, Laos: 1,
-    Latvia: 1, Lebanon: 1, Lithuania: 1, Malaysia: 1, Malta: 1, Mexico: 2,
-    Mongolia: 1, Morocco: 1, Nepal: 1, Netherlands: 2, "New Zealand": 2,
-    Nigeria: 1, Norway: 1, Oman: 1, Pakistan: 1, Palestine: 1, Peru: 1,
-    Philippines: 1, Poland: 1, Portugal: 1, Qatar: 1, Romania: 1, Russia: 1,
-    "Saudi Arabia": 1, Senegal: 1, Serbia: 1, Singapore: 1, Slovakia: 1,
-    Slovenia: 1, "South Africa": 2, "South Korea": 3, Spain: 2, "Sri Lanka": 1,
-    Sweden: 2, Switzerland: 3, Taiwan: 1, Tanzania: 1, Thailand: 1, Tunisia: 1,
-    Turkey: 2, Uganda: 1, "United Arab Emirates": 1, "United Kingdom": 5,
-    "United States of America": 2, "United States": 2, Uruguay: 1, Uzbekistan: 1,
-    Vietnam: 1,
+    "United Kingdom": 86,
+    "UK": 86,
+    "Canada": 76,
+    "South Korea": 73,
+    "Korea, Republic of": 73,
+    "Italy": 77,
+    "Germany": 79,
+    "Japan": 78,
+    "Singapore": 22,
+    "Netherlands": 52,
+    "Turkey": 85,
+    "Turkiye": 85,
+    "Malaysia": 70,
+    "United Arab Emirates": 54, // Match key for world-atlas
+    "UAE": 54,
+    "OAE": 54,
+    "Switzerland": 50,
+    "Finland": 37,
+    "Sweden": 39,
+    "Australia": 42,
+    "United States of America": 74,
+    "United States": 74,
+    "USA": 74,
+    "China": 87,
 };
 
+// Scholarships mapping
 const SCHOLARSHIPS_COUNT: Record<string, number> = {
-    Australia: 1, Canada: 1, China: 1, France: 1, Germany: 1, Hungary: 1,
-    Japan: 1, "South Korea": 1, Switzerland: 1, Turkey: 1, "United Kingdom": 3,
-    "United States of America": 2, "United States": 2,
+    "United States of America": 19,
+    "United States": 19,
+    "USA": 19,
+    "United Kingdom": 17,
+    "UK": 17,
+    "China": 5,
+    "South Korea": 5,
+    "Korea, Republic of": 5,
+    "Germany": 8,
 };
 
-// Быстрая хеш-таблица для поиска региона страны за O(1)
 const COUNTRY_TO_REGION = new Map<string, string>();
 REGIONS_DATA.forEach((region) => {
     region.countries.forEach((country) => {
@@ -145,13 +150,13 @@ REGIONS_DATA.forEach((region) => {
     });
 });
 
-function getBlueColorByData(unis: number, scholarships: number): string {
-    const total = unis + scholarships;
-    if (total === 0) return "#F3F4F6";
-    if (total <= 1) return "#93C5FD";
-    if (total <= 3) return "#3B82F6";
-    if (total <= 5) return "#1D4ED8";
-    return "#1E3A8A";
+function getBlueColorByData(unis: number): string {
+    if (unis === 0) return "#F3F4F6";       // No data (light gray)
+    if (unis <= 25) return "#BFDBFE";      // Light blue
+    if (unis <= 45) return "#60A5FA";      // Mid-light blue
+    if (unis <= 65) return "#2563EB";      // Medium blue
+    if (unis <= 80) return "#1E40AF";      // Dark blue
+    return "#0F172A";                      // Deepest dark blue
 }
 
 interface HoveredCountry {
@@ -174,7 +179,6 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
         [selectedRegionId]
     );
 
-    // Оптимизированный обработчик движения мыши
     const handleMouseMove = useCallback((e: React.MouseEvent<SVGPathElement>, name: string, unis: number, scholarships: number) => {
         const x = e.clientX;
         const y = e.clientY;
@@ -189,7 +193,7 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
     }, []);
 
     return (
-        <div className="w-full h-full relative bg-slate-50">
+        <div className="w-full h-full relative bg-[rgb(246,247,251)]">
             <ComposableMap
                 projectionConfig={{ scale: 145 }}
                 width={800}
@@ -208,7 +212,7 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
                             const regionId = COUNTRY_TO_REGION.get(countryName?.toLowerCase());
                             const isInSelectedRegion = selectedRegionId && regionId === selectedRegionId;
 
-                            let fillColor = getBlueColorByData(unis, scholarships);
+                            let fillColor = getBlueColorByData(unis);
 
                             if (selectedRegionId) {
                                 if (isInSelectedRegion && activeRegion) {
@@ -238,7 +242,7 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
                                         hover: {
                                             fill: selectedRegionId
                                                 ? (isInSelectedRegion && activeRegion ? activeRegion.hexColor : "#D1D5DB")
-                                                : (hasData ? "#2563EB" : "#D1D5DB"),
+                                                : (hasData ? "#1D4ED8" : "#D1D5DB"),
                                             stroke: "#0F172A",
                                             strokeWidth: 1,
                                             outline: "none",
@@ -279,4 +283,4 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
             )}
         </div>
     );
-}
+} 

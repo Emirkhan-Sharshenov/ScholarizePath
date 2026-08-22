@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 
 interface LocationObject {
     country?: string;
@@ -11,6 +12,7 @@ interface LocationObject {
 
 interface University {
     id?: string | number;
+    _id?: string | number;
     name?: string | { name?: string; en?: string };
     shortName?: string;
     location?: string | LocationObject;
@@ -27,7 +29,6 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
     const [universities, setUniversities] = useState<University[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
-    const [favorites, setFavorites] = useState<Record<string | number, boolean>>({});
 
     useEffect(() => {
         let isMounted = true;
@@ -52,8 +53,8 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                         list = (data as any).data;
                     }
 
-                    // Ограничиваем ровно до 12 штук
-                    setUniversities(list.slice(0, 12));
+                    // Ограничиваем ровно до 8 элементов
+                    setUniversities(list.slice(0, 8));
                     setLoading(false);
                 }
             })
@@ -68,10 +69,6 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
             isMounted = false;
         };
     }, [countryName]);
-
-    const toggleFavorite = (id: string | number) => {
-        setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
-    };
 
     // Безопасная обработка имени
     const formatName = (uni: University): string => {
@@ -110,39 +107,27 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
         return `#${index + 1} in the World`;
     };
 
-    // Безопасная обработка ссылки
-    const formatUrl = (uni: University): string => {
-        if (typeof uni.websiteUrl === "string") return uni.websiteUrl;
-        if (typeof uni.websiteUrl === "object" && uni.websiteUrl !== null) {
-            return uni.websiteUrl.url || "#";
-        }
-        return "#";
+    // Получаем ID университета (поддержка id и _id)
+    const getUniversityId = (uni: University, fallbackIndex: number): string | number => {
+        return uni.id ?? uni._id ?? fallbackIndex;
     };
 
     return (
         <div className="w-full mt-8">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 className="text-xl font-bold text-slate-900">
-                        Top Universities {countryName ? `in ${countryName}` : ""}
-                    </h1>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                        Explore some of the best universities around the world
-                    </p>
-                </div>
-                <a
-                    href="/universities"
-                    className="text-xs font-semibold text-slate-700 hover:text-slate-900 flex items-center gap-1 transition-colors"
-                >
-                    View All <span className="text-sm">→</span>
-                </a>
+            <div className="mb-6">
+                <h1 className="text-xl font-bold text-slate-900">
+                    Suggested Universities {countryName ? `in ${countryName}` : ""}
+                </h1>
+                <p className="text-xs text-slate-500 mt-0.5">
+                    Explore some of the best universities around the world
+                </p>
             </div>
 
-            {/* Skeleton Loading (12 блоков) */}
+            {/* Skeleton Loading (8 блоков) */}
             {loading && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {Array.from({ length: 12 }).map((_, i) => (
+                    {Array.from({ length: 8 }).map((_, i) => (
                         <div
                             key={i}
                             className="h-[160px] rounded-2xl bg-gray-100 animate-pulse w-full"
@@ -163,39 +148,23 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                 <p className="text-sm text-slate-500 py-4">Университеты не найдены.</p>
             )}
 
-            {/* Grid Layout ровно на 12 элементов */}
+            {/* Grid Layout (8 элементов) */}
             {!loading && !error && universities.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {universities.map((uni, idx) => {
-                        const id = uni.id || idx;
-                        const isFav = favorites[id];
+                        const uniId = getUniversityId(uni, idx);
                         const uniName = formatName(uni);
                         const locationText = formatLocation(uni);
                         const rankText = formatRank(uni, idx);
-                        const webUrl = formatUrl(uni);
 
                         return (
                             <div
-                                key={id}
+                                key={uniId}
                                 className="w-full rounded-2xl border border-slate-100 bg-white p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group"
                             >
-                                {/* Favorite Button */}
-                                <button
-                                    onClick={() => toggleFavorite(id)}
-                                    className="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition-colors z-10"
-                                    aria-label="Add to favorites"
-                                >
-                                    <svg
-                                        className={`w-5 h-5 ${isFav ? "fill-red-500 text-red-500" : "fill-none stroke-current stroke-2"}`}
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                    </svg>
-                                </button>
-
                                 {/* Content Section */}
                                 <div>
-                                    <h3 className="text-sm font-bold text-slate-900 pr-6 leading-snug line-clamp-2">
+                                    <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2">
                                         {uniName}
                                     </h3>
 
@@ -214,21 +183,13 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                                         <span className="truncate">{locationText}</span>
                                     </div>
                                 </div>
-
-                                {/* Footer Section */}
                                 <div className="flex items-center justify-between mt-6 pt-2">
-                                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-blue-50 text-blue-600">
-                                        {rankText}
-                                    </span>
-
-                                    <a
-                                        href={webUrl}
-                                        target={webUrl !== "#" ? "_blank" : "_self"}
-                                        rel="noopener noreferrer"
+                                    <Link
+                                        href={`/universities/${uniId}`}
                                         className="text-xs font-semibold text-slate-800 hover:text-blue-600 flex items-center gap-1 transition-colors"
                                     >
                                         View Details <span className="text-sm">→</span>
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                         );
