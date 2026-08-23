@@ -53,11 +53,23 @@ export async function GET(request: Request) {
             match.degreeLevels = degreeLevel;
         }
 
+        // Фильтруем записи без указанного рейтинга/стоимости при сортировке
+        if (sortBy === "Ranking: High to Low" || sortBy === "Ranking: Low to High") {
+            match.$and = match.$and || [];
+            match.$and.push({
+                $or: [
+                    { "ranking.global": { $exists: true, $gt: 0 } },
+                    { "ranking.qs": { $exists: true, $gt: 0 } },
+                    { ranking: { $exists: true, $gt: 0 } }
+                ]
+            });
+        }
+
         const sortMap: Record<string, any> = {
-            "Ranking: High to Low": { "ranking.global": 1 },
-            "Ranking: Low to High": { "ranking.global": -1 },
-            "Tuition: Low to High": { "tuition.bachelor": 1 },
-            "Tuition: High to Low": { "tuition.bachelor": -1 },
+            "Ranking: High to Low": { "ranking.global": 1, "ranking.qs": 1, ranking: 1 },
+            "Ranking: Low to High": { "ranking.global": -1, "ranking.qs": -1, ranking: -1 },
+            "Tuition: Low to High": { "tuition.bachelor": 1, tuition: 1 },
+            "Tuition: High to Low": { "tuition.bachelor": -1, tuition: -1 },
         };
         const sort = sortMap[sortBy] || { "ranking.global": 1 };
 

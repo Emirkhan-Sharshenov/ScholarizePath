@@ -11,25 +11,31 @@ export default function ScholarshipsPage() {
   const [filters, setFilters] = useState<FilterState>(initialFilters);
 
   return (
-    <div className="min-h-screen bg-[rgb(246,247,251)]">
-      <div className="px-6 pt-6">
-        <h1 className="ml-[35px] text-[30px] font-bold text-slate-900">
+    <div className="min-h-screen bg-[rgb(246,247,251)] pb-12">
+      {/* HEADER SECTION */}
+      <div className="px-4 pt-6 sm:px-8">
+        <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
           Scholarships
         </h1>
-        <h2 className="ml-[35px] text-[20px] text-gray-500">
+        <h2 className="mt-1 text-sm text-gray-500 sm:text-base">
           Discover funding opportunities, grants, and financial aid to support your international education
         </h2>
       </div>
 
-      <div className="flex flex-col">
-        <div className="mt-8 flex gap-6 px-8">
-          <div className="w-[320px] shrink-0">
+      {/* MAIN CONTENT AREA */}
+      <div className="mt-6 px-4 sm:px-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+
+          {/* DESKTOP FILTER SIDEBAR ONLY */}
+          <div className="hidden w-[320px] shrink-0 lg:block">
             <ScholarshipsFilter filters={filters} setFilters={setFilters} />
           </div>
 
-          <div className="flex-1">
-            <ScholarshipsListUI filters={filters} />
+          {/* SCHOLARSHIPS LIST & MOBILE DRAWER TOGGLE */}
+          <div className="min-w-0 flex-1">
+            <ScholarshipsListUI filters={filters} setFilters={setFilters} />
           </div>
+
         </div>
       </div>
     </div>

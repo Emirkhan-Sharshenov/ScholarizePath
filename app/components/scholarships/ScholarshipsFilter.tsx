@@ -60,6 +60,7 @@ interface ScholarshipsFilterProps {
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
   onApply?: () => void;
   onReset?: () => void;
+  isMobileModal?: boolean;
 }
 
 export default function ScholarshipsFilter({
@@ -67,6 +68,7 @@ export default function ScholarshipsFilter({
   setFilters,
   onApply,
   onReset,
+  isMobileModal = false,
 }: ScholarshipsFilterProps) {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -85,26 +87,30 @@ export default function ScholarshipsFilter({
   };
 
   return (
-    <div className="w-full max-w-xs rounded-2xl border border-gray-100 bg-white p-5 font-sans shadow-sm">
-      <h2 className="mb-5 text-lg font-bold text-slate-900">Filter Scholarships</h2>
+    <div className={isMobileModal ? 'w-full font-sans' : 'w-full max-w-xs rounded-2xl border border-gray-100 bg-white p-5 font-sans shadow-sm'}>
+      {!isMobileModal && (
+        <h2 className="mb-5 text-lg font-bold text-slate-900">Filter Scholarships</h2>
+      )}
 
       <div className="space-y-4">
-        {/* Поиск */}
-        <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-800">
-            Search
-          </label>
-          <input
-            type="text"
-            name="search"
-            value={filters.search}
-            onChange={handleChange}
-            placeholder="Search by name, provider..."
-            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-          />
-        </div>
+        {/* Search Input (Hidden in mobile drawer to avoid duplicate input) */}
+        {!isMobileModal && (
+          <div>
+            <label className="mb-1.5 block text-xs font-bold text-slate-800">
+              Search
+            </label>
+            <input
+              type="text"
+              name="search"
+              value={filters.search}
+              onChange={handleChange}
+              placeholder="Search by name, provider..."
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+            />
+          </div>
+        )}
 
-        {/* Страна */}
+        {/* Country */}
         <div>
           <label className="mb-1.5 block text-xs font-bold text-slate-800">
             Country
@@ -127,7 +133,7 @@ export default function ScholarshipsFilter({
           </div>
         </div>
 
-        {/* Уровень обучения (Scholarship Type / Level) */}
+        {/* Study Level */}
         <div>
           <label className="mb-1.5 block text-xs font-bold text-slate-800">
             Study Level
@@ -150,7 +156,7 @@ export default function ScholarshipsFilter({
           </div>
         </div>
 
-        {/* Область знаний */}
+        {/* Field of Study */}
         <div>
           <label className="mb-1.5 block text-xs font-bold text-slate-800">
             Field of Study
@@ -173,7 +179,7 @@ export default function ScholarshipsFilter({
           </div>
         </div>
 
-        {/* Минимальная сумма (Min Award Amount) */}
+        {/* Min Amount */}
         <div>
           <label className="mb-1.5 block text-xs font-bold text-slate-800">
             Min Award Amount ($)
@@ -188,7 +194,7 @@ export default function ScholarshipsFilter({
           />
         </div>
 
-        {/* Дедлайн до даты (Deadline Before) */}
+        {/* Deadline Before */}
         <div>
           <label className="mb-1.5 block text-xs font-bold text-slate-800">
             Deadline Before
@@ -202,7 +208,7 @@ export default function ScholarshipsFilter({
           />
         </div>
 
-        {/* Кнопки */}
+        {/* Action Buttons */}
         <div className="flex items-center justify-between gap-3 pt-3">
           <button
             type="button"

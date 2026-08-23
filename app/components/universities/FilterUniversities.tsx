@@ -102,7 +102,7 @@ export default function FilterUniversities({
     };
 
     return (
-        <div className="w-full max-w-xs rounded-2xl border border-gray-100 bg-white p-5 font-sans shadow-sm">
+        <div className="w-full rounded-2xl border border-gray-100 bg-white p-5 font-sans shadow-xs">
             <h2 className="mb-5 text-lg font-bold text-slate-900">Filter Universities</h2>
 
             <div className="space-y-4">
@@ -240,12 +240,12 @@ export default function FilterUniversities({
                     </div>
                 </div>
 
-                {/* Buttons */}
+                {/* Action Buttons */}
                 <div className="flex items-center justify-between gap-3 pt-3">
                     <button
                         type="button"
                         onClick={handleApply}
-                        className="flex-1 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.98]"
+                        className="flex-1 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-blue-700 active:scale-[0.98]"
                     >
                         Apply Filters
                     </button>

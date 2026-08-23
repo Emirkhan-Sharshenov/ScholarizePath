@@ -20,12 +20,7 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Блок университетов (min-w-0 защищает от поломки flex-сеток) */}
-        <section className="w-full flex justify-center px-4 mt-6 min-w-0">
-          <div className="w-full max-w-7xl min-w-0">
-            <TopUniversitiesCard countryName={selectedCountry} />
-          </div>
-        </section>
+      
       </div>
     </div>
   );
