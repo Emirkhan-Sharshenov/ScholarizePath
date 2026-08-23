@@ -21,7 +21,8 @@ export async function PATCH(request: AuthRequest) {
             nationality,
             gpa,
             sat,
-            englishTest,
+            englishTestType, // 'ielts' | 'toefl' from AdditionalInfoForm
+            englishScore,
             preferredField,
             preferredCountry,
             programLevel,
@@ -39,21 +40,32 @@ export async function PATCH(request: AuthRequest) {
             );
         }
 
+        // Schema enum only accepts "IELTS" / "TOEFL" (uppercase); the form
+        // sends lowercase 'ielts' / 'toefl' — normalize here so it actually
+        // matches the enum instead of silently failing validation.
+        const normalizedTestType =
+            englishTestType === "ielts"
+                ? "IELTS"
+                : englishTestType === "toefl"
+                    ? "TOEFL"
+                    : user.profile?.englishTest?.type ?? null;
+
         user.profile = {
             ...user.profile,
-            age,
-            nationality,
-            gpa,
-            sat,
-            englishTest,
-            preferredField,
-            preferredCountry,
-            programLevel,
+            age: age ?? user.profile?.age ?? null,
+            nationality: nationality ?? user.profile?.nationality ?? null,
+            gpa: gpa ?? user.profile?.gpa ?? null,
+            sat: sat ?? user.profile?.sat ?? null,
+            englishTest: {
+                type: normalizedTestType,
+                score: englishScore ?? user.profile?.englishTest?.score ?? null,
+            },
+            preferredField: preferredField ?? user.profile?.preferredField ?? null,
+            preferredCountry: preferredCountry ?? user.profile?.preferredCountry ?? null,
+            programLevel: programLevel ?? user.profile?.programLevel ?? null,
         };
 
         await user.save();
-
-   
 
         return NextResponse.json(
             {

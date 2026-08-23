@@ -1,3 +1,6 @@
+import { connectDB } from "@/lib/mongodb";
+import Universities from "@/models/Universities";
+import Scholarship from "@/models/Scholarship";
 import type { UniversityCardData, ScholarshipCardData } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -82,37 +85,6 @@ function clamp(n: number, min: number, max: number) {
 function resolvedLimit(value: unknown, fallback = 8) {
     const n = toNumber(value);
     return clamp(n ?? fallback, 1, 20);
-}
-
-// ---------------------------------------------------------------------------
-// Fetch with timeout — a hung internal API must never hang the whole chat
-// request indefinitely.
-// ---------------------------------------------------------------------------
-async function fetchJSON(url: string, cookie?: string, timeoutMs = 8000) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-        const res = await fetch(url, {
-            headers: cookie ? { cookie } : undefined,
-            cache: "no-store",
-            signal: controller.signal,
-        });
-        if (!res.ok) throw new Error(`${url} responded ${res.status}`);
-        return await res.json();
-    } catch (err: any) {
-        if (err?.name === "AbortError") {
-            throw new Error(`${url} timed out after ${timeoutMs}ms`);
-        }
-        throw err;
-    } finally {
-        clearTimeout(timer);
-    }
-}
-
-function asArray(raw: any, key: string): any[] {
-    if (Array.isArray(raw)) return raw;
-    if (raw && Array.isArray(raw[key])) return raw[key];
-    return [];
 }
 
 // ---------------------------------------------------------------------------
@@ -223,7 +195,9 @@ function anyLevelMatches(dbLevels: unknown, queryLevel?: string): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// searchUniversities
+// searchUniversities — queries MongoDB directly instead of the paginated
+// public API, so the AI's own matching logic (aliases, tokenized search)
+// runs over the FULL dataset, not just one page of 5-50 results.
 // ---------------------------------------------------------------------------
 export async function searchUniversities(
     args: {
@@ -233,16 +207,30 @@ export async function searchUniversities(
         maxTuitionUSD?: unknown;
         limit?: unknown;
     },
-    baseUrl: string,
-    cookie?: string
+    _baseUrl: string,
+    _cookie?: string
 ): Promise<UniversityCardData[]> {
     const maxTuitionUSD = toNumber(args.maxTuitionUSD);
     const limit = resolvedLimit(args.limit);
 
-    const raw = await fetchJSON(`${baseUrl}/api/universities`, cookie);
-    const list = asArray(raw, "universities");
+    await connectDB();
 
-    const filtered = list.filter((u) => {
+    // Slim projection — only fields this function actually reads. Keeps the
+    // full-collection fetch cheap even at 1200+ documents.
+    const list = await Universities.find()
+        .select({
+            name: 1,
+            description: 1,
+            programs: 1,
+            searchKeywords: 1,
+            location: 1,
+            degreeLevels: 1,
+            tuition: 1,
+            ranking: 1,
+        })
+        .lean();
+
+    const filtered = list.filter((u: any) => {
         if (!u || typeof u !== "object") return false;
 
         const programsText = Array.isArray(u.programs)
@@ -261,23 +249,24 @@ export async function searchUniversities(
             toNumber(u.tuition?.internationalUSD) ??
             toNumber(u.tuition?.international) ??
             toNumber(u.tuition?.usdPerYear) ??
-            toNumber(u.tuition?.yearly);
+            toNumber(u.tuition?.yearly) ??
+            toNumber(u.tuition?.bachelor);
         if (maxTuitionUSD !== undefined && tuitionValue !== undefined && tuitionValue > maxTuitionUSD) return false;
 
         return true;
     });
 
     // Sort by ranking when available so "top universities" surfaces the best first.
-    filtered.sort((a, b) => {
+    filtered.sort((a: any, b: any) => {
         const rankA = toNumber(a?.ranking?.national) ?? toNumber(a?.ranking?.global) ?? Infinity;
         const rankB = toNumber(b?.ranking?.national) ?? toNumber(b?.ranking?.global) ?? Infinity;
         return rankA - rankB;
     });
 
     return filtered
-        .filter((u) => u?._id && u?.name) // never surface a card we can't link/name
+        .filter((u: any) => u?._id && u?.name) // never surface a card we can't link/name
         .slice(0, limit)
-        .map((u) => ({
+        .map((u: any) => ({
             id: String(u._id),
             name: String(u.name),
             location: [u.location?.city, u.location?.country].filter(Boolean).join(", ") || "Location TBD",
@@ -290,7 +279,7 @@ export async function searchUniversities(
 }
 
 // ---------------------------------------------------------------------------
-// searchScholarships
+// searchScholarships — same direct-DB approach.
 // ---------------------------------------------------------------------------
 export async function searchScholarships(
     args: {
@@ -301,16 +290,28 @@ export async function searchScholarships(
         fullyFundedOnly?: unknown;
         limit?: unknown;
     },
-    baseUrl: string,
-    cookie?: string
+    _baseUrl: string,
+    _cookie?: string
 ): Promise<ScholarshipCardData[]> {
     const limit = resolvedLimit(args.limit);
     const fullyFundedOnly = toBoolean(args.fullyFundedOnly) ?? false;
 
-    const raw = await fetchJSON(`${baseUrl}/api/scholarships`, cookie);
-    const list = asArray(raw, "scholarships");
+    await connectDB();
 
-    const filtered = list.filter((s) => {
+    const list = await Scholarship.find()
+        .select({
+            scholarshipName: 1,
+            description: 1,
+            searchKeywords: 1,
+            fieldOfStudy: 1,
+            country: 1,
+            studyLevel: 1,
+            award: 1,
+            isOpen: 1,
+        })
+        .lean();
+
+    const filtered = list.filter((s: any) => {
         if (!s || typeof s !== "object") return false;
 
         const text = `${s.scholarshipName ?? ""} ${s.description ?? ""} ${(s.searchKeywords ?? []).join(" ")} ${s.fieldOfStudy ?? ""
@@ -333,9 +334,9 @@ export async function searchScholarships(
     });
 
     return filtered
-        .filter((s) => s?._id && s?.scholarshipName)
+        .filter((s: any) => s?._id && s?.scholarshipName)
         .slice(0, limit)
-        .map((s) => {
+        .map((s: any) => {
             const val = s.award?.estimatedValue;
             const min = toNumber(val?.min);
             const max = toNumber(val?.max);

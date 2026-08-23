@@ -1,11 +1,4 @@
-import { NextResponse } from "next/server";
+import { logout } from "@/services/auth.service";
+import { withErrorHandler } from "@/middleware/error.middleware";
 
-export const POST = () => {
-  return NextResponse.json(
-    {
-      success: true,
-      message: "Logged out",
-    },
-    { status: 200 }
-  );
-};
+export const POST = withErrorHandler(logout);

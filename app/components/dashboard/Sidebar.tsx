@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Home, GraduationCap, University, Bot, Scale, BookOpen, Heart, SquareText } from "lucide-react";
+import { Home, GraduationCap, University, Bot, Scale, BookOpen, Heart, SquareText, LogOut, Loader2 } from "lucide-react";
 import { useSidebar } from "./SidebarContext";
 
 const NAV_ITEMS = [
@@ -20,6 +21,20 @@ const NAV_ITEMS = [
 export default function Sidebar() {
   const { collapsed, setCollapsed } = useSidebar();
   const pathname = usePathname();
+  const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/login");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setLoggingOut(false);
+    }
+  };
 
   return (
     <aside
@@ -72,6 +87,30 @@ export default function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Logout — прижат к низу через mt-auto, та же px-3/w-14 сетка, что у остальных пунктов */}
+      <div className="mt-auto mb-4 w-full px-3">
+        <button
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="flex h-11 w-full items-center rounded-xl text-red-600 transition-colors duration-200 hover:bg-red-50 disabled:opacity-50"
+        >
+          <div className="flex h-11 w-14 shrink-0 items-center justify-center">
+            {loggingOut ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <LogOut className="h-5 w-5" />
+            )}
+          </div>
+
+          <span
+            className={`whitespace-nowrap font-medium transition-all duration-200 ease-in-out ${collapsed ? "pointer-events-none -translate-x-2 opacity-0" : "translate-x-0 opacity-100"
+              }`}
+          >
+            Logout
+          </span>
+        </button>
+      </div>
     </aside>
   );
 }
