@@ -2,24 +2,25 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { ChevronDown } from 'lucide-react';
-import { FilterState } from './ScholarshipsFilter';
+import { ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
+import ScholarshipsFilter, { FilterState } from './ScholarshipsFilter';
 
 interface ScholarshipsListProps {
     filters: FilterState;
+    setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
 }
 
-export default function ScholarshipsListUI({ filters }: ScholarshipsListProps) {
+export default function ScholarshipsListUI({ filters, setFilters }: ScholarshipsListProps) {
     const [scholarships, setScholarships] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [sortBy, setSortBy] = useState('Deadline (Earliest)');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
+    const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
     const itemsPerPage = 5;
 
-    // Debounce search so we don't fetch on every keystroke
     const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
     useEffect(() => {
         const timer = setTimeout(() => setDebouncedSearch(filters.search), 350);
@@ -82,193 +83,221 @@ export default function ScholarshipsListUI({ filters }: ScholarshipsListProps) {
         fetchScholarships();
     }, [fetchScholarships]);
 
-    const showingStart = totalCount === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
-    const showingEnd = Math.min(currentPage * itemsPerPage, totalCount);
-
-    const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSortBy(e.target.value);
-    };
-
-    const handlePageClick = (page: number) => {
-        setCurrentPage(page);
-    };
-
-    const getPaginationRange = () => {
-        const delta = 1;
-        const range: (number | string)[] = [];
-
-        if (totalPages <= 7) {
-            for (let i = 1; i <= totalPages; i++) range.push(i);
-            return range;
+    const getAmountDisplay = (scholarship: any) => {
+        if (scholarship.award?.estimatedValue) {
+            const { currency, min, max } = scholarship.award.estimatedValue;
+            const currSymbol = currency === 'GBP' ? '£' : currency === 'USD' ? '$' : `${currency} `;
+            if (min && max) return `${currSymbol}${min.toLocaleString()} - ${currSymbol}${max.toLocaleString()}`;
+            if (max) return `${currSymbol}${max.toLocaleString()}`;
         }
-
-        const leftSibling = Math.max(currentPage - delta, 1);
-        const rightSibling = Math.min(currentPage + delta, totalPages);
-        const showLeftEllipsis = leftSibling > 2;
-        const showRightEllipsis = rightSibling < totalPages - 1;
-
-        if (!showLeftEllipsis && showRightEllipsis) {
-            for (let i = 1; i <= 3 + 2 * delta; i++) range.push(i);
-            range.push('...');
-            range.push(totalPages);
-        } else if (showLeftEllipsis && !showRightEllipsis) {
-            range.push(1);
-            range.push('...');
-            for (let i = totalPages - (3 + 2 * delta) + 1; i <= totalPages; i++) range.push(i);
-        } else if (showLeftEllipsis && showRightEllipsis) {
-            range.push(1);
-            range.push('...');
-            for (let i = leftSibling; i <= rightSibling; i++) range.push(i);
-            range.push('...');
-            range.push(totalPages);
-        } else {
-            for (let i = 1; i <= totalPages; i++) range.push(i);
+        if (scholarship.award?.amount || scholarship.amount) {
+            return scholarship.award?.amount || scholarship.amount;
         }
-
-        return range;
+        return scholarship.award?.type || 'N/A';
     };
-
-    if (loading && scholarships.length === 0) {
-        return <div className="p-8 text-sm text-gray-500">Loading scholarships...</div>;
-    }
 
     return (
-        <div className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-6 font-sans shadow-sm md:p-8">
-            <div className="flex flex-col items-start justify-between gap-4 pb-6 sm:flex-row sm:items-center">
-                <p className="text-xs font-medium text-slate-500">
-                    Showing <span className="font-semibold text-slate-800">{showingStart}</span> to{' '}
-                    <span className="font-semibold text-slate-800">{showingEnd}</span> of{' '}
-                    <span className="font-semibold text-slate-800">{totalCount}</span> scholarships
-                </p>
-
-                <div className="flex items-center gap-2">
-                    <span className="whitespace-nowrap text-xs font-semibold text-slate-700">Sort by</span>
-                    <div className="relative">
-                        <select
-                            value={sortBy}
-                            onChange={handleSort}
-                            className="cursor-pointer appearance-none rounded-xl border border-gray-200/80 bg-slate-50 py-2 pl-3 pr-8 text-xs font-semibold text-slate-800 outline-none transition focus:border-blue-600 focus:bg-white"
-                        >
-                            <option value="Deadline (Earliest)">Deadline (Earliest)</option>
-                            <option value="Deadline (Latest)">Deadline (Latest)</option>
-                            <option value="Amount (Highest)">Amount (Highest)</option>
-                            <option value="Amount (Lowest)">Amount (Lowest)</option>
-                        </select>
-                        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
-                    </div>
+        <div className="w-full max-w-full font-sans">
+            {/* MOBILE SEARCH & FILTER BAR */}
+            <div className="mb-4 flex items-center gap-2.5 md:hidden">
+                <div className="relative flex-1">
+                    <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                        type="text"
+                        value={filters.search}
+                        onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
+                        placeholder="Search by name, provider..."
+                        className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-xs font-medium text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                    />
                 </div>
+                <button
+                    type="button"
+                    onClick={() => setIsMobileFilterOpen(true)}
+                    className="flex shrink-0 items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition active:scale-95 hover:bg-blue-700"
+                >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    Filters
+                </button>
             </div>
 
-            <div className={`my-2 w-full transition-opacity ${loading ? 'opacity-50' : 'opacity-100'}`}>
-                <table className="w-full table-fixed border-collapse text-left">
-                    <thead>
-                        <tr className="border-b border-gray-100 text-xs font-semibold text-slate-500">
-                            <th className="w-[40%] pb-4 font-semibold">Scholarship Name</th>
-                            <th className="hidden w-[15%] pb-4 font-semibold sm:table-cell">Amount</th>
-                            <th className="w-[18%] pb-4 font-semibold">Deadline</th>
-                            <th className="hidden w-[15%] pb-4 font-semibold md:table-cell">Country</th>
-                            <th className="w-[12%] pb-4 text-right font-semibold">Action</th>
-                        </tr>
-                    </thead>
+            {/* MOBILE FILTER MODAL */}
+            {isMobileFilterOpen && (
+                <div className="fixed inset-0 z-50 flex items-end bg-black/60 p-0 sm:items-center sm:justify-center sm:p-4 md:hidden">
+                    <div className="max-h-[85vh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-2xl">
+                        <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+                            <h3 className="text-sm font-bold text-slate-900">Filter Scholarships</h3>
+                            <button
+                                type="button"
+                                onClick={() => setIsMobileFilterOpen(false)}
+                                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <ScholarshipsFilter
+                            filters={filters}
+                            setFilters={setFilters}
+                            onApply={() => setIsMobileFilterOpen(false)}
+                            onReset={() => setIsMobileFilterOpen(false)}
+                            isMobileModal
+                        />
+                    </div>
+                </div>
+            )}
 
-                    <tbody className="divide-y divide-gray-100/80 text-xs">
-                        {scholarships.length === 0 ? (
-                            <tr>
-                                <td colSpan={5} className="py-12 text-center text-slate-400">
-                                    No scholarships match the selected filters.
-                                </td>
-                            </tr>
-                        ) : (
-                            scholarships.map((scholarship: any) => {
-                                let amountDisplay = scholarship.award?.type || 'N/A';
-                                if (scholarship.award?.estimatedValue) {
-                                    const { currency, min, max } = scholarship.award.estimatedValue;
-                                    const currSymbol =
-                                        currency === 'GBP' ? '£' : currency === 'USD' ? '$' : `${currency} `;
-                                    if (min && max) {
-                                        amountDisplay = `${currSymbol}${min.toLocaleString()} - ${currSymbol}${max.toLocaleString()}`;
-                                    } else if (max) {
-                                        amountDisplay = `${currSymbol}${max.toLocaleString()}`;
-                                    }
-                                } else if (scholarship.award?.amount || scholarship.amount) {
-                                    amountDisplay = scholarship.award?.amount || scholarship.amount;
-                                }
+            {/* MAIN CONTAINER */}
+            <div className="w-full rounded-2xl border-none bg-transparent p-0 md:border md:border-slate-100 md:bg-white md:p-8 md:shadow-sm">
 
+                {/* TOP META CONTROLS */}
+                <div className="mb-4 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center md:mb-6">
+                    <p className="text-xs font-medium text-slate-500">
+                        Showing <span className="font-bold text-slate-900">{totalCount === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+                        <span className="font-bold text-slate-900">{Math.min(currentPage * itemsPerPage, totalCount)}</span> of{' '}
+                        <span className="font-bold text-slate-900">{totalCount}</span> scholarships
+                    </p>
+
+                    <div className="flex items-center gap-2 self-end sm:self-auto">
+                        <span className="whitespace-nowrap text-xs font-semibold text-slate-600">Sort by</span>
+                        <div className="relative">
+                            <select
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                                className="cursor-pointer appearance-none rounded-xl border border-slate-200 bg-white py-1.5 pl-3 pr-8 text-xs font-semibold text-slate-800 outline-none transition focus:border-blue-600"
+                            >
+                                <option value="Deadline (Earliest)">Deadline (Earliest)</option>
+                                <option value="Deadline (Latest)">Deadline (Latest)</option>
+                                <option value="Amount (Highest)">Amount (Highest)</option>
+                                <option value="Amount (Lowest)">Amount (Lowest)</option>
+                            </select>
+                            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* CARDS FOR MOBILE (md:hidden) */}
+                <div className="block md:hidden">
+                    {loading ? (
+                        <div className="py-12 text-center text-xs font-medium text-slate-400">Loading scholarships...</div>
+                    ) : scholarships.length === 0 ? (
+                        <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-xs text-slate-400">
+                            No scholarships found matching your filters.
+                        </div>
+                    ) : (
+                        <div className="space-y-3.5">
+                            {scholarships.map((scholarship: any) => {
+                                const amountDisplay = getAmountDisplay(scholarship);
                                 const deadlineDisplay = scholarship.deadlines?.[0]?.date || 'N/A';
 
                                 return (
-                                    <tr
+                                    <div
                                         key={scholarship._id}
-                                        className="h-[104px] transition-colors hover:bg-slate-50/40"
+                                        className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs"
                                     >
-                                        <td className="break-words py-5 pr-4 align-top">
-                                            <div className="line-clamp-1 break-words text-sm font-bold text-slate-900">
+                                        <div>
+                                            {/* Title */}
+                                            <h3 className="text-sm font-bold leading-snug text-slate-900">
                                                 {scholarship.scholarshipName}
+                                            </h3>
+
+                                            {/* Info Row */}
+                                            <div className="mt-3 flex items-center justify-between text-xs text-slate-600">
+                                                <div>
+                                                    <span className="font-semibold text-slate-900">Amount:</span> {amountDisplay}
+                                                </div>
+                                                <div>
+                                                    <span className="font-semibold text-slate-900">Country:</span> {scholarship.country || 'N/A'}
+                                                </div>
                                             </div>
-                                            <p className="line-clamp-2 mt-1.5 overflow-hidden break-words text-xs font-normal leading-relaxed text-slate-500">
+
+                                            {/* Description */}
+                                            <p className="mt-2.5 line-clamp-2 text-xs leading-relaxed text-slate-500">
                                                 {scholarship.description || scholarship.details || 'No description provided.'}
                                             </p>
-                                        </td>
+                                        </div>
 
-                                        <td className="hidden break-words py-5 pr-2 align-top text-xs font-bold text-slate-900 sm:table-cell">
-                                            {amountDisplay}
-                                        </td>
-
-                                        <td className="break-words py-5 pr-2 align-top text-xs font-medium text-slate-800">
-                                            {deadlineDisplay}
-                                        </td>
-
-                                        <td className="hidden break-words py-5 pr-2 align-top text-xs font-medium text-slate-800 md:table-cell">
-                                            {scholarship.country || 'N/A'}
-                                        </td>
-
-                                        <td className="whitespace-nowrap py-5 text-right align-top">
+                                        {/* Bottom Action Button */}
+                                        <div className="mt-4 pt-1">
                                             <Link
                                                 href={`/scholarships/${scholarship._id}`}
-                                                className="rounded-lg bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+                                                className="block w-full rounded-xl bg-blue-600 py-2.5 text-center text-xs font-semibold text-white shadow-xs transition active:scale-[0.98] hover:bg-blue-700"
                                             >
                                                 View Details
                                             </Link>
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </div>
                                 );
-                            })
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            })}
+                        </div>
+                    )}
+                </div>
 
-            <div className="flex items-center justify-center gap-1.5 border-t border-gray-100 pt-6">
-                <button
-                    disabled={currentPage <= 1}
-                    onClick={() => handlePageClick(currentPage - 1)}
-                    className="mr-2 rounded-lg border border-gray-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    Prev
-                </button>
+                {/* TABLE FOR DESKTOP (hidden md:block) */}
+                <div className="hidden md:block">
+                    <table className="w-full table-fixed border-collapse text-left">
+                        <thead>
+                            <tr className="border-b border-slate-100 text-xs font-semibold text-slate-500">
+                                <th className="w-[40%] pb-4">Scholarship Name</th>
+                                <th className="w-[15%] pb-4">Amount</th>
+                                <th className="w-[18%] pb-4">Deadline</th>
+                                <th className="w-[15%] pb-4">Country</th>
+                                <th className="w-[12%] pb-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-xs">
+                            {scholarships.map((scholarship: any) => (
+                                <tr key={scholarship._id} className="h-[96px]">
+                                    <td className="py-4 pr-4 align-top">
+                                        <div className="line-clamp-1 text-sm font-bold text-slate-900">
+                                            {scholarship.scholarshipName}
+                                        </div>
+                                        <p className="line-clamp-2 mt-1 text-xs text-slate-500">
+                                            {scholarship.description || scholarship.details || 'No description provided.'}
+                                        </p>
+                                    </td>
+                                    <td className="py-4 pr-2 align-top font-bold text-slate-900">
+                                        {getAmountDisplay(scholarship)}
+                                    </td>
+                                    <td className="py-4 pr-2 align-top text-slate-800">
+                                        {scholarship.deadlines?.[0]?.date || 'N/A'}
+                                    </td>
+                                    <td className="py-4 pr-2 align-top text-slate-800">
+                                        {scholarship.country || 'N/A'}
+                                    </td>
+                                    <td className="py-4 text-right align-top">
+                                        <Link
+                                            href={`/scholarships/${scholarship._id}`}
+                                            className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
+                                        >
+                                            View Details
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
 
-                {getPaginationRange().map((page, idx) =>
-                    page === '...' ? (
-                        <span key={`ellipsis-${idx}`} className="px-1 text-xs text-slate-400">...</span>
-                    ) : (
-                        <button
-                            key={`page-btn-${page}`}
-                            onClick={() => handlePageClick(Number(page))}
-                            className={`h-8 w-8 rounded-lg text-xs font-semibold transition ${currentPage === page ? 'bg-blue-600 text-white' : 'bg-transparent text-slate-700 hover:bg-gray-100'
-                                }`}
-                        >
-                            {page}
-                        </button>
-                    )
-                )}
+                {/* PAGINATION */}
+                <div className="mt-6 flex items-center justify-center gap-1 border-t border-slate-100 pt-5">
+                    <button
+                        disabled={currentPage <= 1}
+                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                        className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 disabled:opacity-40"
+                    >
+                        Prev
+                    </button>
+                    <span className="px-3 text-xs font-medium text-slate-600">
+                        Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                        disabled={currentPage >= totalPages}
+                        onClick={() => setCurrentPage((p) => p + 1)}
+                        className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 disabled:opacity-40"
+                    >
+                        Next
+                    </button>
+                </div>
 
-                <button
-                    disabled={currentPage >= totalPages || totalPages === 0}
-                    onClick={() => handlePageClick(currentPage + 1)}
-                    className="ml-2 rounded-lg border border-gray-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    Next
-                </button>
             </div>
         </div>
     );
