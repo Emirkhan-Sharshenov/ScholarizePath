@@ -54,7 +54,7 @@ export async function register(request: Request) {
         password: hashedPassword,
     });
 
-    const token = generateToken(user._id.toString())
+    const token = generateToken(user._id.toString());
     const response = NextResponse.json(
         {
             success: true,
@@ -69,7 +69,8 @@ export async function register(request: Request) {
             },
         },
         { status: 201 }
-    )
+    );
+
     response.cookies.set({
         name: "token",
         value: token,
@@ -78,99 +79,95 @@ export async function register(request: Request) {
         sameSite: "strict",
         maxAge: 60 * 60 * 24 * 7,
         path: "/",
-    })
+    });
 
-    return response
+    return response;
 }
 
-export async function login(request:Request) {
-    await connectDB()
+export async function login(request: Request) {
+    await connectDB();
 
-    const body = await request.json()
+    const body = await request.json();
 
-    const { email, password } = body
+    const { email, password } = body;
 
     if (!email || !password) {
         return NextResponse.json(
             {
                 success: false,
-                message: "Email and password are required"
+                message: "Email and password are required",
             },
-            {status: 400}
-        )
+            { status: 400 }
+        );
     }
 
-    const user = await Users.findOne({email})
+    const user = await Users.findOne({ email });
 
     if (!user) {
         return NextResponse.json(
             {
                 success: false,
-                message: "Invalid credentials"
+                message: "Invalid credentials",
             },
-            {status: 401}
-        )
+            { status: 401 }
+        );
     }
 
     const isPasswordCorrect = await bcrypt.compare(
         password,
         user.password
-    )
+    );
 
     if (!isPasswordCorrect) {
         return NextResponse.json(
             {
                 success: false,
-                message: "Invalid credentials"
+                message: "Invalid credentials",
             },
-            {status: 401}
-        )
+            { status: 401 }
+        );
     }
 
-    const token = generateToken(user._id.toString())
+    const token = generateToken(user._id.toString());
 
-    const response =  NextResponse.json(
+    const response = NextResponse.json(
         {
             success: true,
             message: "Login successful",
-            user:{
+            user: {
                 id: user._id,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
-                createdAt: user.createdAt
+                createdAt: user.createdAt,
             },
-            
         },
         { status: 200 }
-    )
+    );
 
-response.cookies.set({
-    name: "token",
-    value: token,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 60 * 60 * 24 * 7,
-    path: "/"
-})
+    response.cookies.set({
+        name: "token",
+        value: token,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24 * 7,
+        path: "/",
+    });
 
-return response
-
-
-    
+    return response;
 }
 
 export async function me(request: AuthRequest) {
-    await connectDB()
+    await connectDB();
 
-    const auth = await authMiddleware(request)
+    const auth = await authMiddleware(request);
 
     if (auth instanceof NextResponse) {
-        return auth
+        return auth;
     }
-    
-    const user = await Users.findById(auth).select("-password")
+
+    const user = await Users.findById(auth).select("-password");
     if (!user) {
         return NextResponse.json(
             {
@@ -180,7 +177,7 @@ export async function me(request: AuthRequest) {
             {
                 status: 404,
             }
-        )
+        );
     }
 
     return NextResponse.json(
@@ -191,5 +188,28 @@ export async function me(request: AuthRequest) {
         {
             status: 200,
         }
-    )
+    );
+}
+
+export async function logout() {
+    const response = NextResponse.json(
+        {
+            success: true,
+            message: "Logged out successfully",
+        },
+        { status: 200 }
+    );
+
+    // Удаляем куку путем сброса значения и установки времени жизни в 0
+    response.cookies.set({
+        name: "token",
+        value: "",
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 0,
+        path: "/",
+    });
+
+    return response;
 }

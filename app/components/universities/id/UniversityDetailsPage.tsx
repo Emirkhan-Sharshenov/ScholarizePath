@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Heart, Scale, Loader2, Plus, Check } from 'lucide-react';
+import { ChevronRight, Heart, Scale, Loader2, Plus, Check } from 'lucide-react';
 import { useCompare } from '@/lib/useCompare';
 import { useFavorites } from '@/lib/useFavorites';
 import { useUniList } from '@/lib/useUniList';
@@ -36,13 +36,11 @@ export default function UniversityDetailsPage({ university, onAddToList }: Unive
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // Extract variables inside component body
     const uniId = university?._id || university?.id;
     const name = university?.name || university?.title || 'Unknown University';
 
-    // Call hooks inside component body
     const { toggleInList, isInList } = useUniList();
-    const { isFavorite, toggleFavorite } = useFavorites(uniId, 'university');
+    const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites(uniId, 'university');
 
     const inList = isInList(String(uniId || ''), 'university');
     const isCompared = compareList.some((item) => (item.id || item._id) === uniId);
@@ -156,49 +154,50 @@ export default function UniversityDetailsPage({ university, onAddToList }: Unive
         <div className="min-h-screen bg-[rgb(246,247,251)] p-4 md:p-8 font-sans">
             <div className="mx-auto max-w-7xl">
 
-                {/* Navigation Bar */}
+                {/* Breadcrumbs Header — matches ScholarshipBreadcrumbsHeader exactly */}
                 <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-                    <Link
-                        href="/universities"
-                        className="group inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:border-blue-300 hover:bg-blue-50/50 hover:text-blue-600 active:scale-95"
-                    >
-                        <ArrowLeft className="h-4 w-4 text-slate-500 transition-transform duration-200 group-hover:-translate-x-1 group-hover:text-blue-600" />
-                        <span>Universities</span>
-                    </Link>
+                    <nav className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                        <Link href="/universities" className="transition-colors hover:text-blue-600">
+                            Universities
+                        </Link>
+                        <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                        <span className="max-w-[200px] truncate font-semibold text-slate-900 sm:max-w-none">{name}</span>
+                    </nav>
 
                     <div className="flex flex-wrap items-center gap-3">
-                        {/* Add to List Button */}
                         <button
                             type="button"
                             onClick={handleAddToList}
                             className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-sm transition-all duration-200 active:scale-95 ${inList
-                                    ? 'border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700'
-                                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                                ? 'border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700'
+                                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                                 }`}
                         >
                             {inList ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4 text-slate-500" />}
                             <span>{inList ? 'Added to List' : 'Add to List'}</span>
                         </button>
 
-                        {/* Favorite Button */}
                         <button
                             type="button"
                             onClick={toggleFavorite}
                             className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold shadow-sm transition-all duration-200 active:scale-95 ${isFavorite
-                                    ? 'border-rose-200 bg-rose-50 text-rose-600'
-                                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                                ? 'border-rose-200 bg-rose-50 text-rose-600'
+                                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                                 }`}
                         >
-                            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}`} />
+                            {favLoading ? (
+                                <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                            ) : (
+                                <Heart className={`h-4 w-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}`} />
+                            )}
                             <span>{isFavorite ? 'Saved' : 'Save'}</span>
                         </button>
 
-                        {/* Compare Button */}
                         <button
                             onClick={handleCompareClick}
                             className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition-all duration-200 active:scale-95 ${isCompared
-                                    ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                                ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
                                 }`}
                         >
                             <Scale className="h-4 w-4" />

@@ -165,6 +165,15 @@ export default function AdditionalInfoForm() {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    // Switching between IELTS/TOEFL must clear the shared score field —
+    // IELTS (0–9.0) and TOEFL (0–120) scales are incompatible, so carrying
+    // the old value over silently produces a nonsensical score/type pair
+    // (e.g. englishTestType: 'toefl' with englishScore: 7.5).
+    const handleTestTypeChange = (type: 'ielts' | 'toefl') => {
+        setEnglishTestType(type);
+        setFormData((prev) => ({ ...prev, englishScore: '' }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -322,20 +331,20 @@ export default function AdditionalInfoForm() {
                                     <div className="inline-flex rounded-lg bg-slate-100 p-0.5">
                                         <button
                                             type="button"
-                                            onClick={() => setEnglishTestType('ielts')}
+                                            onClick={() => handleTestTypeChange('ielts')}
                                             className={`rounded-md px-2.5 py-0.5 text-xs font-semibold transition ${englishTestType === 'ielts'
-                                                    ? 'bg-white text-blue-600 shadow-sm'
-                                                    : 'text-slate-500 hover:text-slate-800'
+                                                ? 'bg-white text-blue-600 shadow-sm'
+                                                : 'text-slate-500 hover:text-slate-800'
                                                 }`}
                                         >
                                             IELTS
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => setEnglishTestType('toefl')}
+                                            onClick={() => handleTestTypeChange('toefl')}
                                             className={`rounded-md px-2.5 py-0.5 text-xs font-semibold transition ${englishTestType === 'toefl'
-                                                    ? 'bg-white text-blue-600 shadow-sm'
-                                                    : 'text-slate-500 hover:text-slate-800'
+                                                ? 'bg-white text-blue-600 shadow-sm'
+                                                : 'text-slate-500 hover:text-slate-800'
                                                 }`}
                                         >
                                             TOEFL
