@@ -21,8 +21,13 @@ export default function MainContent({ children }: { children: React.ReactNode })
                 <div className="w-9" />
             </div>
 
+            {/*
+        Duration/easing here MUST match Sidebar's desktop width transition exactly,
+        or the content area and the sidebar visibly desync (reads as "lag").
+        [contain:layout] stops the reflow this causes from cascading past <main>.
+      */}
             <main
-                className={`flex-1 transition-[margin-left] duration-300 ease-in-out min-w-0 ${collapsed ? "ml-0 md:ml-20" : "ml-0 md:ml-64"
+                className={`flex-1 min-w-0 [contain:layout] will-change-[margin-left] transition-[margin-left] duration-200 ease-out ${collapsed ? "ml-0 md:ml-20" : "ml-0 md:ml-64"
                     }`}
             >
                 {children}

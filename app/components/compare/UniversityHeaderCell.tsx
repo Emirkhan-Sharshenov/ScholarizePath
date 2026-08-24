@@ -30,17 +30,6 @@ export const UniversityHeaderCell: React.FC<Props> = ({
                         {university.name}
                     </h3>
                 </div>
-
-                <button
-                    onClick={() => onToggleFavorite(university.id)}
-                    className="text-gray-400 hover:text-red-500 transition-colors"
-                    aria-label="Favorite"
-                >
-                    <Heart
-                        className={`h-5 w-5 ${isFavorite ? "fill-red-500 text-red-500" : ""
-                            }`}
-                    />
-                </button>
             </div>
         </th>
     );

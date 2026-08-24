@@ -156,28 +156,6 @@ export default function ScholarshipsFilter({
           </div>
         </div>
 
-        {/* Field of Study */}
-        <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-800">
-            Field of Study
-          </label>
-          <div className="relative">
-            <select
-              name="fieldOfStudy"
-              value={filters.fieldOfStudy}
-              onChange={handleChange}
-              className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-            >
-              <option value="All Fields">All Fields</option>
-              {FIELDS_OF_STUDY.map((field) => (
-                <option key={field} value={field}>
-                  {field}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
-          </div>
-        </div>
 
         {/* Min Amount */}
         <div>

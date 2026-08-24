@@ -7,7 +7,6 @@ import {
     XCircle,
     MapPin,
     Bookmark,
-    Heart,
     Plus,
     Building2,
     Award,
@@ -230,9 +229,6 @@ export default function ComparePage() {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <button className="text-slate-400 hover:text-red-500 transition p-1">
-                                                <Heart className="h-4 w-4" />
-                                            </button>
                                             <button
                                                 onClick={() =>
                                                     isUniActive
@@ -310,10 +306,6 @@ export default function ComparePage() {
 
                                     {/* Экшены */}
                                     <div className="mt-5 pt-3 border-t border-slate-100 flex items-center gap-2">
-                                        <button className="flex-1 flex items-center justify-center gap-1 text-xs font-semibold text-slate-600 border border-slate-200 rounded-xl py-2.5 hover:bg-slate-50">
-                                            <Bookmark className="h-3.5 w-3.5" />
-                                            Save
-                                        </button>
                                         <a
                                             href={item.applyUrl}
                                             target="_blank"
@@ -352,9 +344,6 @@ export default function ComparePage() {
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <button className="text-slate-400 hover:text-red-500 transition">
-                                                    <Heart className="h-4 w-4" />
-                                                </button>
                                                 <button
                                                     onClick={() =>
                                                         isUniActive
@@ -505,10 +494,6 @@ export default function ComparePage() {
                                 <div className="p-4 bg-slate-50/50"></div>
                                 {items.map((item: any) => (
                                     <div key={item.id} className="p-4 border-l border-slate-100 space-y-2">
-                                        <button className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 py-1">
-                                            <Bookmark className="h-3.5 w-3.5" />
-                                            Save
-                                        </button>
                                         <a
                                             href={item.applyUrl}
                                             target="_blank"

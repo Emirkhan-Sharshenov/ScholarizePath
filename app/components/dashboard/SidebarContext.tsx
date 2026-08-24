@@ -1,7 +1,6 @@
-
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 
 type SidebarContextType = {
     collapsed: boolean;
@@ -13,11 +12,11 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
     const [collapsed, setCollapsed] = useState(false);
 
-    return (
-        <SidebarContext.Provider value={{ collapsed, setCollapsed }}>
-            {children}
-        </SidebarContext.Provider>
-    );
+    // Memoize so consumers only re-render when `collapsed` actually changes,
+    // not on every render of SidebarProvider / its parents.
+    const value = useMemo(() => ({ collapsed, setCollapsed }), [collapsed]);
+
+    return <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>;
 }
 
 export function useSidebar() {

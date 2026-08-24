@@ -58,12 +58,7 @@ export default function AIRecommendationsCard({
                     </div>
                     <p className="text-xs text-slate-400 mt-0.5 font-medium">Personalized for you</p>
                 </div>
-                <button
-                    onClick={onViewMoreAI}
-                    className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition"
-                >
-                    View All
-                </button>
+            
             </div>
 
             {isLoading && (
@@ -135,12 +130,6 @@ export default function AIRecommendationsCard({
                 <div className="mb-5">
                     <div className="flex items-center justify-between mb-2.5">
                         <h3 className="text-xs font-bold text-slate-800">Recommended Universities</h3>
-                        <button
-                            onClick={onViewAllUniversities}
-                            className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition"
-                        >
-                            View All
-                        </button>
                     </div>
 
                     <div className="space-y-2">
