@@ -25,6 +25,18 @@ interface TopUniversitiesCardProps {
     countryName?: string;
 }
 
+// Фоллбек-список из 8 университетов
+const FALLBACK_UNIVERSITIES: University[] = [
+    { id: "harvard", name: "Harvard University", shortName: "Harvard", location: "Cambridge, USA", rank: "1" },
+    { id: "mit", name: "Massachusetts Institute of Technology", shortName: "MIT", location: "Cambridge, USA", rank: "2" },
+    { id: "stanford", name: "Stanford University", shortName: "Stanford", location: "Stanford, USA", rank: "3" },
+    { id: "oxford", name: "University of Oxford", shortName: "Oxford", location: "Oxford, UK", rank: "4" },
+    { id: "cambridge", name: "University of Cambridge", shortName: "Cambridge", location: "Cambridge, UK", rank: "5" },
+    { id: "eth", name: "ETH Zurich", shortName: "ETH", location: "Zurich, Switzerland", rank: "6" },
+    { id: "toronto", name: "University of Toronto", shortName: "UofT", location: "Toronto, Canada", rank: "7" },
+    { id: "imperial", name: "Imperial College London", shortName: "Imperial", location: "London, UK", rank: "8" },
+];
+
 export default function TopUniversitiesCard({ countryName }: TopUniversitiesCardProps) {
     const [universities, setUniversities] = useState<University[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -53,14 +65,20 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                         list = (data as any).data;
                     }
 
-                    // Ограничиваем ровно до 8 элементов
-                    setUniversities(list.slice(0, 8));
+                    // Если API возвращает меньше 8 элементов, дополняем из фоллбек-списка
+                    if (list.length < 8) {
+                        const merged = [...list, ...FALLBACK_UNIVERSITIES].slice(0, 8);
+                        setUniversities(merged);
+                    } else {
+                        setUniversities(list.slice(0, 8));
+                    }
                     setLoading(false);
                 }
             })
             .catch(() => {
                 if (isMounted) {
-                    setError(true);
+                    // При ошибке запроса отображаем 8 фоллбек университетов
+                    setUniversities(FALLBACK_UNIVERSITIES);
                     setLoading(false);
                 }
             });
@@ -184,6 +202,9 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between mt-6 pt-2">
+                                    <span className="text-[11px] font-semibold text-slate-400">
+                                        {rankText}
+                                    </span>
                                     <Link
                                         href={`/universities/${uniId}`}
                                         className="text-xs font-semibold text-slate-800 hover:text-blue-600 flex items-center gap-1 transition-colors"

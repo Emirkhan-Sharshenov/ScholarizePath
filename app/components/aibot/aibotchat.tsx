@@ -2,17 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import {
-    RotateCw,
-    Send,
-    Paperclip,
-    Mic,
-    GraduationCap,
-    CheckCheck,
-    Building2,
-    Award,
-    FileCheck,
-} from 'lucide-react';
+import { Send, CheckCheck } from 'lucide-react';
 import type { ScholarshipCardData, UniversityCardData } from './aiRecommendation';
 
 interface Message {
@@ -22,21 +12,11 @@ interface Message {
 }
 
 interface AIChatCardProps {
-    // Fired whenever a fresh batch of results comes back from the AI, so a
-    // parent page can render them in the persistent sidebar recommendations
-    // card instead of inline in the chat thread.
     onRecommendations?: (data: {
         scholarships: ScholarshipCardData[];
         universities: UniversityCardData[];
     }) => void;
 }
-
-const suggestedQuestions = [
-    { id: 1, icon: GraduationCap, text: 'Find scholarships for MS in Canada' },
-    { id: 2, icon: Building2, text: 'Top universities for Computer Science' },
-    { id: 3, icon: Award, text: 'What are my chances of getting a scholarship?' },
-    { id: 4, icon: FileCheck, text: 'How to strengthen my application?' },
-];
 
 function timeNow() {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -89,7 +69,6 @@ export default function AIChatCard({ onRecommendations }: AIChatCardProps) {
                 },
             ]);
 
-            // Push results up to the parent page — it owns the sidebar card.
             onRecommendations?.({
                 scholarships: data.scholarships ?? [],
                 universities: data.universities ?? [],
@@ -169,43 +148,9 @@ export default function AIChatCard({ onRecommendations }: AIChatCardProps) {
                 </div>
             </div>
 
-            {/* Bottom Section: Suggested Questions & Input */}
-            <div className="space-y-4 pt-6">
-                <div>
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center text-xs font-bold text-slate-800">
-                            <Image src="/images/aibot/ai-star.png" alt="AI Star" width={30} height={30} />
-                            <span>Suggested Questions</span>
-                        </div>
-                        <button className="text-slate-400 hover:text-slate-600 transition">
-                            <RotateCw className="w-3.5 h-3.5" />
-                        </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                        {suggestedQuestions.map((item) => {
-                            const IconComponent = item.icon;
-                            return (
-                                <button
-                                    key={item.id}
-                                    onClick={() => sendMessage(item.text)}
-                                    disabled={isLoading}
-                                    className="flex items-center gap-3 p-3 bg-slate-50/70 hover:bg-blue-50/50 border border-slate-100 hover:border-blue-200 rounded-xl transition text-left group disabled:opacity-50"
-                                >
-                                    <div className="w-8 h-8 rounded-lg bg-blue-100/60 text-blue-600 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition">
-                                        <IconComponent className="w-4 h-4" />
-                                    </div>
-                                    <span className="text-xs font-medium text-slate-700 leading-snug group-hover:text-blue-900">
-                                        {item.text}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                {/* Chat Input Container */}
-                <div className="relative bg-slate-50/60 rounded-2xl border border-slate-200/80 p-3 shadow-xs">
+            {/* Bottom Section: Input & Submit Button */}
+            <div className="space-y-3 pt-4">
+                <div className="relative flex items-center bg-slate-50/80 hover:bg-slate-50 rounded-2xl border border-slate-200/80 p-2 pl-4 transition-all focus-within:bg-white focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 shadow-xs">
                     <input
                         type="text"
                         value={inputMessage}
@@ -214,32 +159,16 @@ export default function AIChatCard({ onRecommendations }: AIChatCardProps) {
                             if (e.key === 'Enter') handleSubmit();
                         }}
                         placeholder="Ask anything about scholarships, universities, or applications..."
-                        className="w-full bg-transparent text-xs md:text-sm text-slate-800 placeholder-slate-400 outline-none pr-12 pb-8"
+                        className="w-full bg-transparent text-xs md:text-sm text-slate-800 placeholder-slate-400 outline-none pr-3 py-1.5"
                     />
 
-                    <div className="flex items-center justify-between pt-2">
-                        <button className="flex items-center bg-white border border-slate-200/60 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition">
-                            <Image src="/images/aibot/ai-star.png" alt="AI Star" width={30} height={30} />
-                            <span>Smart Search</span>
-                        </button>
-
-                        <div className="flex items-center gap-3">
-                            <button className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 transition">
-                                <Paperclip className="w-4 h-4 text-slate-400" />
-                                <span className="hidden sm:inline">Attach File</span>
-                            </button>
-                            <button className="text-slate-400 hover:text-slate-600 transition">
-                                <Mic className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={handleSubmit}
-                                disabled={isLoading}
-                                className="w-9 h-9 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md transition active:scale-95 disabled:opacity-50"
-                            >
-                                <Send className="w-4 h-4" />
-                            </button>
-                        </div>
-                    </div>
+                    <button
+                        onClick={handleSubmit}
+                        disabled={isLoading || !inputMessage.trim()}
+                        className="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shrink-0 shadow-md transition-all active:scale-95 disabled:bg-slate-300 disabled:text-slate-400 disabled:cursor-not-allowed disabled:shadow-none hover:scale-105"
+                    >
+                        <Send className="w-4 h-4" />
+                    </button>
                 </div>
 
                 <p className="text-[11px] text-center text-slate-400">

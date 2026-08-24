@@ -23,13 +23,30 @@ const UserSchema = new Schema(
             required: true,
         },
 
+        // --- ПОЛЯ ДЛЯ ВЕРИФИКАЦИИ ПОЧТЫ ---
+        isVerified: {
+            type: Boolean,
+            default: false,
+        },
+
+        verificationToken: {
+            type: String,
+            default: null,
+        },
+
+        verificationTokenExpires: {
+            type: Date,
+            default: null,
+        },
+        // ---------------------------------
+
         favoriteUniversities: {
-            type: [String], // Сохраняет строковые ID ("imperial-college-london-uk")
+            type: [String],
             default: [],
         },
 
         favoriteScholarships: {
-            type: [String], // Сохраняет строковые ID ("banting-postdoctoral-fellowship")
+            type: [String],
             default: [],
         },
 
