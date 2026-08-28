@@ -20,76 +20,149 @@ export async function GET(request: Request) {
         const degreeLevel = searchParams.get("degreeLevel") || "";
         const sortBy = searchParams.get("sortBy") || "Ranking: High to Low";
 
-        const match: any = {};
+        // --- базовые фильтры (не трогают ranking/tuition) ---
+        const baseMatch: any = {};
 
         if (search) {
-            match.$or = [
+            baseMatch.$or = [
                 { name: { $regex: search, $options: "i" } },
                 { searchKeywords: { $regex: search, $options: "i" } },
             ];
         }
 
         if (country && country !== "All Countries") {
-            match["location.country"] = country;
-        }
-
-        if (minRanking || maxRanking) {
-            match["ranking.global"] = {};
-            if (minRanking) match["ranking.global"].$gte = Number(minRanking);
-            if (maxRanking) match["ranking.global"].$lte = Number(maxRanking);
-        }
-
-        if (minTuition || maxTuition) {
-            match["tuition.bachelor"] = {};
-            if (minTuition) match["tuition.bachelor"].$gte = Number(minTuition);
-            if (maxTuition) match["tuition.bachelor"].$lte = Number(maxTuition);
+            baseMatch["location.country"] = country;
         }
 
         if (programs && programs !== "All Programs") {
-            match.programs = programs;
+            baseMatch.programs = programs;
         }
 
         if (degreeLevel && degreeLevel !== "All Degree Levels") {
-            match.degreeLevels = degreeLevel;
+            baseMatch.degreeLevels = degreeLevel;
         }
 
-        // Фильтруем записи без указанного рейтинга/стоимости при сортировке
-        if (sortBy === "Ranking: High to Low" || sortBy === "Ranking: Low to High") {
-            match.$and = match.$and || [];
-            match.$and.push({
-                $or: [
-                    { "ranking.global": { $exists: true, $gt: 0 } },
-                    { "ranking.qs": { $exists: true, $gt: 0 } },
-                    { ranking: { $exists: true, $gt: 0 } }
-                ]
-            });
+        // --- вычисляем нормализованные rankingValue / tuitionValue ---
+        // Универы без валидного значения получают null и уходят в конец
+        // сортировки независимо от направления (asc/desc).
+        const addComputedFields = {
+            $addFields: {
+                rankingValue: {
+                    $switch: {
+                        branches: [
+                            {
+                                case: { $and: [{ $ifNull: ["$ranking.global", false] }, { $gt: ["$ranking.global", 0] }] },
+                                then: "$ranking.global",
+                            },
+                            {
+                                case: { $and: [{ $ifNull: ["$ranking.qs", false] }, { $gt: ["$ranking.qs", 0] }] },
+                                then: "$ranking.qs",
+                            },
+                            {
+                                case: {
+                                    $and: [
+                                        { $eq: [{ $type: "$ranking" }, "number"] },
+                                        { $gt: ["$ranking", 0] },
+                                    ],
+                                },
+                                then: "$ranking",
+                            },
+                        ],
+                        default: null,
+                    },
+                },
+                tuitionValue: {
+                    $switch: {
+                        branches: [
+                            {
+                                case: { $and: [{ $ifNull: ["$tuition.bachelor", false] }, { $gt: ["$tuition.bachelor", 0] }] },
+                                then: "$tuition.bachelor",
+                            },
+                            {
+                                case: {
+                                    $and: [
+                                        { $eq: [{ $type: "$tuition" }, "number"] },
+                                        { $gt: ["$tuition", 0] },
+                                    ],
+                                },
+                                then: "$tuition",
+                            },
+                        ],
+                        default: null,
+                    },
+                },
+            },
+        };
+
+        const addHasFields = {
+            $addFields: {
+                hasRanking: { $cond: [{ $ne: ["$rankingValue", null] }, 1, 0] },
+                hasTuition: { $cond: [{ $ne: ["$tuitionValue", null] }, 1, 0] },
+            },
+        };
+
+        // --- диапазонные фильтры (только если явно заданы) ---
+        const rangeMatch: any = {};
+
+        if (minRanking || maxRanking) {
+            rangeMatch.rankingValue = {};
+            if (minRanking) rangeMatch.rankingValue.$gte = Number(minRanking);
+            if (maxRanking) rangeMatch.rankingValue.$lte = Number(maxRanking);
         }
 
+        if (minTuition || maxTuition) {
+            rangeMatch.tuitionValue = {};
+            if (minTuition) rangeMatch.tuitionValue.$gte = Number(minTuition);
+            if (maxTuition) rangeMatch.tuitionValue.$lte = Number(maxTuition);
+        }
+
+        // --- направление сортировки ---
+        // "hasRanking/hasTuition: -1" всегда кладёт N/A в конец,
+        // независимо от направления сортировки по значению.
         const sortMap: Record<string, any> = {
-            "Ranking: High to Low": { "ranking.global": 1, "ranking.qs": 1, ranking: 1 },
-            "Ranking: Low to High": { "ranking.global": -1, "ranking.qs": -1, ranking: -1 },
-            "Tuition: Low to High": { "tuition.bachelor": 1, tuition: 1 },
-            "Tuition: High to Low": { "tuition.bachelor": -1, tuition: -1 },
+            "Ranking: High to Low": { hasRanking: -1, rankingValue: 1 },
+            "Ranking: Low to High": { hasRanking: -1, rankingValue: -1 },
+            "Tuition: Low to High": { hasTuition: -1, tuitionValue: 1 },
+            "Tuition: High to Low": { hasTuition: -1, tuitionValue: -1 },
         };
-        const sort = sortMap[sortBy] || { "ranking.global": 1 };
+        const sort = sortMap[sortBy] || sortMap["Ranking: High to Low"];
 
-        const projection = {
-            name: 1,
-            location: 1,
-            ranking: 1,
-            tuition: 1,
-            description: 1,
-        };
+        const pipeline: any[] = [
+            { $match: baseMatch },
+            addComputedFields,
+            addHasFields,
+        ];
 
-        const [data, totalCount] = await Promise.all([
-            Universities.find(match)
-                .select(projection)
-                .sort(sort)
-                .skip((page - 1) * limit)
-                .limit(limit)
-                .lean(),
-            Universities.countDocuments(match),
-        ]);
+        if (Object.keys(rangeMatch).length > 0) {
+            pipeline.push({ $match: rangeMatch });
+        }
+
+        pipeline.push(
+            { $sort: sort },
+            {
+                $facet: {
+                    data: [
+                        { $skip: (page - 1) * limit },
+                        { $limit: limit },
+                        {
+                            $project: {
+                                name: 1,
+                                location: 1,
+                                ranking: 1,
+                                tuition: 1,
+                                description: 1,
+                            },
+                        },
+                    ],
+                    totalCount: [{ $count: "count" }],
+                },
+            }
+        );
+
+        const result = await Universities.aggregate(pipeline);
+
+        const data = result[0]?.data || [];
+        const totalCount = result[0]?.totalCount?.[0]?.count || 0;
 
         return NextResponse.json({
             data,

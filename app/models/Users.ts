@@ -16,6 +16,8 @@ const UserSchema = new Schema(
             type: String,
             required: true,
             unique: true,
+            lowercase: true,
+            trim: true,
         },
 
         password: {
@@ -23,22 +25,30 @@ const UserSchema = new Schema(
             required: true,
         },
 
-        // --- ПОЛЯ ДЛЯ ВЕРИФИКАЦИИ ПОЧТЫ ---
+        // --- ПОЛЯ ДЛЯ ВЕРИФИКАЦИИ ПО 6-ЗНАЧНОМУ КОДУ ---
         isVerified: {
             type: Boolean,
             default: false,
         },
 
-        verificationToken: {
+        verificationCode: {
             type: String,
             default: null,
         },
 
-        verificationTokenExpires: {
+        verificationCodeExpires: {
             type: Date,
             default: null,
         },
-        // ---------------------------------
+        // ----------------------------------------------
+
+        // Explicit, permanent flag — set once to true by /api/profile/setup and never reset.
+        // Kept separate from the `profile.*` fields below because those can legitimately
+        // stay null/empty later on and shouldn't be misread as "setup not done".
+        profileSetupComplete: {
+            type: Boolean,
+            default: false,
+        },
 
         favoriteUniversities: {
             type: [String],
@@ -99,6 +109,11 @@ const UserSchema = new Schema(
                 default: null,
             },
         },
+        role: {
+            type: String,
+            enum: ["user", "admin"],
+            default: "user",
+        }
     },
     {
         timestamps: true,

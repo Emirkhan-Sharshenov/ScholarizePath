@@ -3,14 +3,19 @@ import { connectDB } from "@/lib/mongodb";
 import Users from "@/models/Users";
 import Universities from "@/models/Universities";
 import Scholarship from "@/models/Scholarship";
+import { requireAdmin } from "@/lib/requireAdmin";
+import { AuthRequest } from "@/types/auth";
 
-export async function GET() {
+export async function GET(request: AuthRequest) {
+    // Только для admin — до этого момента эндпоинт был открыт всем без исключения.
+    const auth = await requireAdmin(request);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+
     try {
         await connectDB();
 
-        // countDocuments() never loads the documents themselves — it's a
-        // metadata-only query, so this stays cheap even at tens of thousands
-        // of records, unlike fetching the full list and reading .length.
         const [totalUsers, totalUniversities, totalScholarships, openScholarships] =
             await Promise.all([
                 Users.countDocuments(),

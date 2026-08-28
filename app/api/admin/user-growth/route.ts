@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Users from "@/models/Users";
+import { requireAdmin } from "@/lib/requireAdmin";
+import { AuthRequest } from "@/types/auth";
 
-export async function GET(request: Request) {
+export async function GET(request: AuthRequest) {
+    // Только для admin
+    const auth = await requireAdmin(request);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+
     try {
         await connectDB();
 
@@ -19,8 +27,6 @@ export async function GET(request: Request) {
             match.createdAt = { $gte: since };
         }
 
-        // Group by calendar day — cheap in MongoDB since it only touches
-        // the createdAt index, never loads full user documents.
         const raw = await Users.aggregate([
             { $match: match },
             {
@@ -34,7 +40,6 @@ export async function GET(request: Request) {
             { $sort: { _id: 1 } },
         ]);
 
-        // Fill in zero-count days so the chart doesn't show gaps
         const filled: { date: string; count: number }[] = [];
         const dayCount = days ?? (() => {
             if (raw.length === 0) return 0;

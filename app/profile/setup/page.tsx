@@ -1,10 +1,6 @@
-import React from 'react'
-import AdditionalInfoForm from '@/components/profile/InfoForm'
+import React from 'react';
+import AdditionalInfoForm from '@/components/profile/InfoForm';
 
-function page() {
-  return (
-    <AdditionalInfoForm />
-  )
+export default function Page() {
+  return <AdditionalInfoForm />;
 }
-
-export default page

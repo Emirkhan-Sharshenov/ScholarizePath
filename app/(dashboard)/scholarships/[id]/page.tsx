@@ -1,17 +1,27 @@
 import React from 'react';
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import ScholarshipDetailsPage from '@/components/scholarships/id/ScholarshipDetailsPage';
 import { Scholarship } from '@/types/scholarship';
+import { getBaseUrl } from '@/lib/getBaseUrl';
 
 interface PageProps {
     params: Promise<{ id: string }>;
 }
 
-// Запрос данных стипендии с API
+// Запрос данных стипендии с API (server-to-server, браузер этого не видит).
+// Форвардим реальную cookie сессии — см. комментарий в app/universities/[id]/page.tsx
+// про то, почему заголовок-заглушка вместо этого небезопасен.
 async function getScholarship(id: string): Promise<Scholarship | null> {
     try {
-        const res = await fetch(`http://localhost:3000/api/scholarships/${id}`, {
-            cache: 'no-store', 
+        const cookieStore = await cookies();
+        const token = cookieStore.get('token')?.value;
+
+        const res = await fetch(`${getBaseUrl()}/api/scholarships/${id}`, {
+            cache: 'no-store',
+            headers: {
+                ...(token ? { Cookie: `token=${token}` } : {}),
+            },
         });
 
         if (!res.ok) {

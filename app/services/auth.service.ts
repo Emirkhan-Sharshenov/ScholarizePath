@@ -1,182 +1,203 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
 import { connectDB } from "../lib/mongodb";
 import Users from "../models/Users";
-import { generateToken } from "../lib/jwt";
-import { AuthRequest } from "../types/auth";
-import { authMiddleware } from "../middleware/auth.middleware";
-import VerificationEmail from "../emails/VerificationEmail"; // Проверьте путь к вашему шаблону
+import VerificationEmail from "../emails/VerificationEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const REGISTRATION_SECRET = process.env.JWT_SECRET || "registration-secret-key";
 
 export async function register(request: Request) {
     await connectDB();
 
     const body = await request.json();
-
-    const {
-        firstName,
-        lastName,
-        email,
-        password,
-    } = body;
+    const { firstName, lastName, email, password } = body;
 
     if (!firstName || !lastName || !email || !password) {
         return NextResponse.json(
-            {
-                success: false,
-                message: "All fields are required",
-            },
-            {
-                status: 400,
-            }
-        );
-    }
-
-    const existingUser = await Users.findOne({ email });
-
-    if (existingUser) {
-        return NextResponse.json(
-            {
-                success: false,
-                message: "User already exists",
-            },
-            {
-                status: 409,
-            }
-        );
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Генерация токена подтверждения (24 часа)
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-    const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-    const user = await Users.create({
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-        isVerified: false,
-        verificationToken,
-        verificationTokenExpires,
-    });
-
-    // Формирование ссылки подтверждения
-    const domain = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const verifyUrl = `${domain}/api/auth/verify?token=${verificationToken}`;
-
-    // Отправка письма через Resend
-    try {
-        await resend.emails.send({
-            from: "ScholarizePath <onboarding@resend.dev>",
-            to: email,
-            subject: "Verify Your Email Address - ScholarizePath",
-            react: VerificationEmail({
-                firstName,
-                verifyUrl,
-            }),
-        });
-    } catch (emailError) {
-        console.error("Failed to send verification email:", emailError);
-    }
-
-    // Возвращаем ответ БЕЗ установки куки авторизации, пока почта не подтверждена
-    return NextResponse.json(
-        {
-            success: true,
-            message: "Account created! Please check your email to verify your account.",
-            user: {
-                id: user._id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                isVerified: user.isVerified,
-            },
-        },
-        { status: 201 }
-    );
-}
-
-export async function login(request: Request) {
-    await connectDB();
-
-    const body = await request.json();
-
-    const { email, password } = body;
-
-    if (!email || !password) {
-        return NextResponse.json(
-            {
-                success: false,
-                message: "Email and password are required",
-            },
+            { success: false, message: "All fields are required" },
             { status: 400 }
         );
     }
 
-    const user = await Users.findOne({ email });
+    const cleanEmail = email.toLowerCase().trim();
 
-    if (!user) {
+    // Проверяем, нет ли УЖЕ подтвержденного пользователя в БД
+    const existingUser = await Users.findOne({ email: cleanEmail });
+    if (existingUser) {
         return NextResponse.json(
-            {
-                success: false,
-                message: "Invalid credentials",
-            },
-            { status: 401 }
+            { success: false, message: "User already exists" },
+            { status: 409 }
         );
     }
 
-    const isPasswordCorrect = await bcrypt.compare(
-        password,
-        user.password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationCode = crypto.randomInt(100000, 1000000).toString();
+
+    // Отправка письма с кодом
+    try {
+        await resend.emails.send({
+            from: "ScholarizePath <onboarding@resend.dev>",
+            to: cleanEmail,
+            subject: "Your Verification Code - ScholarizePath",
+            react: VerificationEmail({
+                firstName,
+                code: verificationCode,
+            }),
+        });
+    } catch (emailError) {
+        console.error("Failed to send verification email:", emailError);
+        return NextResponse.json(
+            { success: false, message: "Failed to send verification email" },
+            { status: 500 }
+        );
+    }
+
+    // Создаем регистрационный токен сессии (живет 15 минут)
+    const registerSessionToken = jwt.sign(
+        {
+            firstName,
+            lastName,
+            email: cleanEmail,
+            password: hashedPassword,
+            verificationCode,
+        },
+        REGISTRATION_SECRET,
+        { expiresIn: "15m" }
     );
-
-    if (!isPasswordCorrect) {
-        return NextResponse.json(
-            {
-                success: false,
-                message: "Invalid credentials",
-            },
-            { status: 401 }
-        );
-    }
-
-    // 🔒 Проверка подтверждения почты
-    if (!user.isVerified) {
-        return NextResponse.json(
-            {
-                success: false,
-                message: "Please verify your email address before logging in.",
-            },
-            { status: 403 }
-        );
-    }
-
-    const token = generateToken(user._id.toString());
 
     const response = NextResponse.json(
         {
             success: true,
-            message: "Login successful",
+            message: "Verification code sent! Please check your email.",
+        },
+        { status: 200 }
+    );
+
+    // Сохраняем временно в куку (на 15 минут)
+    response.cookies.set({
+        name: "register_session",
+        value: registerSessionToken,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 15 * 60,
+        path: "/",
+    });
+
+    return response;
+}
+
+export async function verify(request: Request) {
+    // Достаем сессию из куки или заголовка
+    const cookieHeader = request.headers.get("cookie") || "";
+    const sessionCookie = cookieHeader
+        .split("; ")
+        .find((row) => row.startsWith("register_session="))
+        ?.split("=")[1];
+
+    if (!sessionCookie) {
+        return NextResponse.json(
+            { success: false, message: "Registration session expired. Please register again." },
+            { status: 400 }
+        );
+    }
+
+    let payload: any;
+    try {
+        payload = jwt.verify(sessionCookie, REGISTRATION_SECRET);
+    } catch (err) {
+        return NextResponse.json(
+            { success: false, message: "Verification code expired or invalid session." },
+            { status: 400 }
+        );
+    }
+
+    const body = await request.json();
+    const { code } = body;
+
+    if (!code) {
+        return NextResponse.json(
+            { success: false, message: "Verification code is required" },
+            { status: 400 }
+        );
+    }
+
+    // Проверяем введенный код
+    if (payload.verificationCode !== code.toString().trim()) {
+        return NextResponse.json(
+            { success: false, message: "Invalid verification code" },
+            { status: 400 }
+        );
+    }
+
+    await connectDB();
+
+    // Проверяем еще раз перед записью, не зарегистрировался ли кто-то с этим email
+    const existingUser = await Users.findOne({ email: payload.email });
+    if (existingUser) {
+        return NextResponse.json(
+            { success: false, message: "User already registered" },
+            { status: 409 }
+        );
+    }
+
+    // СОЗДАЕМ ПОЛЬЗОВАТЕЛЯ В БД ТОЛЬКО СЕЙЧАС
+    // profileSetupComplete не указываем явно — берётся default: false из схемы
+    const user = await Users.create({
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        email: payload.email,
+        password: payload.password,
+        isVerified: true,
+    });
+
+    // Создаем боевой JWT токен авторизации.
+    // Новый пользователь всегда начинает с profileSetupComplete: false —
+    // это то, что заставит proxy.ts принудительно отправить его на /profile/setup.
+    const authToken = jwt.sign(
+        {
+            userId: user._id.toString(),
+            role: user.role,
+            profileSetupComplete: user.profileSetupComplete,
+        },
+        process.env.JWT_SECRET || "secret",
+        { expiresIn: "7d" }
+    );
+
+    const response = NextResponse.json(
+        {
+            success: true,
+            message: "Email verified and account created successfully!",
             user: {
                 id: user._id,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
-                createdAt: user.createdAt,
             },
         },
-        { status: 200 }
+        { status: 201 }
     );
 
+    // Удаляем временную куку регистрации
+    response.cookies.set({
+        name: "register_session",
+        value: "",
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 0,
+        path: "/",
+    });
+
+    // Устанавливаем авторизационную куку token
     response.cookies.set({
         name: "token",
-        value: token,
+        value: authToken,
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
@@ -187,45 +208,79 @@ export async function login(request: Request) {
     return response;
 }
 
-export async function me(request: AuthRequest) {
+export async function login(request: Request) {
     await connectDB();
 
-    const auth = await authMiddleware(request);
+    const body = await request.json();
+    const { email, password } = body;
 
-    if (auth instanceof NextResponse) {
-        return auth;
-    }
-
-    const user = await Users.findById(auth).select("-password");
-    if (!user) {
+    if (!email || !password) {
         return NextResponse.json(
-            {
-                success: false,
-                message: "User not found",
-            },
-            {
-                status: 404,
-            }
+            { success: false, message: "Email and password are required" },
+            { status: 400 }
         );
     }
 
-    return NextResponse.json(
-        {
-            success: true,
-            user,
-        },
-        {
-            status: 200,
-        }
-    );
-}
+    const cleanEmail = email.toLowerCase().trim();
+    const user = await Users.findOne({ email: cleanEmail });
 
-export async function logout() {
+    if (!user) {
+        return NextResponse.json(
+            { success: false, message: "Invalid email or password" },
+            { status: 401 }
+        );
+    }
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+        return NextResponse.json(
+            { success: false, message: "Invalid email or password" },
+            { status: 401 }
+        );
+    }
+
+    // Читаем ТЕКУЩЕЕ состояние profileSetupComplete из БД —
+    // так возвращающийся пользователь не будет заново отправлен на /profile/setup.
+    const authToken = jwt.sign(
+        {
+            userId: user._id.toString(),
+            role: user.role,
+            profileSetupComplete: user.profileSetupComplete,
+        },
+        process.env.JWT_SECRET || "secret",
+        { expiresIn: "7d" }
+    );
+
     const response = NextResponse.json(
         {
             success: true,
-            message: "Logged out successfully",
+            message: "Logged in successfully",
+            user: {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+            },
         },
+        { status: 200 }
+    );
+
+    response.cookies.set({
+        name: "token",
+        value: authToken,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24 * 7,
+        path: "/",
+    });
+
+    return response;
+}
+
+export async function logout(request: Request) {
+    const response = NextResponse.json(
+        { success: true, message: "Logged out successfully" },
         { status: 200 }
     );
 

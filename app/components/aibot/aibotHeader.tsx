@@ -1,6 +1,4 @@
 "use client"
-
-import {  Bell } from "lucide-react";
 import Image from "next/image"
 
 function SearchBar() {
@@ -26,13 +24,6 @@ function SearchBar() {
                         </h2>
                     </div>
                 </div>
-
-                <button
-                    className="absolute right-6 rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-[rgb(2,76,209)]"
-                >
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
-                </button>
             </header>
         </div>
     );

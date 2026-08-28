@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { groq, AI_MODEL } from "@/lib/groq";
 import { aiTools, searchUniversities, searchScholarships } from "@/lib/ai/tools";
+import { authMiddleware } from "@/middleware/auth.middleware";
+import { checkRateLimit } from "@/lib/simpleRateLimit";
+import type { AuthRequest } from "@/types/auth";
 import type {
     StudentProfile,
     ChatMessage,
@@ -14,6 +17,12 @@ export const runtime = "nodejs";
 const MAX_HISTORY_MESSAGES = 12; // keep token usage/cost bounded on long chats
 const MAX_TOOL_TURNS = 4;
 const MAX_TRANSIENT_RETRIES = 2;
+
+// Каждый вызов делает до нескольких запросов к платному Groq API —
+// без лимита и без обязательной авторизации кто угодно мог бы
+// написать скрипт и спамить этот эндпоинт, сжигая бюджет.
+const CHAT_RATE_LIMIT = 15; // сообщений
+const CHAT_RATE_WINDOW_MS = 60 * 1000; // за 1 минуту, на юзера
 
 const FALLBACK_RESPONSE: AIChatResponse = {
     reply:
@@ -120,6 +129,30 @@ async function withRetries<T>(fn: () => Promise<T>, retries = MAX_TRANSIENT_RETR
 
 export async function POST(req: NextRequest) {
     try {
+        // Раньше этот эндпоинт был доступен без логина вообще —
+        // getStudentProfile() просто тихо возвращал null для анонимов,
+        // но сам чат при этом отрабатывал и тратил токены Groq.
+        // Теперь AI-бот доступен только залогиненным пользователям.
+        const auth = await authMiddleware(req as AuthRequest);
+        if (auth instanceof NextResponse) {
+            return auth;
+        }
+        if (!auth) {
+            return NextResponse.json(
+                { success: false, message: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+        const userId = auth;
+
+        const { allowed } = checkRateLimit(userId, CHAT_RATE_LIMIT, CHAT_RATE_WINDOW_MS);
+        if (!allowed) {
+            return NextResponse.json(
+                { success: false, message: "Too many messages — please slow down and try again in a minute." },
+                { status: 429 }
+            );
+        }
+
         let body: { message?: string; history?: ChatMessage[] };
         try {
             body = await req.json();

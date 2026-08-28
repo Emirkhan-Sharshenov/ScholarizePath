@@ -11,13 +11,9 @@ export async function GET(
 
         const { id } = await params;
 
-        console.log("REQUESTED UNIVERSITY ID:", id);
-
         const university = await Universities
             .findOne({ _id: id })
             .lean();
-
-        console.log("FOUND UNIVERSITY:", university);
 
         if (!university) {
             return NextResponse.json(

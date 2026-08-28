@@ -11,13 +11,9 @@ export async function GET(
 
         const { id } = await params;
 
-        console.log("REQUESTED SCHOLARSHIP ID:", id);
-
         const scholarship = await Scholarships
             .findOne({ _id: id })
             .lean();
-
-        console.log("FOUND SCHOLARSHIP:", scholarship);
 
         if (!scholarship) {
             return NextResponse.json(

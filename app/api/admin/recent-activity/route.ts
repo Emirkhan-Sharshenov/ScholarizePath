@@ -3,6 +3,8 @@ import { connectDB } from "@/lib/mongodb";
 import Users from "@/models/Users";
 import Universities from "@/models/Universities";
 import Scholarship from "@/models/Scholarship";
+import { requireAdmin } from "@/lib/requireAdmin";
+import { AuthRequest } from "@/types/auth";
 
 interface ActivityItem {
     action: string;
@@ -11,7 +13,14 @@ interface ActivityItem {
     time: string; // ISO date, formatted client-side
 }
 
-export async function GET() {
+export async function GET(request: AuthRequest) {
+    // Только для admin — раньше сюда мог зайти кто угодно без логина
+    // и увидеть имена/фамилии последних зарегистрированных пользователей.
+    const auth = await requireAdmin(request);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+
     try {
         await connectDB();
 
@@ -62,7 +71,6 @@ export async function GET() {
             }),
         ];
 
-        // Merge all three sources and keep only the most recent overall
         items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
 
         return NextResponse.json({

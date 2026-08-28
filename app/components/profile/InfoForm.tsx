@@ -144,7 +144,6 @@ export default function AdditionalInfoForm() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Selected test type: 'ielts' or 'toefl'
     const [englishTestType, setEnglishTestType] = useState<'ielts' | 'toefl'>('ielts');
 
     const [formData, setFormData] = useState({
@@ -165,10 +164,6 @@ export default function AdditionalInfoForm() {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    // Switching between IELTS/TOEFL must clear the shared score field —
-    // IELTS (0–9.0) and TOEFL (0–120) scales are incompatible, so carrying
-    // the old value over silently produces a nonsensical score/type pair
-    // (e.g. englishTestType: 'toefl' with englishScore: 7.5).
     const handleTestTypeChange = (type: 'ielts' | 'toefl') => {
         setEnglishTestType(type);
         setFormData((prev) => ({ ...prev, englishScore: '' }));
@@ -179,13 +174,18 @@ export default function AdditionalInfoForm() {
         setLoading(true);
         setError(null);
 
+        // Shape must match what POST /api/profile/setup expects:
+        // englishTest is a nested { type, score } object, and type must be
+        // uppercase "IELTS"/"TOEFL" to satisfy the Mongoose schema enum.
         const payload = {
             age: formData.age ? Number(formData.age) : null,
             nationality: formData.nationality || null,
             gpa: formData.gpa ? Number(formData.gpa) : null,
             sat: formData.satScore ? Number(formData.satScore) : null,
-            englishTestType, // Sends 'ielts' or 'toefl'
-            englishScore: formData.englishScore ? Number(formData.englishScore) : null,
+            englishTest: {
+                type: englishTestType.toUpperCase(), // "IELTS" | "TOEFL"
+                score: formData.englishScore ? Number(formData.englishScore) : null,
+            },
             preferredField: formData.fieldOfStudy || null,
             preferredCountry: formData.country || null,
             programLevel: formData.programLevel || null,
@@ -193,7 +193,7 @@ export default function AdditionalInfoForm() {
 
         try {
             const res = await fetch('/api/auth/profile', {
-                method: 'PATCH',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -219,11 +219,11 @@ export default function AdditionalInfoForm() {
     };
 
     return (
-        <div className="flex min-h-screen items-center bg-[rgb(246,247,251)] justify-center  px-4 py-12 font-sans">
+        <div className="flex min-h-screen items-center justify-center bg-[rgb(246,247,251)] px-4 py-12 font-sans">
             <div className="w-full max-w-[580px]">
                 {/* Header */}
-                <div className="text-center mb-8">
-                    <h1 className="text-[28px] font-bold text-slate-900 tracking-tight">
+                <div className="mb-8 text-center">
+                    <h1 className="text-[28px] font-bold tracking-tight text-slate-900">
                         Collecting Additional Information
                     </h1>
                     <p className="mt-1.5 text-sm text-slate-500">
@@ -232,9 +232,9 @@ export default function AdditionalInfoForm() {
                 </div>
 
                 {/* Card Container */}
-                <div className="rounded-2xl bg-white p-8 shadow-sm border border-slate-100">
+                <div className="rounded-2xl border border-slate-100 bg-white p-8 shadow-sm">
                     {error && (
-                        <div className="mb-6 rounded-lg bg-red-50 p-3.5 text-sm text-red-600 border border-red-100">
+                        <div className="mb-6 rounded-lg border border-red-100 bg-red-50 p-3.5 text-sm text-red-600">
                             {error}
                         </div>
                     )}
@@ -243,7 +243,7 @@ export default function AdditionalInfoForm() {
                         {/* Row 1: Age & Nationality */}
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <label htmlFor="age" className="block text-sm font-semibold text-slate-900 mb-1.5">
+                                <label htmlFor="age" className="mb-1.5 block text-sm font-semibold text-slate-900">
                                     Age
                                 </label>
                                 <input
@@ -259,7 +259,7 @@ export default function AdditionalInfoForm() {
                             </div>
 
                             <div>
-                                <label htmlFor="nationality" className="block text-sm font-semibold text-slate-900 mb-1.5">
+                                <label htmlFor="nationality" className="mb-1.5 block text-sm font-semibold text-slate-900">
                                     Nationality
                                 </label>
                                 <div className="relative">
@@ -268,7 +268,7 @@ export default function AdditionalInfoForm() {
                                         name="nationality"
                                         value={formData.nationality}
                                         onChange={handleChange}
-                                        className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600 cursor-pointer"
+                                        className="w-full cursor-pointer appearance-none rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                                     >
                                         {COUNTRY_LIST.map((c) => (
                                             <option key={`nat-${c.name}`} value={c.name}>
@@ -284,7 +284,7 @@ export default function AdditionalInfoForm() {
                         {/* Row 2: GPA & SAT Score */}
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <label htmlFor="gpa" className="block text-sm font-semibold text-slate-900 mb-1.5">
+                                <label htmlFor="gpa" className="mb-1.5 block text-sm font-semibold text-slate-900">
                                     GPA
                                 </label>
                                 <input
@@ -298,13 +298,13 @@ export default function AdditionalInfoForm() {
                                     onChange={handleChange}
                                     className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                                 />
-                                <span className="mt-1 block text-xs text-slate-400 font-normal">
+                                <span className="mt-1 block text-xs font-normal text-slate-400">
                                     Scale: 4.0 and e.g., 4.0
                                 </span>
                             </div>
 
                             <div>
-                                <label htmlFor="satScore" className="block text-sm font-semibold text-slate-900 mb-1.5">
+                                <label htmlFor="satScore" className="mb-1.5 block text-sm font-semibold text-slate-900">
                                     SAT Score
                                 </label>
                                 <input
@@ -323,7 +323,6 @@ export default function AdditionalInfoForm() {
                         {/* Row 3: IELTS / TOEFL Toggle + Score & Field of Study */}
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                {/* IELTS / TOEFL Toggle Tab */}
                                 <div className="mb-1.5 flex items-center justify-between">
                                     <span className="text-sm font-semibold text-slate-900">
                                         English Proficiency
@@ -355,7 +354,7 @@ export default function AdditionalInfoForm() {
                                 <input
                                     type="number"
                                     step={englishTestType === 'ielts' ? '0.5' : '1'}
-                                    min={englishTestType === 'ielts' ? '0' : '0'}
+                                    min="0"
                                     max={englishTestType === 'ielts' ? '9.0' : '120'}
                                     id="englishScore"
                                     name="englishScore"
@@ -369,7 +368,7 @@ export default function AdditionalInfoForm() {
                             </div>
 
                             <div>
-                                <label htmlFor="fieldOfStudy" className="block text-sm font-semibold text-slate-900 mb-1.5">
+                                <label htmlFor="fieldOfStudy" className="mb-1.5 block text-sm font-semibold text-slate-900">
                                     Preferred Field of Study <span className="font-normal text-slate-500">(Optional)</span>
                                 </label>
                                 <input
@@ -385,7 +384,7 @@ export default function AdditionalInfoForm() {
 
                         {/* Preferred Country */}
                         <div>
-                            <label htmlFor="country" className="block text-sm font-semibold text-slate-900 mb-1.5">
+                            <label htmlFor="country" className="mb-1.5 block text-sm font-semibold text-slate-900">
                                 Preferred Country <span className="font-normal text-slate-500">(Optional)</span>
                             </label>
                             <div className="relative">
@@ -394,7 +393,7 @@ export default function AdditionalInfoForm() {
                                     name="country"
                                     value={formData.country}
                                     onChange={handleChange}
-                                    className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600 cursor-pointer"
+                                    className="w-full cursor-pointer appearance-none rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                                 >
                                     <option value="">Select country...</option>
                                     {COUNTRY_LIST.map((c) => (
@@ -409,7 +408,7 @@ export default function AdditionalInfoForm() {
 
                         {/* Program Level */}
                         <div>
-                            <label htmlFor="programLevel" className="block text-sm font-semibold text-slate-900 mb-1.5">
+                            <label htmlFor="programLevel" className="mb-1.5 block text-sm font-semibold text-slate-900">
                                 Program Level <span className="font-normal text-slate-500">(Optional)</span>
                             </label>
                             <div className="relative">
@@ -418,7 +417,7 @@ export default function AdditionalInfoForm() {
                                     name="programLevel"
                                     value={formData.programLevel}
                                     onChange={handleChange}
-                                    className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600 cursor-pointer"
+                                    className="w-full cursor-pointer appearance-none rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                                 >
                                     <option value="">Select level...</option>
                                     <option value="Bachelor">Bachelor</option>

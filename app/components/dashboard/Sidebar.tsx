@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -37,10 +38,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {/*
-        Always mounted, opacity/pointer-events toggle instead of add/remove -
-        gives the overlay an actual fade instead of popping in/out instantly.
-      */}
       <div
         onClick={() => setCollapsed(true)}
         aria-hidden={collapsed}
@@ -48,21 +45,41 @@ export default function Sidebar() {
           }`}
       />
 
-      {/*
-        Single transition rule drives both:
-        - mobile: transform (translateX) slide-in/out
-        - desktop: width change (collapsed <-> expanded)
-        Duration/easing (200ms ease-out) MUST match MainContent's margin-left
-        transition, or the content area and sidebar visibly desync.
-        will-change + contain keep the reflow scoped to this element only.
-      */}
       <aside
         className={`fixed left-0 top-0 z-50 h-screen bg-[rgb(252,253,255)] flex flex-col items-start overflow-hidden
           transform-gpu will-change-[width,transform] [contain:layout_paint]
           transition-[width,transform] duration-200 ease-out
           ${collapsed ? "-translate-x-full md:translate-x-0 md:w-20" : "translate-x-0 w-64"}`}
       >
-        <div className="mt-4 mb-4 w-full px-3 shrink-0">
+        {/*
+          Logo row. Icon has real intrinsic ratio (498x386) so width/height
+          below reserves the exact box before the file loads - no shift.
+          "ScholarizePath" is live text, not a raster, so it stays crisp at
+          this size and fades with the same opacity rule as nav labels.
+        */}
+        <Link
+          href="/dashboard"
+          className="mt-4 flex h-11 w-full shrink-0 items-center px-3"
+        >
+          <div className="flex h-11 w-14 shrink-0 items-center justify-center">
+            <Image
+              src="/images/logo-icon.png"
+              alt="ScholarizePath"
+              width={498}
+              height={386}
+              priority
+              className="h-8 w-auto object-contain"
+            />
+          </div>
+          <span
+            className={`ml-2 whitespace-nowrap text-lg font-bold tracking-tight text-[rgb(18,26,59)] transition-opacity duration-150 ease-out ${collapsed ? "opacity-0 pointer-events-none" : "opacity-100"
+              }`}
+          >
+            ScholarizePath
+          </span>
+        </Link>
+
+        <div className="mb-4 mt-2 w-full px-3 shrink-0">
           <button
             onClick={() => setCollapsed(!collapsed)}
             aria-label="Toggle sidebar"

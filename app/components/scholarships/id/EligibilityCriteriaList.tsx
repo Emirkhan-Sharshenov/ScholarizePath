@@ -102,12 +102,6 @@ export function EligibilityCriteriaList({ scholarship, userProfile }: Eligibilit
                     </div>
                 ))}
             </div>
-
-            <div className="mt-6 pt-4 border-t border-slate-100">
-                <button className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 transition">
-                    View full details <ChevronRight className="h-3.5 w-3.5" />
-                </button>
-            </div>
         </div>
     );
 }
