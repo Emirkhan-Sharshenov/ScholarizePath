@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, Compass } from 'lucide-react';
+import { Compass } from 'lucide-react';
 
 export interface ScholarshipCardData {
     id: string;
@@ -113,10 +113,6 @@ export default function AIRecommendationsCard({
                                         onClick={(e) => toggleFavorite(e, `scholarship-${item.id}`)}
                                         className="text-slate-300 hover:text-rose-500 transition"
                                     >
-                                        <Heart
-                                            className={`w-4 h-4 ${favorites[`scholarship-${item.id}`] ? 'fill-rose-500 text-rose-500' : ''
-                                                }`}
-                                        />
                                     </button>
                                 </div>
                             </Link>
@@ -159,10 +155,6 @@ export default function AIRecommendationsCard({
                                         onClick={(e) => toggleFavorite(e, `university-${item.id}`)}
                                         className="text-slate-300 hover:text-rose-500 transition"
                                     >
-                                        <Heart
-                                            className={`w-4 h-4 ${favorites[`university-${item.id}`] ? 'fill-rose-500 text-rose-500' : ''
-                                                }`}
-                                        />
                                     </button>
                                 </div>
                             </Link>

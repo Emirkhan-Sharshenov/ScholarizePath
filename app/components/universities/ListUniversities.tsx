@@ -22,6 +22,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
     const itemsPerPage = 5;
 
     const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
+
     useEffect(() => {
         const timer = setTimeout(() => setDebouncedSearch(filters.search), 350);
         return () => clearTimeout(timer);
@@ -67,8 +68,10 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
             setTotalCount(json.totalCount || 0);
             setTotalPages(json.totalPages || 1);
         } catch (error) {
-            console.error(error);
+            console.error('Fetch error:', error);
             setUniversities([]);
+            setTotalCount(0);
+            setTotalPages(1);
         } finally {
             setLoading(false);
         }
@@ -99,15 +102,15 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
 
     const getRanking = (uni: any): string => {
         if (typeof uni.ranking === 'number' || typeof uni.ranking === 'string') return `#${uni.ranking}`;
-        const rank = uni.ranking?.global || uni.ranking?.qs || uni.ranking?.world || uni.ranking?.national;
-        return rank ? `#${rank}` : 'N/A';
+        const rank = uni.ranking?.global ?? uni.ranking?.qs ?? uni.ranking?.world ?? uni.ranking?.national;
+        return rank !== undefined && rank !== null ? `#${rank}` : 'N/A';
     };
 
     const getTuition = (uni: any): string => {
         if (typeof uni.tuition === 'number') return `$${uni.tuition.toLocaleString('en-US')}`;
         if (typeof uni.tuition === 'string') return uni.tuition;
-        const bachelor = uni.tuition?.bachelor;
-        if (bachelor) return `$${bachelor.toLocaleString('en-US')}`;
+        const val = uni.tuition?.bachelor ?? uni.tuition?.master ?? uni.tuition?.phd;
+        if (val !== undefined && val !== null) return `$${val.toLocaleString('en-US')}`;
         return 'N/A';
     };
 
@@ -116,7 +119,6 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
 
     return (
         <div className="w-full font-sans">
-
             {/* MOBILE SEARCH BAR & FILTERS BUTTON */}
             <div className="mb-5 flex items-center gap-2.5 lg:hidden">
                 <div className="relative flex-1">
@@ -125,7 +127,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                         type="text"
                         value={filters.search}
                         onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
-                        placeholder="Search by name, provider..."
+                        placeholder="Search by name, country, city..."
                         className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-xs text-slate-800 outline-none shadow-2xs focus:border-blue-600"
                     />
                 </div>
@@ -182,8 +184,8 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                                 onChange={(e) => setSortBy(e.target.value)}
                                 className="cursor-pointer appearance-none rounded-xl border border-gray-200/80 bg-slate-50 py-2 pl-3 pr-8 text-xs font-semibold text-slate-800 outline-none transition focus:border-blue-600 focus:bg-white"
                             >
-                                <option value="Ranking: High to Low">Ranking: High to Low</option>
-                                <option value="Ranking: Low to High">Ranking: Low to High</option>
+                                <option value="Ranking: High to Low">Ranking: High to Low (#1 to #100)</option>
+                                <option value="Ranking: Low to High">Ranking: Low to High (#100 to #1)</option>
                                 <option value="Tuition: Low to High">Tuition: Low to High</option>
                                 <option value="Tuition: High to Low">Tuition: High to Low</option>
                             </select>
@@ -192,7 +194,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                     </div>
                 </div>
 
-                <div className={`my-2 w-full transition-opacity ${loading ? 'opacity-50' : 'opacity-100'}`}>
+                <div className={`my-2 w-full transition-opacity ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                     <table className="w-full table-fixed border-collapse text-left">
                         <thead>
                             <tr className="border-b border-gray-100 text-xs font-semibold text-slate-500">
@@ -206,7 +208,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                         </thead>
 
                         <tbody className="divide-y divide-gray-100/80 text-xs">
-                            {universities.length === 0 ? (
+                            {universities.length === 0 && !loading ? (
                                 <tr>
                                     <td colSpan={6} className="py-12 text-center text-slate-400">
                                         No universities match the selected filters.
@@ -254,7 +256,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                 {/* DESKTOP PAGINATION */}
                 <div className="flex items-center justify-center gap-1.5 border-t border-gray-100 pt-6">
                     <button
-                        disabled={currentPage <= 1}
+                        disabled={currentPage <= 1 || loading}
                         onClick={() => setCurrentPage((p) => p - 1)}
                         className="mr-2 rounded-lg border border-gray-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
@@ -294,6 +296,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                                 <button
                                     key={`page-btn-${page}`}
                                     onClick={() => setCurrentPage(Number(page))}
+                                    disabled={loading}
                                     className={`h-8 w-8 rounded-lg text-xs font-semibold transition ${currentPage === page
                                             ? 'bg-blue-600 text-white'
                                             : 'bg-transparent text-slate-700 hover:bg-gray-100'
@@ -306,7 +309,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                     })()}
 
                     <button
-                        disabled={currentPage >= totalPages || totalPages === 0}
+                        disabled={currentPage >= totalPages || totalPages === 0 || loading}
                         onClick={() => setCurrentPage((p) => p + 1)}
                         className="ml-2 rounded-lg border border-gray-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
@@ -316,8 +319,8 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
             </div>
 
             {/* MOBILE CARDS VIEW */}
-            <div className="space-y-4 md:hidden">
-                {universities.length === 0 ? (
+            <div className={`space-y-4 md:hidden transition-opacity ${loading ? 'opacity-50' : 'opacity-100'}`}>
+                {universities.length === 0 && !loading ? (
                     <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center text-xs text-slate-400">
                         No universities match the selected filters.
                     </div>
@@ -360,7 +363,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                 {/* MOBILE PAGINATION */}
                 <div className="flex items-center justify-between pt-2">
                     <button
-                        disabled={currentPage <= 1}
+                        disabled={currentPage <= 1 || loading}
                         onClick={() => setCurrentPage((p) => p - 1)}
                         className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition disabled:opacity-50"
                     >
@@ -370,7 +373,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                         Page {currentPage} of {totalPages}
                     </span>
                     <button
-                        disabled={currentPage >= totalPages || totalPages === 0}
+                        disabled={currentPage >= totalPages || totalPages === 0 || loading}
                         onClick={() => setCurrentPage((p) => p + 1)}
                         className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition disabled:opacity-50"
                     >
@@ -378,7 +381,6 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                     </button>
                 </div>
             </div>
-
         </div>
     );
 }

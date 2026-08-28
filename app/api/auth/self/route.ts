@@ -21,7 +21,9 @@ export async function GET(request: AuthRequest) {
             );
         }
 
-        const user = await User.findById(auth).select("-password").lean();
+        // authMiddleware now returns the full decoded payload ({ userId, role, profileSetupComplete }),
+        // not just the bare id — so we pull userId off it here.
+        const user = await User.findById(auth.userId).select("-password").lean();
 
         if (!user) {
             return NextResponse.json(
@@ -72,7 +74,11 @@ export async function PUT(request: AuthRequest) {
 
         const updateData = await request.json();
 
-        const updatedUser = await User.findByIdAndUpdate(auth, updateData, {
+        // Never let a generic profile-update call flip this flag — only the
+        // dedicated /api/profile/setup route is allowed to do that.
+        delete updateData.profileSetupComplete;
+
+        const updatedUser = await User.findByIdAndUpdate(auth.userId, updateData, {
             new: true,
             runValidators: true,
         })

@@ -96,14 +96,9 @@ export default function AIChatCard({ onRecommendations }: AIChatCardProps) {
             <div className="space-y-6">
                 <div className="flex items-center justify-between pb-6 border-b border-slate-100/80">
                     <div className="flex items-center gap-4">
-                        <div className="relative w-16 h-16 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-100 p-0.5 shadow-sm">
-                            <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden relative">
-                                <Image src="/images/aibot/bot-avatar.png" alt="AI Assistant" width={64} height={64} className="object-cover" />
-                            </div>
-                        </div>
                         <div>
                             <h1 className="text-xl md:text-2xl font-bold text-slate-900 flex items-center gap-2">
-                                Hello, Ayesha!
+                                Hello, Student!
                             </h1>
                             <p className="text-xs md:text-sm text-slate-500 mt-1">
                                 I'm your AI assistant. I can help you find the best scholarships, universities, and opportunities tailored just for you.
@@ -111,8 +106,6 @@ export default function AIChatCard({ onRecommendations }: AIChatCardProps) {
                         </div>
                     </div>
                 </div>
-
-                {/* Chat Messages Area */}
                 <div className="space-y-4 pt-2 max-h-[420px] overflow-y-auto pr-1">
                     {messages.map((msg, i) =>
                         msg.role === 'user' ? (

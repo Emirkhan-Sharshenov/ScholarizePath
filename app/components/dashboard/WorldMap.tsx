@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
+const PROJECTION_CONFIG = { scale: 145 }; // hoisted - stable reference across renders
 
 export interface RegionConfig {
     id: string;
@@ -102,7 +103,6 @@ export const REGIONS_DATA: RegionConfig[] = [
     },
 ];
 
-// Universities mapping (54 assigned to United Arab Emirates)
 const UNIVERSITIES_COUNT: Record<string, number> = {
     "United Kingdom": 86,
     "UK": 86,
@@ -117,7 +117,7 @@ const UNIVERSITIES_COUNT: Record<string, number> = {
     "Turkey": 85,
     "Turkiye": 85,
     "Malaysia": 70,
-    "United Arab Emirates": 54, // Match key for world-atlas
+    "United Arab Emirates": 54,
     "UAE": 54,
     "OAE": 54,
     "Switzerland": 50,
@@ -128,9 +128,14 @@ const UNIVERSITIES_COUNT: Record<string, number> = {
     "United States": 74,
     "USA": 74,
     "China": 87,
+    "Russia": 75,
+    "France": 83,
+    "Spain": 80,
+    "Brazil": 73,
+    "India": 79,
+    "Nigeria": 83
 };
 
-// Scholarships mapping
 const SCHOLARSHIPS_COUNT: Record<string, number> = {
     "United States of America": 19,
     "United States": 19,
@@ -141,6 +146,15 @@ const SCHOLARSHIPS_COUNT: Record<string, number> = {
     "South Korea": 5,
     "Korea, Republic of": 5,
     "Germany": 8,
+    "Japan": 6,
+    "Italy" : 6,
+    "UAE" : 6,
+    "Turkey": 5,
+    "Russia": 3,
+    "Saudi Arabia": 4,
+    "Qatar": 5,
+    "Australia": 5,
+    "Chech Republic": 4
 };
 
 const COUNTRY_TO_REGION = new Map<string, string>();
@@ -151,122 +165,198 @@ REGIONS_DATA.forEach((region) => {
 });
 
 function getBlueColorByData(unis: number): string {
-    if (unis === 0) return "#F3F4F6";       // No data (light gray)
-    if (unis <= 25) return "#BFDBFE";      // Light blue
-    if (unis <= 45) return "#60A5FA";      // Mid-light blue
-    if (unis <= 65) return "#2563EB";      // Medium blue
-    if (unis <= 80) return "#1E40AF";      // Dark blue
-    return "#0F172A";                      // Deepest dark blue
+    if (unis === 0) return "#F3F4F6";
+    if (unis <= 25) return "#BFDBFE";
+    if (unis <= 45) return "#60A5FA";
+    if (unis <= 65) return "#2563EB";
+    if (unis <= 80) return "#1E40AF";
+    return "#0F172A";
 }
 
 interface HoveredCountry {
     name: string;
     unis: number;
     scholarships: number;
-    x: number;
-    y: number;
 }
 
 interface WorldMapProps {
     selectedRegionId?: string | null;
 }
 
+// Isolated so hover state changes never re-render the (expensive) geography
+// list. It only depends on selectedRegionId/activeRegion.
+const CountryGeographies = React.memo(function CountryGeographies({
+    selectedRegionId,
+    activeRegion,
+    onCountryEnter,
+    onCountryLeave,
+}: {
+    selectedRegionId?: string | null;
+    activeRegion?: RegionConfig;
+    onCountryEnter: (name: string, unis: number, scholarships: number) => void;
+    onCountryLeave: () => void;
+}) {
+    return (
+        <Geographies geography={geoUrl}>
+            {({ geographies }: { geographies: any[] }) =>
+                geographies.map((geo: any) => {
+                    const countryName = geo.properties.name as string;
+
+                    const unis = UNIVERSITIES_COUNT[countryName] || 0;
+                    const scholarships = SCHOLARSHIPS_COUNT[countryName] || 0;
+                    const hasData = unis > 0 || scholarships > 0;
+
+                    const regionId = COUNTRY_TO_REGION.get(countryName?.toLowerCase());
+                    const isInSelectedRegion = selectedRegionId && regionId === selectedRegionId;
+
+                    let fillColor = getBlueColorByData(unis);
+
+                    if (selectedRegionId) {
+                        fillColor = isInSelectedRegion && activeRegion ? activeRegion.hexColor : "#E5E7EB";
+                    }
+
+                    return (
+                        <Geography
+                            key={geo.rsmKey}
+                            geography={geo}
+                            // onMouseEnter fires ONCE per country entry, not on every
+                            // pixel of mouse movement - this is the main fix.
+                            onMouseEnter={() => {
+                                if (hasData) onCountryEnter(countryName, unis, scholarships);
+                            }}
+                            onMouseLeave={onCountryLeave}
+                            style={{
+                                default: {
+                                    fill: fillColor,
+                                    stroke: isInSelectedRegion ? "#1E293B" : "#D1D5DB",
+                                    strokeWidth: isInSelectedRegion ? 1 : 0.5,
+                                    outline: "none",
+                                },
+                                hover: {
+                                    fill: selectedRegionId
+                                        ? (isInSelectedRegion && activeRegion ? activeRegion.hexColor : "#D1D5DB")
+                                        : (hasData ? "#1D4ED8" : "#D1D5DB"),
+                                    stroke: "#0F172A",
+                                    strokeWidth: 1,
+                                    outline: "none",
+                                    cursor: hasData ? "pointer" : "default",
+                                },
+                                pressed: {
+                                    fill: fillColor,
+                                    outline: "none",
+                                },
+                            }}
+                        />
+                    );
+                })
+            }
+        </Geographies>
+    );
+});
+
 export default function WorldMap({ selectedRegionId }: WorldMapProps) {
     const [hoveredCountry, setHoveredCountry] = useState<HoveredCountry | null>(null);
+
+    const containerRef = useRef<HTMLDivElement>(null);
+    const tooltipRef = useRef<HTMLDivElement>(null);
+    const rectRef = useRef<DOMRect | null>(null);
+    const rafId = useRef<number | null>(null);
+    const pendingPos = useRef<{ x: number; y: number } | null>(null);
 
     const activeRegion = useMemo(
         () => REGIONS_DATA.find((r) => r.id === selectedRegionId),
         [selectedRegionId]
     );
 
-    const handleMouseMove = useCallback((e: React.MouseEvent<SVGPathElement>, name: string, unis: number, scholarships: number) => {
-        const x = e.clientX;
-        const y = e.clientY;
-
-        requestAnimationFrame(() => {
-            setHoveredCountry({ name, unis, scholarships, x, y });
-        });
+    // getBoundingClientRect forces a layout read, so it must NOT run on every
+    // mousemove (that would cause forced reflow at 60fps and defeat the whole
+    // optimization). Cache it once when the cursor enters the map, refresh on
+    // resize/scroll.
+    const refreshRect = useCallback(() => {
+        if (containerRef.current) {
+            rectRef.current = containerRef.current.getBoundingClientRect();
+        }
     }, []);
 
-    const handleMouseLeave = useCallback(() => {
+    useEffect(() => {
+        refreshRect();
+        window.addEventListener("resize", refreshRect);
+        window.addEventListener("scroll", refreshRect, true);
+        return () => {
+            window.removeEventListener("resize", refreshRect);
+            window.removeEventListener("scroll", refreshRect, true);
+            if (rafId.current != null) cancelAnimationFrame(rafId.current);
+        };
+    }, [refreshRect]);
+
+    // Position is computed relative to the map container's own box, not the
+    // viewport - this makes it immune to any ancestor having `transform`
+    // (e.g. the sidebar's transform-gpu), which is what breaks `position:
+    // fixed` + clientX/clientY. Still zero React state - written straight to
+    // the DOM.
+    const flushPosition = useCallback(() => {
+        rafId.current = null;
+        const pos = pendingPos.current;
+        const rect = rectRef.current;
+        if (pos && rect && tooltipRef.current) {
+            let localX = pos.x - rect.left + 15;
+            let localY = pos.y - rect.top - 15;
+
+            // Basic edge clamping so the tooltip doesn't render outside the map box.
+            const maxX = rect.width - 160;
+            const maxY = rect.height - 60;
+            if (localX > maxX) localX = pos.x - rect.left - 175; // flip to the left of the cursor
+            if (localY < 0) localY = pos.y - rect.top + 15; // flip below the cursor
+            if (localY > maxY) localY = maxY;
+
+            tooltipRef.current.style.transform = `translate(${localX}px, ${localY}px)`;
+        }
+    }, []);
+
+    const handleMouseMove = useCallback((e: React.MouseEvent) => {
+        pendingPos.current = { x: e.clientX, y: e.clientY };
+        if (rafId.current == null) {
+            rafId.current = requestAnimationFrame(flushPosition);
+        }
+    }, [flushPosition]);
+
+    const handleCountryEnter = useCallback((name: string, unis: number, scholarships: number) => {
+        refreshRect(); // cheap safety net in case layout shifted since last cache
+        setHoveredCountry({ name, unis, scholarships });
+    }, [refreshRect]);
+
+    const handleCountryLeave = useCallback(() => {
         setHoveredCountry(null);
     }, []);
 
     return (
-        <div className="w-full h-full relative bg-[rgb(246,247,251)]">
+        <div
+            ref={containerRef}
+            onMouseMove={handleMouseMove}
+            className="w-full h-full relative bg-[rgb(246,247,251)]"
+        >
             <ComposableMap
-                projectionConfig={{ scale: 145 }}
+                projectionConfig={PROJECTION_CONFIG}
                 width={800}
                 height={500}
                 className="w-full h-full"
             >
-                <Geographies geography={geoUrl}>
-                    {({ geographies }: { geographies: any[] }) =>
-                        geographies.map((geo: any) => {
-                            const countryName = geo.properties.name as string;
-
-                            const unis = UNIVERSITIES_COUNT[countryName] || 0;
-                            const scholarships = SCHOLARSHIPS_COUNT[countryName] || 0;
-                            const hasData = unis > 0 || scholarships > 0;
-
-                            const regionId = COUNTRY_TO_REGION.get(countryName?.toLowerCase());
-                            const isInSelectedRegion = selectedRegionId && regionId === selectedRegionId;
-
-                            let fillColor = getBlueColorByData(unis);
-
-                            if (selectedRegionId) {
-                                if (isInSelectedRegion && activeRegion) {
-                                    fillColor = activeRegion.hexColor;
-                                } else {
-                                    fillColor = "#E5E7EB";
-                                }
-                            }
-
-                            return (
-                                <Geography
-                                    key={geo.rsmKey}
-                                    geography={geo}
-                                    onMouseMove={(e) => {
-                                        if (hasData) {
-                                            handleMouseMove(e, countryName, unis, scholarships);
-                                        }
-                                    }}
-                                    onMouseLeave={handleMouseLeave}
-                                    style={{
-                                        default: {
-                                            fill: fillColor,
-                                            stroke: isInSelectedRegion ? "#1E293B" : "#D1D5DB",
-                                            strokeWidth: isInSelectedRegion ? 1 : 0.5,
-                                            outline: "none",
-                                        },
-                                        hover: {
-                                            fill: selectedRegionId
-                                                ? (isInSelectedRegion && activeRegion ? activeRegion.hexColor : "#D1D5DB")
-                                                : (hasData ? "#1D4ED8" : "#D1D5DB"),
-                                            stroke: "#0F172A",
-                                            strokeWidth: 1,
-                                            outline: "none",
-                                            cursor: hasData ? "pointer" : "default",
-                                        },
-                                        pressed: {
-                                            fill: fillColor,
-                                            outline: "none",
-                                        },
-                                    }}
-                                />
-                            );
-                        })
-                    }
-                </Geographies>
+                <CountryGeographies
+                    selectedRegionId={selectedRegionId}
+                    activeRegion={activeRegion}
+                    onCountryEnter={handleCountryEnter}
+                    onCountryLeave={handleCountryLeave}
+                />
             </ComposableMap>
 
             {hoveredCountry && (
                 <div
+                    ref={tooltipRef}
                     style={{
-                        position: "fixed",
-                        zIndex: 9999,
-                        left: hoveredCountry.x + 15,
-                        top: hoveredCountry.y - 15,
+                        position: "absolute",
+                        zIndex: 50,
+                        left: 0,
+                        top: 0,
                         pointerEvents: "none",
                         willChange: "transform",
                     }}
@@ -283,4 +373,4 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
             )}
         </div>
     );
-} 
+}

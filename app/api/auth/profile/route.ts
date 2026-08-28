@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
 import { connectDB } from "@/lib/mongodb";
-import Users from "@/models/Users";
-import { AuthRequest } from "@/types/auth";
+import User from "@/models/Users";
 import { authMiddleware } from "@/middleware/auth.middleware";
+import { AuthRequest } from "@/types/auth";
 
-export async function PATCH(request: AuthRequest) {
+export async function POST(request: AuthRequest) {
     try {
         await connectDB();
 
@@ -14,75 +15,128 @@ export async function PATCH(request: AuthRequest) {
             return auth;
         }
 
-        const body = await request.json();
+        if (!auth) {
+            return NextResponse.json(
+                { success: false, message: "Unauthorized" },
+                { status: 401 }
+            );
+        }
 
+        const body = await request.json();
         const {
             age,
             nationality,
             gpa,
             sat,
-            englishTestType, // 'ielts' | 'toefl' from AdditionalInfoForm
-            englishScore,
+            englishTest, // expected shape: { type: "IELTS" | "TOEFL", score: number }
             preferredField,
             preferredCountry,
             programLevel,
         } = body;
 
-        const user = await Users.findById(auth);
+        // Core academic fields are mandatory; preferredField/preferredCountry/programLevel
+        // are optional and can be filled in later from the profile page.
+        const missing: string[] = [];
+        if (age === undefined || age === null) missing.push("age");
+        if (!nationality) missing.push("nationality");
+        if (gpa === undefined || gpa === null) missing.push("gpa");
+        if (sat === undefined || sat === null) missing.push("sat");
+        if (!englishTest || !englishTest.type || englishTest.score === undefined || englishTest.score === null) {
+            missing.push("englishTest");
+        }
 
+        if (missing.length > 0) {
+            return NextResponse.json(
+                { success: false, message: `Missing required fields: ${missing.join(", ")}` },
+                { status: 400 }
+            );
+        }
+
+        if (englishTest.type !== "IELTS" && englishTest.type !== "TOEFL") {
+            return NextResponse.json(
+                { success: false, message: "englishTest.type must be IELTS or TOEFL" },
+                { status: 400 }
+            );
+        }
+
+        const user = await User.findById(auth.userId);
         if (!user) {
             return NextResponse.json(
-                {
-                    success: false,
-                    message: "User not found",
-                },
+                { success: false, message: "User not found" },
                 { status: 404 }
             );
         }
 
-        // Schema enum only accepts "IELTS" / "TOEFL" (uppercase); the form
-        // sends lowercase 'ielts' / 'toefl' — normalize here so it actually
-        // matches the enum instead of silently failing validation.
-        const normalizedTestType =
-            englishTestType === "ielts"
-                ? "IELTS"
-                : englishTestType === "toefl"
-                    ? "TOEFL"
-                    : user.profile?.englishTest?.type ?? null;
+        // Already done once — don't let it be redone through this endpoint either.
+        if (user.profileSetupComplete) {
+            return NextResponse.json(
+                { success: false, message: "Profile setup has already been completed" },
+                { status: 409 }
+            );
+        }
 
         user.profile = {
-            ...user.profile,
-            age: age ?? user.profile?.age ?? null,
-            nationality: nationality ?? user.profile?.nationality ?? null,
-            gpa: gpa ?? user.profile?.gpa ?? null,
-            sat: sat ?? user.profile?.sat ?? null,
+            age,
+            nationality,
+            gpa,
+            sat,
             englishTest: {
-                type: normalizedTestType,
-                score: englishScore ?? user.profile?.englishTest?.score ?? null,
+                type: englishTest.type,
+                score: englishTest.score,
             },
-            preferredField: preferredField ?? user.profile?.preferredField ?? null,
-            preferredCountry: preferredCountry ?? user.profile?.preferredCountry ?? null,
-            programLevel: programLevel ?? user.profile?.programLevel ?? null,
+            preferredField: preferredField || null,
+            preferredCountry: preferredCountry || null,
+            programLevel: programLevel || null,
         };
+        user.profileSetupComplete = true;
 
         await user.save();
 
-        return NextResponse.json(
+        // Reissue the auth token with the updated flag — otherwise the old cookie
+        // still says profileSetupComplete: false and proxy.ts will keep bouncing
+        // the user back to /profile/setup forever.
+        const authToken = jwt.sign(
+            {
+                userId: user._id.toString(),
+                role: user.role,
+                profileSetupComplete: user.profileSetupComplete,
+            },
+            process.env.JWT_SECRET || "secret",
+            { expiresIn: "7d" }
+        );
+
+        const response = NextResponse.json(
             {
                 success: true,
-                message: "Profile saved successfully",
-                profile: user.profile,
+                message: "Profile setup complete",
+                user: {
+                    id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    profile: user.profile,
+                    profileSetupComplete: user.profileSetupComplete,
+                },
             },
             { status: 200 }
         );
+
+        response.cookies.set({
+            name: "token",
+            value: authToken,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 60 * 60 * 24 * 7,
+            path: "/",
+        });
+
+        return response;
     } catch (error) {
-        console.error("Profile API error:", error);
+        console.error("Profile setup POST error:", error);
 
         return NextResponse.json(
-            {
-                success: false,
-                message: "Failed to save profile",
-            },
+            { success: false, message: "Failed to complete profile setup" },
             { status: 500 }
         );
     }
