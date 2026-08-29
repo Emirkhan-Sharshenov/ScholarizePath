@@ -3,6 +3,7 @@ import { groq, AI_MODEL } from "@/lib/groq";
 import { aiTools, searchUniversities, searchScholarships } from "@/lib/ai/tools";
 import { authMiddleware } from "@/middleware/auth.middleware";
 import { checkRateLimit } from "@/lib/simpleRateLimit";
+import { checkRateLimit as checkDailyRateLimit } from "@/lib/simpleRateLimit";
 import type { AuthRequest } from "@/types/auth";
 import type {
     StudentProfile,
@@ -23,6 +24,13 @@ const MAX_TRANSIENT_RETRIES = 2;
 // написать скрипт и спамить этот эндпоинт, сжигая бюджет.
 const CHAT_RATE_LIMIT = 15; // сообщений
 const CHAT_RATE_WINDOW_MS = 60 * 1000; // за 1 минуту, на юзера
+
+// Дневной лимит — отдельно от минутного, поверх Redis (не in-memory),
+// потому что 24-часовое окно обязано пережить рестарты/несколько
+// serverless-инстансов, иначе пользователь просто получает новый
+// лимит на каждом холодном старте.
+const CHAT_DAILY_LIMIT = 5; // сообщений
+const CHAT_DAILY_WINDOW_MS = 24 * 60 * 60 * 1000; // за 24 часа, на юзера
 
 const FALLBACK_RESPONSE: AIChatResponse = {
     reply:
@@ -144,6 +152,23 @@ export async function POST(req: NextRequest) {
             );
         }
         const userId = auth;
+
+        // Дневной лимит проверяется первым — если пользователь уже выбрал
+        // свою пятёрку на сегодня, нет смысла даже смотреть на минутный лимит.
+        const { allowed: dailyAllowed, remaining: dailyRemaining } = await checkDailyRateLimit(
+            `chat:daily:${userId}`,
+            CHAT_DAILY_LIMIT,
+            CHAT_DAILY_WINDOW_MS
+        );
+        if (!dailyAllowed) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "You've reached your daily limit of AI messages. Please come back tomorrow.",
+                },
+                { status: 429 }
+            );
+        }
 
         const { allowed } = checkRateLimit(userId, CHAT_RATE_LIMIT, CHAT_RATE_WINDOW_MS);
         if (!allowed) {
@@ -292,7 +317,12 @@ plain-text sentences — no markdown (no links, no lists). ${scholarships.length
         }
 
         const response: AIChatResponse = { reply, scholarships, universities };
-        return NextResponse.json(response);
+        return NextResponse.json(response, {
+            headers: {
+                "X-RateLimit-Daily-Limit": String(CHAT_DAILY_LIMIT),
+                "X-RateLimit-Daily-Remaining": String(dailyRemaining),
+            },
+        });
     } catch (err: any) {
         // Absolute last resort — never let an uncaught error surface as a raw 500
         // with no usable body, since the frontend can't gracefully handle that.

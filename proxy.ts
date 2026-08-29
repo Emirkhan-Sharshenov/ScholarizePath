@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { authMiddleware } from "@/middleware/auth.middleware";
+import { checkRateLimit } from "@/lib/simpleRateLimit";
 
 // Pages/APIs reachable with NO token at all (exact match)
 const PUBLIC_PATHS = new Set<string>(["/", "/login"]);
@@ -10,8 +11,49 @@ const PUBLIC_PATH_PREFIXES = ["/api/auth/login", "/api/auth/register", "/api/aut
 
 const PROFILE_SETUP_PATH = "/profile/setup";
 
+// Paths that get rate-limited, and their own limit/window.
+// These are typically unauthenticated, brute-force-able endpoints —
+// authenticated routes are usually better protected by normal auth
+// throttling/lockout instead of a blanket IP limit.
+const RATE_LIMITED_PATHS: { prefix: string; limit: number; windowMs: number }[] = [
+    { prefix: "/api/auth/login", limit: 3, windowMs: 40_000 },
+    { prefix: "/api/auth/register", limit: 3, windowMs: 40_000 },
+    { prefix: "/api/auth/verify", limit: 3, windowMs: 40_000 },
+];
+
 export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
+
+    // 0. Rate limiting — runs before anything else, including auth, since
+    //    the whole point is to block excess requests before they cost
+    //    anything (a DB lookup, a password hash comparison, etc).
+    const rateLimitRule = RATE_LIMITED_PATHS.find((rule) => pathname.startsWith(rule.prefix));
+
+    if (rateLimitRule) {
+        const ip =
+            request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
+            request.headers.get("x-real-ip") ??
+            "127.0.0.1";
+
+        const { allowed, remaining } = await checkRateLimit(
+            `${rateLimitRule.prefix}:${ip}`, // scoped per-route, so hammering /login doesn't also lock out /register
+            rateLimitRule.limit,
+            rateLimitRule.windowMs
+        );
+
+        if (!allowed) {
+            return NextResponse.json(
+                { success: false, message: "Too many requests. Try again later." },
+                {
+                    status: 429,
+                    headers: {
+                        "X-RateLimit-Limit": String(rateLimitRule.limit),
+                        "X-RateLimit-Remaining": "0",
+                    },
+                }
+            );
+        }
+    }
 
     const isPublicPath =
         PUBLIC_PATHS.has(pathname) ||

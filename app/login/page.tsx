@@ -1,5 +1,14 @@
+import type { Metadata } from 'next';
 import { ErrorBoundary } from "@/components/login/ErrorBoundary";
-import LoginForm from "@/components/login/LoginForm"; // adjust path to match where LoginForm actually lives
+import LoginForm from "@/components/login/LoginForm";
+
+export const metadata: Metadata = {
+    title: 'Sign In — ScholarizePath',
+    robots: {
+        index: false,
+        follow: false,
+    },
+};
 
 export default function AuthPage() {
     return (
