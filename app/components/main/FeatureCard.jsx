@@ -1,23 +1,21 @@
-export default function FeatureCard({ icon: Icon, badgeText, title, description }) {
+export default function FeatureCard({ icon, badgeText, title, description }) {
     return (
-        <div className="group bg-white rounded-2xl p-7 shadow-sm border border-slate-100 hover:border-blue-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between h-full relative overflow-hidden">
+        <article className="group bg-white rounded-2xl p-5 sm:p-6 md:p-7 shadow-sm border border-slate-100 hover:border-blue-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between h-full relative overflow-hidden">
 
-            {/* Мягкое фоновое свечение при наведении */}
-            <div className="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors" />
+            <div aria-hidden="true" className="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors" />
 
             <div>
-                {/* Верхняя панель: Иконка + Микро-бэйдж */}
-                <div className="flex items-center justify-between mb-5">
-                    <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
-                        {Icon && <Icon className="w-6 h-6 stroke-[1.75]" />}
+                <div className="flex items-center justify-between mb-4 sm:mb-5">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                        {icon}
                     </div>
 
-                    <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                    <span className="px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-semibold bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
                         {badgeText}
                     </span>
                 </div>
 
-                <h3 className="text-xl font-bold text-slate-900 mb-2 leading-snug tracking-tight">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 leading-snug tracking-tight">
                     {title}
                 </h3>
 
@@ -26,10 +24,9 @@ export default function FeatureCard({ icon: Icon, badgeText, title, description 
                 </p>
             </div>
 
-            {/* Аккуратная интерактивная стрелка */}
-            <div className="mt-6 flex items-center text-xs font-bold text-blue-600 group-hover:translate-x-1 transition-transform">
+            <div aria-hidden="true" className="mt-5 sm:mt-6 flex items-center text-xs font-bold text-blue-600 group-hover:translate-x-1 transition-transform">
                 Explore feature <span className="ml-1">→</span>
             </div>
-        </div>
+        </article>
     );
 }

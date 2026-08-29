@@ -57,8 +57,25 @@ export default function AIChatCard({ onRecommendations }: AIChatCardProps) {
                 body: JSON.stringify({ message: trimmed, history }),
             });
 
-            if (!res.ok) throw new Error('Request failed');
             const data = await res.json();
+
+            // 429 (rate limit — daily or per-minute) comes back with a real,
+            // user-facing message from the backend. Show that verbatim instead
+            // of falling into the generic error below, so the user knows WHY
+            // they can't send another message, not just that "something broke".
+            if (res.status === 429) {
+                setMessages((prev) => [
+                    ...prev,
+                    {
+                        role: 'assistant',
+                        content: data.message ?? "You've reached your message limit for now. Please try again later.",
+                        timestamp: timeNow(),
+                    },
+                ]);
+                return;
+            }
+
+            if (!res.ok) throw new Error('Request failed');
 
             setMessages((prev) => [
                 ...prev,

@@ -1,32 +1,43 @@
 /**
- * Простой rate limiter в памяти процесса.
+ * Rate limiter на Upstash Redis.
  *
- * ОГРАНИЧЕНИЕ: если приложение развёрнуто на serverless (Vercel) с несколькими
- * инстансами, у каждого инстанса будет СВОЙ Map — то есть лимит будет
- * "мягким" (условно x2-x5 от заданного числа при большом трафике), а не строгим.
- * Для дева и небольших нагрузок этого достаточно. Когда трафик вырастет —
- * замени на Upstash Redis (@upstash/ratelimit), это займёт 10 минут.
+ * Лимит общий для всех serverless-инстансов (Vercel), потому что счётчик
+ * хранится в Redis, а не в памяти отдельного процесса — лимит строгий.
+ *
+ * Ratelimit-объекты кешируются по (limit, windowMs), чтобы не создавать
+ * новый инстанс на каждый вызов — библиотека рекомендует переиспользовать.
  */
 
-const buckets = new Map<string, { count: number; resetAt: number }>();
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
-export function checkRateLimit(
+const redis = Redis.fromEnv();
+
+const limiterCache = new Map<string, Ratelimit>();
+
+function getLimiter(limit: number, windowMs: number): Ratelimit {
+    const cacheKey = `${limit}:${windowMs}`;
+    let limiter = limiterCache.get(cacheKey);
+
+    if (!limiter) {
+        limiter = new Ratelimit({
+            redis,
+            limiter: Ratelimit.slidingWindow(limit, `${windowMs} ms`),
+            analytics: true, // графики в Upstash Console → твоя база → вкладка Ratelimit
+        });
+        limiterCache.set(cacheKey, limiter);
+    }
+
+    return limiter;
+}
+
+export async function checkRateLimit(
     key: string,
     limit: number,
     windowMs: number
-): { allowed: boolean; remaining: number } {
-    const now = Date.now();
-    const bucket = buckets.get(key);
+): Promise<{ allowed: boolean; remaining: number }> {
+    const limiter = getLimiter(limit, windowMs);
+    const { success, remaining } = await limiter.limit(key);
 
-    if (!bucket || now > bucket.resetAt) {
-        buckets.set(key, { count: 1, resetAt: now + windowMs });
-        return { allowed: true, remaining: limit - 1 };
-    }
-
-    if (bucket.count >= limit) {
-        return { allowed: false, remaining: 0 };
-    }
-
-    bucket.count += 1;
-    return { allowed: true, remaining: limit - bucket.count };
+    return { allowed: success, remaining };
 }

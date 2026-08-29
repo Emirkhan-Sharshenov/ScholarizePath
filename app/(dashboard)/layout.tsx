@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import Sidebar from "@/components/dashboard/Sidebar"
 import PageTransition from "@/components/dashboard/PageTransition"
 import MainContent from "@/components/dashboard/MainContent"
 import { SidebarProvider } from "@/components/dashboard/SidebarContext"
+
+
+export const metadata: Metadata = {
+    robots: {
+        index: false,
+        follow: false,
+        nocache: true,
+    },
+};
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
