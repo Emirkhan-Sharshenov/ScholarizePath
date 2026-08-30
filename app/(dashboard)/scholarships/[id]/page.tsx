@@ -9,9 +9,6 @@ interface PageProps {
     params: Promise<{ id: string }>;
 }
 
-// Запрос данных стипендии с API (server-to-server, браузер этого не видит).
-// Форвардим реальную cookie сессии — см. комментарий в app/universities/[id]/page.tsx
-// про то, почему заголовок-заглушка вместо этого небезопасен.
 async function getScholarship(id: string): Promise<Scholarship | null> {
     try {
         const cookieStore = await cookies();
@@ -35,7 +32,6 @@ async function getScholarship(id: string): Promise<Scholarship | null> {
     }
 }
 
-// Генерация метатегов для SEO
 export async function generateMetadata({ params }: PageProps) {
     const { id } = await params;
     const scholarship = await getScholarship(id);

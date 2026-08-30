@@ -182,7 +182,7 @@ export default function AIChatCard({ onRecommendations }: AIChatCardProps) {
                 </div>
 
                 <p className="text-[11px] text-center text-slate-400">
-                    AI can make mistakes. Please verify important information.
+                    AI can make mistakes. Please verify important information. Daily limit 5 request 
                 </p>
             </div>
 

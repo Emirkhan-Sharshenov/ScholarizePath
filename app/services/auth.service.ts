@@ -57,7 +57,7 @@ export async function register(request: Request) {
         );
     }
 
-    // Создаем регистрационный токен сессии (живет 15 минут)
+ 
     const registerSessionToken = jwt.sign(
         {
             firstName,
@@ -78,7 +78,7 @@ export async function register(request: Request) {
         { status: 200 }
     );
 
-    // Сохраняем временно в куку (на 15 минут)
+   
     response.cookies.set({
         name: "register_session",
         value: registerSessionToken,
@@ -93,7 +93,6 @@ export async function register(request: Request) {
 }
 
 export async function verify(request: Request) {
-    // Достаем сессию из куки или заголовка
     const cookieHeader = request.headers.get("cookie") || "";
     const sessionCookie = cookieHeader
         .split("; ")
@@ -136,8 +135,6 @@ export async function verify(request: Request) {
     }
 
     await connectDB();
-
-    // Проверяем еще раз перед записью, не зарегистрировался ли кто-то с этим email
     const existingUser = await Users.findOne({ email: payload.email });
     if (existingUser) {
         return NextResponse.json(
@@ -146,8 +143,6 @@ export async function verify(request: Request) {
         );
     }
 
-    // СОЗДАЕМ ПОЛЬЗОВАТЕЛЯ В БД ТОЛЬКО СЕЙЧАС
-    // profileSetupComplete не указываем явно — берётся default: false из схемы
     const user = await Users.create({
         firstName: payload.firstName,
         lastName: payload.lastName,
@@ -155,10 +150,6 @@ export async function verify(request: Request) {
         password: payload.password,
         isVerified: true,
     });
-
-    // Создаем боевой JWT токен авторизации.
-    // Новый пользователь всегда начинает с profileSetupComplete: false —
-    // это то, что заставит proxy.ts принудительно отправить его на /profile/setup.
     const authToken = jwt.sign(
         {
             userId: user._id.toString(),
@@ -183,7 +174,6 @@ export async function verify(request: Request) {
         { status: 201 }
     );
 
-    // Удаляем временную куку регистрации
     response.cookies.set({
         name: "register_session",
         value: "",
@@ -194,7 +184,7 @@ export async function verify(request: Request) {
         path: "/",
     });
 
-    // Устанавливаем авторизационную куку token
+
     response.cookies.set({
         name: "token",
         value: authToken,
@@ -239,8 +229,6 @@ export async function login(request: Request) {
         );
     }
 
-    // Читаем ТЕКУЩЕЕ состояние profileSetupComplete из БД —
-    // так возвращающийся пользователь не будет заново отправлен на /profile/setup.
     const authToken = jwt.sign(
         {
             userId: user._id.toString(),

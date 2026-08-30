@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { useCompare } from "@/lib/useCompare";
 
-// Извлечение строк из различных структур данных
 function extractString(val: any, fallback = "N/A"): string {
     if (val === null || val === undefined) return fallback;
     if (typeof val === "string" || typeof val === "number") return String(val);
@@ -27,7 +26,6 @@ function extractString(val: any, fallback = "N/A"): string {
     return fallback;
 }
 
-// Парсинг числовых значений для численного сравнения
 function extractNumber(val: any): number | null {
     if (typeof val === "number") return val;
     if (!val) return null;
@@ -54,7 +52,6 @@ export default function ComparePage() {
 
     const isUniActive = activeTab === "universities";
 
-    // --- УНИВЕРСИТЕТЫ: Расчет лучших параметров ---
     const parsedRankings = uniList.map((u) => extractNumber(u.ranking));
     const validRankings = parsedRankings.filter((v): v is number => v !== null);
     const minRanking = validRankings.length > 0 ? Math.min(...validRankings) : null;
@@ -67,12 +64,11 @@ export default function ComparePage() {
     const validAcceptance = parsedAcceptance.filter((v): v is number => v !== null);
     const maxAcceptance = validAcceptance.length > 0 ? Math.max(...validAcceptance) : null;
 
-    // --- СТИПЕНДИИ: Расчет лучших сумм ---
+ 
     const parsedAwardAmounts = schList.map((s) => extractNumber(s.award?.estimatedValue?.max || s.amount || s.award));
     const validAmounts = parsedAwardAmounts.filter((v): v is number => v !== null);
     const maxAwardAmount = validAmounts.length > 0 ? Math.max(...validAmounts) : null;
 
-    // --- ФОРМАТИРОВАНИЕ УНИВЕРСИТЕТОВ ---
     const formattedUniversities = uniList.map((uni, idx) => {
         const rankingNum = parsedRankings[idx];
         const tuitionNum = parsedTuitions[idx];
@@ -112,7 +108,6 @@ export default function ComparePage() {
         };
     });
 
-    // --- ФОРМАТИРОВАНИЕ СТИПЕНДИЙ ---
     const formattedScholarships = schList.map((sch, idx) => {
         const coverage = sch.award?.type
             ? extractString(sch.award.type)
@@ -152,7 +147,6 @@ export default function ComparePage() {
     return (
         <div className="min-h-screen bg-[rgb(246,247,251)] p-4 font-sans md:p-8 text-slate-800">
             <div className="mx-auto max-w-7xl">
-                {/* Header & Tabs */}
                 <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">
@@ -189,7 +183,6 @@ export default function ComparePage() {
                     </div>
                 </div>
 
-                {/* Empty State */}
                 {items.length === 0 ? (
                     <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
                         <h3 className="mb-2 text-lg font-bold text-slate-900">
@@ -204,7 +197,6 @@ export default function ComparePage() {
                     </div>
                 ) : (
                     <>
-                        {/* 1. MOBILE VIEW (Вид карточек для маленьких экранов) */}
                         <div className="grid grid-cols-1 gap-4 md:hidden">
                             {items.map((item: any) => (
                                 <div key={item.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm relative">
@@ -242,7 +234,6 @@ export default function ComparePage() {
                                         </div>
                                     </div>
 
-                                    {/* Список параметров */}
                                     <div className="space-y-3 text-xs">
                                         {isUniActive ? (
                                             <>
@@ -304,7 +295,6 @@ export default function ComparePage() {
                                         )}
                                     </div>
 
-                                    {/* Экшены */}
                                     <div className="mt-5 pt-3 border-t border-slate-100 flex items-center gap-2">
                                         <a
                                             href={item.applyUrl}
@@ -319,7 +309,6 @@ export default function ComparePage() {
                             ))}
                         </div>
 
-                        {/* 2. DESKTOP VIEW (Таблица сравнения для экранов md и выше) */}
                         <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
                             <div
                                 className="grid min-w-[700px] divide-y divide-slate-100"
@@ -327,7 +316,6 @@ export default function ComparePage() {
                                     gridTemplateColumns: `220px repeat(${items.length}, minmax(240px, 1fr))`,
                                 }}
                             >
-                                {/* РЯД 1: Шапка / Название */}
                                 <div className="bg-slate-50/50 p-6 flex items-end text-xs font-bold text-slate-400 uppercase tracking-wider">
                                     Metrics
                                 </div>
@@ -360,7 +348,6 @@ export default function ComparePage() {
                                     </div>
                                 ))}
 
-                                {/* РЯД 2: Global Ranking / Provider */}
                                 <div className="p-4 bg-slate-50/50 text-xs font-semibold text-slate-600 flex items-center">
                                     {isUniActive ? "Global Ranking" : "Provider / Organization"}
                                 </div>
@@ -384,7 +371,6 @@ export default function ComparePage() {
                                     </div>
                                 ))}
 
-                                {/* РЯД 3: Location */}
                                 <div className="p-4 bg-slate-50/50 text-xs font-semibold text-slate-600 flex items-center">
                                     Location
                                 </div>
@@ -395,7 +381,6 @@ export default function ComparePage() {
                                     </div>
                                 ))}
 
-                                {/* РЯД 4: Tuition / Coverage Type */}
                                 <div className="p-4 bg-slate-50/50 text-xs font-semibold text-slate-600 flex items-center">
                                     {isUniActive ? "Tuition (Annual)" : "Coverage Type"}
                                 </div>
@@ -425,7 +410,7 @@ export default function ComparePage() {
                                     </div>
                                 ))}
 
-                                {/* РЯД 5: Acceptance Rate / Award Details */}
+                
                                 <div className="p-4 bg-slate-50/50 text-xs font-semibold text-slate-600 flex items-center">
                                     {isUniActive ? "Acceptance Rate" : "Award Details / Amount"}
                                 </div>
@@ -455,7 +440,6 @@ export default function ComparePage() {
                                     </div>
                                 ))}
 
-                                {/* РЯД 6: Popular Programs / Degree Level */}
                                 <div className="p-4 bg-slate-50/50 text-xs font-semibold text-slate-600 flex items-center">
                                     {isUniActive ? "Popular Programs" : "Degree Level"}
                                 </div>
@@ -475,7 +459,7 @@ export default function ComparePage() {
                                     </div>
                                 ))}
 
-                                {/* РЯД 7: Application Deadline */}
+                               
                                 {!isUniActive && (
                                     <>
                                         <div className="p-4 bg-slate-50/50 text-xs font-semibold text-slate-600 flex items-center">

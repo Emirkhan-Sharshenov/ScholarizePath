@@ -42,12 +42,10 @@ export async function GET(request: Request) {
 
         if (minAmount) {
             match.$or = match.$or || [];
-            // filtered post-aggregation instead, since amount field is inconsistent (min/max/flat)
+           
         }
 
-        // deadlines[].date is sometimes a free-text range string, not a real date,
-        // so we parse it safely with $toDate + onError/onNull -> null instead of
-        // crashing the whole query.
+     
         const pipeline: any[] = [
             { $match: match },
             {

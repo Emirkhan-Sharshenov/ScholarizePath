@@ -8,13 +8,11 @@ countries.registerLocale(enLocale);
 countries.registerLocale(ruLocale);
 
 export interface CountryOption {
-    code: string; // Двузначный ISO 3166-1 код (например, "US", "KZ", "KG")
-    name: string; // Локализованное название страны
+    code: string; 
+    name: string; 
 }
 
-/**
- * Возвращает массив стран, отсортированных по алфавиту для выбранного языка.
- */
+
 export function getCountryList(lang: string = "ru"): CountryOption[] {
     const countryObj = countries.getNames(lang, { select: "official" });
 

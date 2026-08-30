@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function apiProtectionMiddleware(request: NextRequest) {
-    // 1. Блокируем прямой доступ из строки браузера
+export function apiProtectionMiddleware(request: NextRequest): NextResponse | null {
+ 
     const acceptHeader = request.headers.get("accept") || "";
     const fetchDest = request.headers.get("sec-fetch-dest");
 
@@ -13,7 +13,7 @@ export function apiProtectionMiddleware(request: NextRequest) {
         );
     }
 
-    // 2. Проверяем секретный ключ, который знает только ваш сервер
+  
     const apiKey = request.headers.get("x-api-key");
     const secretKey = process.env.API_SECRET_KEY;
 
@@ -32,6 +32,6 @@ export function apiProtectionMiddleware(request: NextRequest) {
         );
     }
 
-    // Все проверки пройдены, проговариваем запрос дальше
+    
     return null;
 }

@@ -51,12 +51,6 @@ export default function Sidebar() {
           transition-[width,transform] duration-200 ease-out
           ${collapsed ? "-translate-x-full md:translate-x-0 md:w-20" : "translate-x-0 w-64"}`}
       >
-        {/*
-          Logo row. Icon has real intrinsic ratio (498x386) so width/height
-          below reserves the exact box before the file loads - no shift.
-          "ScholarizePath" is live text, not a raster, so it stays crisp at
-          this size and fades with the same opacity rule as nav labels.
-        */}
         <Link
           href="/dashboard"
           className="mt-4 flex h-11 w-full shrink-0 items-center px-3"

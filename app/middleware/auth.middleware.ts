@@ -6,8 +6,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export type AuthPayload = {
     userId: string;
-    role?: string; // e.g. "admin" | "user" — adjust to match your token's claims
-    profileSetupComplete: boolean; // must be set by whoever issues the JWT (login/register/verify)
+    role?: string; 
+    profileSetupComplete: boolean; 
 };
 
 export async function authMiddleware(request: NextRequest): Promise<AuthPayload | NextResponse> {

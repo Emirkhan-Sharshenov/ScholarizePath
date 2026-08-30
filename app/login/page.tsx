@@ -3,10 +3,14 @@ import { ErrorBoundary } from "@/components/login/ErrorBoundary";
 import LoginForm from "@/components/login/LoginForm";
 
 export const metadata: Metadata = {
-    title: 'Sign In — ScholarizePath',
+    title: "Sign In — ScholarizePath",
+    description: "Sign in to ScholarizePath",
     robots: {
         index: false,
         follow: false,
+    },
+    icons: {
+        icon: "/icon.png",
     },
 };
 

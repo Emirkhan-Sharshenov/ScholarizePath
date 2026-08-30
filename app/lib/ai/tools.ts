@@ -3,9 +3,7 @@ import Universities from "@/models/Universities";
 import Scholarship from "@/models/Scholarship";
 import type { UniversityCardData, ScholarshipCardData } from "./types";
 
-// ---------------------------------------------------------------------------
-// Tool schemas (OpenAI/Groq function-calling format).
-// ---------------------------------------------------------------------------
+
 export const aiTools = [
     {
         type: "function",
@@ -58,11 +56,7 @@ export const aiTools = [
     },
 ] as const;
 
-// ---------------------------------------------------------------------------
-// Defensive coercion helpers — the model doesn't always send the exact type
-// declared in the schema (numbers as strings, booleans as "true"/"false",
-// out-of-range limits, etc). None of these should ever throw.
-// ---------------------------------------------------------------------------
+
 function toNumber(value: unknown): number | undefined {
     if (value === undefined || value === null || value === "") return undefined;
     const n = typeof value === "number" ? value : Number(value);
@@ -87,11 +81,7 @@ function resolvedLimit(value: unknown, fallback = 8) {
     return clamp(n ?? fallback, 1, 20);
 }
 
-// ---------------------------------------------------------------------------
-// Text matching: OR-match on individual meaningful words, so multi-topic
-// queries like "art or computer science" find EITHER field instead of
-// requiring the literal phrase to appear.
-// ---------------------------------------------------------------------------
+
 const STOPWORDS = new Set([
     "a", "an", "the", "and", "or", "of", "in", "for", "to", "with", "on",
     "related", "study", "studies", "program", "programs", "degree", "field",
@@ -112,10 +102,7 @@ function matchesText(haystack: string, needle?: string) {
     return terms.some((term) => lowerHaystack.includes(term));
 }
 
-// ---------------------------------------------------------------------------
-// Country matching: normalize common aliases + bidirectional substring, so
-// "USA"/"US"/"America" all match a DB value of "United States" and vice versa.
-// ---------------------------------------------------------------------------
+
 const COUNTRY_ALIASES: Record<string, string> = {
     usa: "united states",
     us: "united states",
@@ -147,11 +134,7 @@ function countryMatches(dbCountry?: string, queryCountry?: string): boolean {
     return a === b || a.includes(b) || b.includes(a);
 }
 
-// ---------------------------------------------------------------------------
-// Degree/study level matching: normalize common variants ("Masters", "MS",
-// "MSc", "Master's", "Graduate") to a canonical bucket, then match
-// bidirectionally so either side can be the more specific string.
-// ---------------------------------------------------------------------------
+
 const LEVEL_ALIASES: Record<string, string> = {
     bachelor: "bachelor",
     bachelors: "bachelor",
@@ -194,11 +177,7 @@ function anyLevelMatches(dbLevels: unknown, queryLevel?: string): boolean {
     return dbLevels.some((d) => typeof d === "string" && levelMatches(d, queryLevel));
 }
 
-// ---------------------------------------------------------------------------
-// searchUniversities — queries MongoDB directly instead of the paginated
-// public API, so the AI's own matching logic (aliases, tokenized search)
-// runs over the FULL dataset, not just one page of 5-50 results.
-// ---------------------------------------------------------------------------
+
 export async function searchUniversities(
     args: {
         query?: string;
@@ -215,8 +194,6 @@ export async function searchUniversities(
 
     await connectDB();
 
-    // Slim projection — only fields this function actually reads. Keeps the
-    // full-collection fetch cheap even at 1200+ documents.
     const list = await Universities.find()
         .select({
             name: 1,
@@ -243,8 +220,7 @@ export async function searchUniversities(
 
         if (args.degreeLevel && !anyLevelMatches(u.degreeLevels, args.degreeLevel)) return false;
 
-        // Tuition field name varies by dataset — check the common variants
-        // defensively rather than assuming one exact shape.
+ 
         const tuitionValue =
             toNumber(u.tuition?.internationalUSD) ??
             toNumber(u.tuition?.international) ??
@@ -256,7 +232,6 @@ export async function searchUniversities(
         return true;
     });
 
-    // Sort by ranking when available so "top universities" surfaces the best first.
     filtered.sort((a: any, b: any) => {
         const rankA = toNumber(a?.ranking?.national) ?? toNumber(a?.ranking?.global) ?? Infinity;
         const rankB = toNumber(b?.ranking?.national) ?? toNumber(b?.ranking?.global) ?? Infinity;
@@ -264,7 +239,7 @@ export async function searchUniversities(
     });
 
     return filtered
-        .filter((u: any) => u?._id && u?.name) // never surface a card we can't link/name
+        .filter((u: any) => u?._id && u?.name) 
         .slice(0, limit)
         .map((u: any) => ({
             id: String(u._id),
@@ -278,9 +253,7 @@ export async function searchUniversities(
         }));
 }
 
-// ---------------------------------------------------------------------------
-// searchScholarships — same direct-DB approach.
-// ---------------------------------------------------------------------------
+
 export async function searchScholarships(
     args: {
         query?: string;

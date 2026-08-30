@@ -1,6 +1,5 @@
 import { ComparisonStatus } from "@/types/compare";
 
-// Чем МЕНЬШЕ число, тем лучше (Рейтинг, Стоимость обучения, Требования по GPA)
 export function getRankOrCostStatuses(values: (number | null)[]): ComparisonStatus[] {
     const validValues = values.filter((v): v is number => v !== null);
     if (validValues.length <= 1) return values.map(() => "neutral");
@@ -18,7 +17,6 @@ export function getRankOrCostStatuses(values: (number | null)[]): ComparisonStat
     });
 }
 
-// Чем БОЛЬШЕ число, тем лучше (Acceptance Rate, Размер стипендии)
 export function getHigherIsBetterStatuses(values: (number | null)[]): ComparisonStatus[] {
     const validValues = values.filter((v): v is number => v !== null);
     if (validValues.length <= 1) return values.map(() => "neutral");

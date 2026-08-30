@@ -32,7 +32,6 @@ export function FavoriteCard({ item, type, onRemoveSuccess }: FavoriteCardProps)
         }
     };
 
-    // Динамический URL в зависимости от типа
     const detailsUrl = type === 'university'
         ? `/universities/${item.id}`
         : `/scholarships/${item.id}`;
@@ -64,7 +63,6 @@ export function FavoriteCard({ item, type, onRemoveSuccess }: FavoriteCardProps)
                 )}
             </div>
 
-            {/* Кнопка перехода к деталям */}
             <div className="mt-5 pt-3 border-t border-gray-100">
                 <Link
                     href={detailsUrl}

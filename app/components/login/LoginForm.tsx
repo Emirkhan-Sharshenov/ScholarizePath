@@ -144,7 +144,7 @@ export default function LoginForm() {
         <div className="relative flex items-center justify-center min-h-screen bg-[#000139] overflow-hidden p-4 sm:p-6">
             <div className="relative z-10 w-full max-w-sm sm:max-w-md md:max-w-[900px] h-[580px] md:h-[550px] overflow-hidden rounded-3xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col md:flex-row">
 
-                {/* LOGIN FORM PANEL */}
+         
                 <div
                     className={`absolute md:relative left-0 top-0 w-full md:w-1/2 h-full flex flex-col justify-center items-center px-6 transition-all duration-700 ease-in-out ${isLogin
                         ? "-translate-y-full opacity-0 pointer-events-none md:translate-y-0 md:-translate-x-full"
@@ -192,7 +192,6 @@ export default function LoginForm() {
                     </div>
                 </div>
 
-                {/* REGISTER / OTP VERIFY PANEL */}
                 <div
                     className={`absolute md:relative right-0 top-0 w-full md:w-1/2 h-full flex flex-col justify-center items-center px-6 transition-all duration-700 ease-in-out ${isLogin
                         ? "translate-y-0 opacity-100 md:translate-x-0"
@@ -306,7 +305,6 @@ export default function LoginForm() {
                     </div>
                 </div>
 
-                {/* SLIDING OVERLAY PANEL */}
                 <div
                     className={`absolute z-20 bg-blue-500 transition-all duration-700 ease-in-out ${isLogin
                         ? "top-0 left-0 w-full h-14 rounded-b-2xl md:h-full md:w-1/2 md:rounded-none md:translate-x-0"

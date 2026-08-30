@@ -11,11 +11,6 @@ type State = {
     hasError: boolean;
 };
 
-// Catches render-time crashes (including ones triggered by browser extensions
-// that monkey-patch Object.getOwnPropertyDescriptor / input value descriptors,
-// e.g. some password managers) so one broken input doesn't white-screen the
-// entire page. It can't fix the extension's bug, but it stops it from taking
-// down the whole app for that user.
 export class ErrorBoundary extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);

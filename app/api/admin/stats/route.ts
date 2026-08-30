@@ -7,7 +7,6 @@ import { requireAdmin } from "@/lib/requireAdmin";
 import { AuthRequest } from "@/types/auth";
 
 export async function GET(request: AuthRequest) {
-    // Только для admin — до этого момента эндпоинт был открыт всем без исключения.
     const auth = await requireAdmin(request);
     if (auth instanceof NextResponse) {
         return auth;
