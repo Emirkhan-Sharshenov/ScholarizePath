@@ -10,12 +10,11 @@ interface ActivityItem {
     action: string;
     name: string;
     detail: string;
-    time: string; // ISO date, formatted client-side
+    time: string; 
 }
 
 export async function GET(request: AuthRequest) {
-    // Только для admin — раньше сюда мог зайти кто угодно без логина
-    // и увидеть имена/фамилии последних зарегистрированных пользователей.
+    
     const auth = await requireAdmin(request);
     if (auth instanceof NextResponse) {
         return auth;

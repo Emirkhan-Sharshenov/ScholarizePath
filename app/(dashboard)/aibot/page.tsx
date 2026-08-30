@@ -18,7 +18,6 @@ export default function Page() {
     <div className="bg-[rgb(246,247,251)] min-h-screen flex flex-col pb-10">
       <SearchBar />
 
-      {/* Кнопка переключения рекомендаций для мобильных экранов */}
       <div className="lg:hidden px-4 sm:px-6 pt-4 flex justify-end">
         <button
           onClick={() => setIsMobileDrawerOpen(true)}
@@ -32,10 +31,10 @@ export default function Page() {
         </button>
       </div>
 
-      {/* Основной контент */}
+  
       <div className="flex-1 flex flex-col lg:flex-row gap-6 px-4 sm:px-6 mt-4 lg:mt-6 max-w-7xl mx-auto w-full items-start">
 
-        {/* Чат карточка */}
+   
         <div className="flex-1 w-full">
           <AIChatCard
             onRecommendations={(data) => {
@@ -45,7 +44,7 @@ export default function Page() {
           />
         </div>
 
-        {/* Десктопная sidebar-карточка (скрыта на мобильных) */}
+      
         <div className="hidden lg:block w-80 lg:w-96 shrink-0 sticky top-6">
           <AIRecommendationsCard
             scholarships={scholarships}
@@ -54,7 +53,7 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Мобильная шторка / Drawer */}
+
       {isMobileDrawerOpen && (
         <div className="fixed inset-0 z-50 lg:hidden flex justify-end bg-black/40 backdrop-blur-xs">
           <div

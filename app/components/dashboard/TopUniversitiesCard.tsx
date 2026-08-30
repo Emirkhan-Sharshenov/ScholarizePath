@@ -25,7 +25,7 @@ interface TopUniversitiesCardProps {
     countryName?: string;
 }
 
-// Фоллбек-список из 8 университетов
+
 const FALLBACK_UNIVERSITIES: University[] = [
     { id: "harvard", name: "Harvard University", shortName: "Harvard", location: "Cambridge, USA", rank: "1" },
     { id: "mit", name: "Massachusetts Institute of Technology", shortName: "MIT", location: "Cambridge, USA", rank: "2" },
@@ -77,7 +77,6 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
             })
             .catch(() => {
                 if (isMounted) {
-                    // При ошибке запроса отображаем 8 фоллбек университетов
                     setUniversities(FALLBACK_UNIVERSITIES);
                     setLoading(false);
                 }
@@ -88,7 +87,6 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
         };
     }, [countryName]);
 
-    // Безопасная обработка имени
     const formatName = (uni: University): string => {
         if (typeof uni.name === "string") return uni.name;
         if (typeof uni.name === "object" && uni.name !== null) {
@@ -97,7 +95,6 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
         return "University";
     };
 
-    // Безопасная обработка локации
     const formatLocation = (uni: University): string => {
         if (typeof uni.location === "string") return uni.location;
         if (typeof uni.country === "string") return uni.country;
@@ -113,7 +110,6 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
         return "Worldwide";
     };
 
-    // Безопасная обработка рейтинга
     const formatRank = (uni: University, index: number): string => {
         if (typeof uni.rank === "string" || typeof uni.rank === "number") {
             return `#${uni.rank} in the World`;
@@ -125,14 +121,12 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
         return `#${index + 1} in the World`;
     };
 
-    // Получаем ID университета (поддержка id и _id)
     const getUniversityId = (uni: University, fallbackIndex: number): string | number => {
         return uni.id ?? uni._id ?? fallbackIndex;
     };
 
     return (
         <div className="w-full mt-8">
-            {/* Header */}
             <div className="mb-6">
                 <h1 className="text-xl font-bold text-slate-900">
                     Suggested Universities {countryName ? `in ${countryName}` : ""}
@@ -142,7 +136,6 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                 </p>
             </div>
 
-            {/* Skeleton Loading (8 блоков) */}
             {loading && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {Array.from({ length: 8 }).map((_, i) => (
@@ -154,19 +147,19 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                 </div>
             )}
 
-            {/* Error state */}
+  
             {error && (
                 <p className="text-sm text-red-500 py-4">
-                    Не удалось загрузить список университетов.
+                    Couldn't find any university
                 </p>
             )}
 
-            {/* Empty state */}
+          
             {!loading && !error && universities.length === 0 && (
-                <p className="text-sm text-slate-500 py-4">Университеты не найдены.</p>
+                <p className="text-sm text-slate-500 py-4">Universities not found</p>
             )}
 
-            {/* Grid Layout (8 элементов) */}
+    
             {!loading && !error && universities.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {universities.map((uni, idx) => {
@@ -180,7 +173,7 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                                 key={uniId}
                                 className="w-full rounded-2xl border border-slate-100 bg-white p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group"
                             >
-                                {/* Content Section */}
+                              
                                 <div>
                                     <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2">
                                         {uniName}

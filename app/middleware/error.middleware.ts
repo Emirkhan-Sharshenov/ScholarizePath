@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 type RouteHandler = (request: NextRequest) => Promise<NextResponse>;
 
-// HOC-обёртка для route-хендлеров: login, logout, register, verify
+
 export function withErrorHandler(handler: RouteHandler): RouteHandler {
     return async (request: NextRequest) => {
         try {
@@ -21,8 +21,6 @@ export function withErrorHandler(handler: RouteHandler): RouteHandler {
     };
 }
 
-// Старая middleware-обёртка (request, next) — оставлена как есть,
-// если используется где-то ещё в проекте
 export async function errorMiddleware(
     request: NextRequest,
     next: () => Promise<NextResponse>

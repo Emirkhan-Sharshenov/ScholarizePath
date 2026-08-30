@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Heart } from "lucide-react";
 import { UniversityComparisonData } from "@/types/compare";
 
 interface Props {

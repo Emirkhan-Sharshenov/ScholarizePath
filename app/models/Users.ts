@@ -25,7 +25,7 @@ const UserSchema = new Schema(
             required: true,
         },
 
-        // --- ПОЛЯ ДЛЯ ВЕРИФИКАЦИИ ПО 6-ЗНАЧНОМУ КОДУ ---
+ 
         isVerified: {
             type: Boolean,
             default: false,

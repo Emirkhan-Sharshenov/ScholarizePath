@@ -1,8 +1,8 @@
 export interface RegionConfig {
     id: string;
     label: string;
-    color: string;       // Tailwind цвет для фильтра
-    hexColor: string;    // HEX цвет для подсветки карты
+    color: string;      
+    hexColor: string;  
     countries: string[];
 }
 

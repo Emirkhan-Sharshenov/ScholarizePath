@@ -6,9 +6,9 @@ export function useCompare() {
     const [compareList, setCompareList] = useState<any[]>([]);
     const [scholarshipCompareList, setScholarshipCompareList] = useState<any[]>([]);
 
-    // Инициализация при монтировании
+  
     useEffect(() => {
-        // Загрузка университетов
+        
         const storedUnis = localStorage.getItem("compare_universities");
         if (storedUnis) {
             try {
@@ -18,7 +18,7 @@ export function useCompare() {
             }
         }
 
-        // Загрузка стипендий
+      
         const storedScholarships = localStorage.getItem("compare_scholarships");
         if (storedScholarships) {
             try {
@@ -29,7 +29,7 @@ export function useCompare() {
         }
     }, []);
 
-    // ==================== УНИВЕРСИТЕТЫ ====================
+   
 
     const addToCompare = (university: any) => {
         if (!university) return;
@@ -58,7 +58,7 @@ export function useCompare() {
         });
     };
 
-    // ==================== СТИПЕНДИИ ====================
+ 
 
     const addToScholarshipCompare = (scholarship: any) => {
         if (!scholarship) return;
@@ -88,12 +88,12 @@ export function useCompare() {
     };
 
     return {
-        // Для университетов
+   
         compareList,
         addToCompare,
         removeFromCompare,
 
-        // Для стипендий
+     
         scholarshipCompareList,
         addToScholarshipCompare,
         removeFromScholarshipCompare,

@@ -15,22 +15,17 @@ import type {
 
 export const runtime = "nodejs";
 
-const MAX_HISTORY_MESSAGES = 12; // keep token usage/cost bounded on long chats
+const MAX_HISTORY_MESSAGES = 12; 
 const MAX_TOOL_TURNS = 4;
 const MAX_TRANSIENT_RETRIES = 2;
 
-// Каждый вызов делает до нескольких запросов к платному Groq API —
-// без лимита и без обязательной авторизации кто угодно мог бы
-// написать скрипт и спамить этот эндпоинт, сжигая бюджет.
-const CHAT_RATE_LIMIT = 15; // сообщений
-const CHAT_RATE_WINDOW_MS = 60 * 1000; // за 1 минуту, на юзера
 
-// Дневной лимит — отдельно от минутного, поверх Redis (не in-memory),
-// потому что 24-часовое окно обязано пережить рестарты/несколько
-// serverless-инстансов, иначе пользователь просто получает новый
-// лимит на каждом холодном старте.
-const CHAT_DAILY_LIMIT = 5; // сообщений
-const CHAT_DAILY_WINDOW_MS = 24 * 60 * 60 * 1000; // за 24 часа, на юзера
+const CHAT_RATE_LIMIT = 15; 
+const CHAT_RATE_WINDOW_MS = 60 * 1000; 
+
+
+const CHAT_DAILY_LIMIT = 5; 
+const CHAT_DAILY_WINDOW_MS = 24 * 60 * 60 * 1000; 
 
 const FALLBACK_RESPONSE: AIChatResponse = {
     reply:
@@ -39,7 +34,6 @@ const FALLBACK_RESPONSE: AIChatResponse = {
     universities: [],
 };
 
-// Safety net: strip stray markdown the model might add (links, bullets).
 function sanitizeReply(reply: string): string {
     return reply
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
@@ -67,7 +61,7 @@ async function getStudentProfile(baseUrl: string, cookie?: string): Promise<Stud
         const data = await res.json();
         return data && typeof data === "object" ? data : null;
     } catch {
-        return null; // unauthenticated / timed out / malformed — proceed without a profile
+        return null;
     }
 }
 
@@ -137,10 +131,7 @@ async function withRetries<T>(fn: () => Promise<T>, retries = MAX_TRANSIENT_RETR
 
 export async function POST(req: NextRequest) {
     try {
-        // Раньше этот эндпоинт был доступен без логина вообще —
-        // getStudentProfile() просто тихо возвращал null для анонимов,
-        // но сам чат при этом отрабатывал и тратил токены Groq.
-        // Теперь AI-бот доступен только залогиненным пользователям.
+        
         const auth = await authMiddleware(req as AuthRequest);
         if (auth instanceof NextResponse) {
             return auth;
@@ -153,8 +144,6 @@ export async function POST(req: NextRequest) {
         }
         const userId = auth;
 
-        // Дневной лимит проверяется первым — если пользователь уже выбрал
-        // свою пятёрку на сегодня, нет смысла даже смотреть на минутный лимит.
         const { allowed: dailyAllowed, remaining: dailyRemaining } = await checkDailyRateLimit(
             `chat:daily:${userId}`,
             CHAT_DAILY_LIMIT,
@@ -206,10 +195,7 @@ export async function POST(req: NextRequest) {
             { role: "user", content: message },
         ];
 
-        // ---- Tool-calling loop ----
-        // Results are collected here directly from tool executions, never
-        // reconstructed by the model afterward — that's what makes the cards
-        // reliable even if the model's own summarization is imperfect.
+       
         const foundScholarships: ScholarshipCardData[] = [];
         const foundUniversities: UniversityCardData[] = [];
 
@@ -227,7 +213,7 @@ export async function POST(req: NextRequest) {
                 );
             } catch (err: any) {
                 if (isToolValidationError(err)) {
-                    // Model sent badly-typed arguments — ask it to retry with correct types.
+            
                     messages.push({
                         role: "user",
                         content:
@@ -235,8 +221,6 @@ export async function POST(req: NextRequest) {
                     });
                     continue;
                 }
-                // Any other error (auth, quota, persistent 5xx) — stop researching,
-                // fall through to whatever we've already found (possibly nothing).
                 console.error("[ai/chat] Groq completion failed:", err?.message ?? err);
                 break;
             }
@@ -246,7 +230,7 @@ export async function POST(req: NextRequest) {
             messages.push(choice as any);
 
             if (!choice.tool_calls || choice.tool_calls.length === 0) {
-                break; // model is done researching
+                break; 
             }
 
             for (const call of choice.tool_calls) {
@@ -286,7 +270,6 @@ export async function POST(req: NextRequest) {
         const scholarships = dedupeById(foundScholarships).slice(0, 8);
         const universities = dedupeById(foundUniversities).slice(0, 8);
 
-        // ---- Final reply: plain text only ----
         let reply = "Here's what I found — check the recommendations panel!";
         try {
             const finalCompletion = await withRetries(() =>
@@ -324,8 +307,6 @@ plain-text sentences — no markdown (no links, no lists). ${scholarships.length
             },
         });
     } catch (err: any) {
-        // Absolute last resort — never let an uncaught error surface as a raw 500
-        // with no usable body, since the frontend can't gracefully handle that.
         console.error("[ai/chat] Unhandled error:", err?.message ?? err);
         return NextResponse.json(FALLBACK_RESPONSE, { status: 200 });
     }

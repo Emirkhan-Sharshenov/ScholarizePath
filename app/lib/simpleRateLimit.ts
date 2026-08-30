@@ -1,12 +1,4 @@
-/**
- * Rate limiter на Upstash Redis.
- *
- * Лимит общий для всех serverless-инстансов (Vercel), потому что счётчик
- * хранится в Redis, а не в памяти отдельного процесса — лимит строгий.
- *
- * Ratelimit-объекты кешируются по (limit, windowMs), чтобы не создавать
- * новый инстанс на каждый вызов — библиотека рекомендует переиспользовать.
- */
+
 
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
@@ -23,7 +15,7 @@ function getLimiter(limit: number, windowMs: number): Ratelimit {
         limiter = new Ratelimit({
             redis,
             limiter: Ratelimit.slidingWindow(limit, `${windowMs} ms`),
-            analytics: true, // графики в Upstash Console → твоя база → вкладка Ratelimit
+            analytics: true, 
         });
         limiterCache.set(cacheKey, limiter);
     }

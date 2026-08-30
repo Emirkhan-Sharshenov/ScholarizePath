@@ -7,7 +7,7 @@ interface CompareTableRowsProps {
     type: "universities" | "scholarships";
 }
 
-// Защищенный рендер строки/числа
+
 function safeRender(value: any): string {
     if (value === null || value === undefined) return "N/A";
     if (typeof value === "object") {

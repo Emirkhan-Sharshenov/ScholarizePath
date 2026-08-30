@@ -28,14 +28,12 @@ export async function POST(request: AuthRequest) {
             nationality,
             gpa,
             sat,
-            englishTest, // expected shape: { type: "IELTS" | "TOEFL", score: number }
+            englishTest, 
             preferredField,
             preferredCountry,
             programLevel,
         } = body;
 
-        // Core academic fields are mandatory; preferredField/preferredCountry/programLevel
-        // are optional and can be filled in later from the profile page.
         const missing: string[] = [];
         if (age === undefined || age === null) missing.push("age");
         if (!nationality) missing.push("nationality");
@@ -67,7 +65,6 @@ export async function POST(request: AuthRequest) {
             );
         }
 
-        // Already done once — don't let it be redone through this endpoint either.
         if (user.profileSetupComplete) {
             return NextResponse.json(
                 { success: false, message: "Profile setup has already been completed" },
@@ -92,9 +89,7 @@ export async function POST(request: AuthRequest) {
 
         await user.save();
 
-        // Reissue the auth token with the updated flag — otherwise the old cookie
-        // still says profileSetupComplete: false and proxy.ts will keep bouncing
-        // the user back to /profile/setup forever.
+
         const authToken = jwt.sign(
             {
                 userId: user._id.toString(),

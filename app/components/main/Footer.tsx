@@ -1,7 +1,6 @@
 import { Mail } from 'lucide-react';
 
-// lucide-react dropped brand/social icons (Instagram, etc.) from its exports,
-// so this is a small inline SVG instead of an import.
+
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
     return (
         <svg

@@ -26,19 +26,29 @@ export const initialFilters: FilterState = {
 };
 
 const COUNTRIES = [
-    'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahrain', 'Bangladesh',
-    'Belgium', 'Brazil', 'Brunei', 'Bulgaria', 'Cambodia', 'Canada', 'Chile', 'China',
-    'Colombia', 'Costa Rica', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Ecuador',
-    'Egypt', 'Estonia', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Georgia', 'Germany',
-    'Ghana', 'Greece', 'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran',
-    'Ireland', 'Israel', 'Italy', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kuwait',
-    'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lithuania', 'Malaysia', 'Malta', 'Mexico',
-    'Mongolia', 'Morocco', 'Nepal', 'Netherlands', 'New Zealand', 'Nigeria', 'Norway',
-    'Oman', 'Pakistan', 'Palestine', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar',
-    'Romania', 'Russia', 'Saudi Arabia', 'Senegal', 'Serbia', 'Singapore', 'Slovakia',
-    'Slovenia', 'South Africa', 'South Korea', 'Spain', 'Sri Lanka', 'Sweden', 'Switzerland',
-    'Taiwan', 'Tanzania', 'Thailand', 'Tunisia', 'Turkey', 'Uganda', 'United Arab Emirates',
-    'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vietnam'
+    "United Kingdom",
+    "Canada",
+    "South Korea",
+    "Italy",
+    "Germany",
+    "Japan",
+    "Singapore",
+    "Netherlands",
+    "Turkey",
+    "Malaysia",
+    "United Arab Emirates",
+    "Switzerland",
+    "Finland",
+    "Sweden",
+    "Australia",
+    "United States of America",
+    "China",
+    "Russia",
+    "France",
+    "Spain",
+    "Brazil",
+    "India",
+    "Nigeria"
 ];
 
 const PROGRAMS = [

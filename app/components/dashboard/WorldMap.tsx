@@ -4,7 +4,7 @@ import React, { useState, useRef, useCallback, useMemo, useEffect } from "react"
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
-const PROJECTION_CONFIG = { scale: 145 }; // hoisted - stable reference across renders
+const PROJECTION_CONFIG = { scale: 145 }; 
 
 export interface RegionConfig {
     id: string;
@@ -183,8 +183,7 @@ interface WorldMapProps {
     selectedRegionId?: string | null;
 }
 
-// Isolated so hover state changes never re-render the (expensive) geography
-// list. It only depends on selectedRegionId/activeRegion.
+
 const CountryGeographies = React.memo(function CountryGeographies({
     selectedRegionId,
     activeRegion,
@@ -219,8 +218,7 @@ const CountryGeographies = React.memo(function CountryGeographies({
                         <Geography
                             key={geo.rsmKey}
                             geography={geo}
-                            // onMouseEnter fires ONCE per country entry, not on every
-                            // pixel of mouse movement - this is the main fix.
+                         
                             onMouseEnter={() => {
                                 if (hasData) onCountryEnter(countryName, unis, scholarships);
                             }}
@@ -268,10 +266,7 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
         [selectedRegionId]
     );
 
-    // getBoundingClientRect forces a layout read, so it must NOT run on every
-    // mousemove (that would cause forced reflow at 60fps and defeat the whole
-    // optimization). Cache it once when the cursor enters the map, refresh on
-    // resize/scroll.
+
     const refreshRect = useCallback(() => {
         if (containerRef.current) {
             rectRef.current = containerRef.current.getBoundingClientRect();
@@ -289,11 +284,7 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
         };
     }, [refreshRect]);
 
-    // Position is computed relative to the map container's own box, not the
-    // viewport - this makes it immune to any ancestor having `transform`
-    // (e.g. the sidebar's transform-gpu), which is what breaks `position:
-    // fixed` + clientX/clientY. Still zero React state - written straight to
-    // the DOM.
+   
     const flushPosition = useCallback(() => {
         rafId.current = null;
         const pos = pendingPos.current;
@@ -302,11 +293,11 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
             let localX = pos.x - rect.left + 15;
             let localY = pos.y - rect.top - 15;
 
-            // Basic edge clamping so the tooltip doesn't render outside the map box.
+          
             const maxX = rect.width - 160;
             const maxY = rect.height - 60;
-            if (localX > maxX) localX = pos.x - rect.left - 175; // flip to the left of the cursor
-            if (localY < 0) localY = pos.y - rect.top + 15; // flip below the cursor
+            if (localX > maxX) localX = pos.x - rect.left - 175; 
+            if (localY < 0) localY = pos.y - rect.top + 15; 
             if (localY > maxY) localY = maxY;
 
             tooltipRef.current.style.transform = `translate(${localX}px, ${localY}px)`;

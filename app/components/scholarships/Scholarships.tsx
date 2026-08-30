@@ -98,7 +98,7 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
 
     return (
         <div className="w-full max-w-full font-sans">
-            {/* MOBILE SEARCH & FILTER BAR */}
+
             <div className="mb-4 flex items-center gap-2.5 md:hidden">
                 <div className="relative flex-1">
                     <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -120,7 +120,7 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
                 </button>
             </div>
 
-            {/* MOBILE FILTER MODAL */}
+      
             {isMobileFilterOpen && (
                 <div className="fixed inset-0 z-50 flex items-end bg-black/60 p-0 sm:items-center sm:justify-center sm:p-4 md:hidden">
                     <div className="max-h-[85vh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-2xl">
@@ -145,10 +145,9 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
                 </div>
             )}
 
-            {/* MAIN CONTAINER */}
+     
             <div className="w-full rounded-2xl border-none bg-transparent p-0 md:border md:border-slate-100 md:bg-white md:p-8 md:shadow-sm">
 
-                {/* TOP META CONTROLS */}
                 <div className="mb-4 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center md:mb-6">
                     <p className="text-xs font-medium text-slate-500">
                         Showing <span className="font-bold text-slate-900">{totalCount === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> to{' '}
@@ -174,7 +173,7 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
                     </div>
                 </div>
 
-                {/* CARDS FOR MOBILE (md:hidden) */}
+            
                 <div className="block md:hidden">
                     {loading ? (
                         <div className="py-12 text-center text-xs font-medium text-slate-400">Loading scholarships...</div>
@@ -194,12 +193,12 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
                                         className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs"
                                     >
                                         <div>
-                                            {/* Title */}
+                                        
                                             <h3 className="text-sm font-bold leading-snug text-slate-900">
                                                 {scholarship.scholarshipName}
                                             </h3>
 
-                                            {/* Info Row */}
+                                   
                                             <div className="mt-3 flex items-center justify-between text-xs text-slate-600">
                                                 <div>
                                                     <span className="font-semibold text-slate-900">Amount:</span> {amountDisplay}
@@ -231,7 +230,6 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
                     )}
                 </div>
 
-                {/* TABLE FOR DESKTOP (hidden md:block) */}
                 <div className="hidden md:block">
                     <table className="w-full table-fixed border-collapse text-left">
                         <thead>
@@ -276,8 +274,6 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
                         </tbody>
                     </table>
                 </div>
-
-                {/* PAGINATION */}
                 <div className="mt-6 flex items-center justify-center gap-1 border-t border-slate-100 pt-5">
                     <button
                         disabled={currentPage <= 1}

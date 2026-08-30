@@ -174,9 +174,7 @@ export default function AdditionalInfoForm() {
         setLoading(true);
         setError(null);
 
-        // Shape must match what POST /api/profile/setup expects:
-        // englishTest is a nested { type, score } object, and type must be
-        // uppercase "IELTS"/"TOEFL" to satisfy the Mongoose schema enum.
+
         const payload = {
             age: formData.age ? Number(formData.age) : null,
             nationality: formData.nationality || null,
@@ -221,7 +219,7 @@ export default function AdditionalInfoForm() {
     return (
         <div className="flex min-h-screen items-center justify-center bg-[rgb(246,247,251)] px-4 py-12 font-sans">
             <div className="w-full max-w-[580px]">
-                {/* Header */}
+           
                 <div className="mb-8 text-center">
                     <h1 className="text-[28px] font-bold tracking-tight text-slate-900">
                         Collecting Additional Information
@@ -231,7 +229,7 @@ export default function AdditionalInfoForm() {
                     </p>
                 </div>
 
-                {/* Card Container */}
+       
                 <div className="rounded-2xl border border-slate-100 bg-white p-8 shadow-sm">
                     {error && (
                         <div className="mb-6 rounded-lg border border-red-100 bg-red-50 p-3.5 text-sm text-red-600">
@@ -240,7 +238,6 @@ export default function AdditionalInfoForm() {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
-                        {/* Row 1: Age & Nationality */}
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <label htmlFor="age" className="mb-1.5 block text-sm font-semibold text-slate-900">
@@ -281,7 +278,6 @@ export default function AdditionalInfoForm() {
                             </div>
                         </div>
 
-                        {/* Row 2: GPA & SAT Score */}
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <label htmlFor="gpa" className="mb-1.5 block text-sm font-semibold text-slate-900">
@@ -320,7 +316,6 @@ export default function AdditionalInfoForm() {
                             </div>
                         </div>
 
-                        {/* Row 3: IELTS / TOEFL Toggle + Score & Field of Study */}
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <div className="mb-1.5 flex items-center justify-between">
@@ -382,7 +377,6 @@ export default function AdditionalInfoForm() {
                             </div>
                         </div>
 
-                        {/* Preferred Country */}
                         <div>
                             <label htmlFor="country" className="mb-1.5 block text-sm font-semibold text-slate-900">
                                 Preferred Country <span className="font-normal text-slate-500">(Optional)</span>
@@ -406,7 +400,6 @@ export default function AdditionalInfoForm() {
                             </div>
                         </div>
 
-                        {/* Program Level */}
                         <div>
                             <label htmlFor="programLevel" className="mb-1.5 block text-sm font-semibold text-slate-900">
                                 Program Level <span className="font-normal text-slate-500">(Optional)</span>
@@ -427,8 +420,6 @@ export default function AdditionalInfoForm() {
                                 <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
                             </div>
                         </div>
-
-                        {/* Submit Button */}
                         <div className="pt-2">
                             <button
                                 type="submit"

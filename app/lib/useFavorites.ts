@@ -10,7 +10,6 @@ export function useFavorites(itemId?: string, itemType?: FavoriteType) {
     const [favoriteUniversities, setFavoriteUniversities] = useState<string[]>([]);
     const [favoriteScholarships, setFavoriteScholarships] = useState<string[]>([]);
 
-    // Load current user favorites
     const fetchUserData = useCallback(async () => {
         try {
             const res = await fetch('/api/auth/self');
@@ -40,7 +39,6 @@ export function useFavorites(itemId?: string, itemType?: FavoriteType) {
         fetchUserData();
     }, [fetchUserData]);
 
-    // Core sync logic with backend
     const syncFavoritesWithBackend = async (unis: string[], schols: string[]) => {
         try {
             const res = await fetch('/api/auth/self', {
@@ -53,7 +51,7 @@ export function useFavorites(itemId?: string, itemType?: FavoriteType) {
             });
 
             if (!res.ok) {
-                await fetchUserData(); // Rollback UI state on server error
+                await fetchUserData(); 
             }
         } catch (error) {
             console.error('Error syncing favorites:', error);
@@ -61,7 +59,6 @@ export function useFavorites(itemId?: string, itemType?: FavoriteType) {
         }
     };
 
-    // Toggle function (Add / Remove)
     const toggleFavorite = async () => {
         if (!itemId || !itemType) return;
 
@@ -86,7 +83,7 @@ export function useFavorites(itemId?: string, itemType?: FavoriteType) {
         await syncFavoritesWithBackend(updatedUnis, updatedSchols);
     };
 
-    // Explicit Remove Function
+
     const removeFavorite = async (targetId: string, targetType: FavoriteType) => {
         let updatedUnis = [...favoriteUniversities];
         let updatedSchols = [...favoriteScholarships];

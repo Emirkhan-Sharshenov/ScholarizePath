@@ -42,9 +42,6 @@ export async function GET(request: Request) {
             baseMatch.degreeLevels = degreeLevel;
         }
 
-        // --- вычисляем нормализованные rankingValue / tuitionValue ---
-        // Универы без валидного значения получают null и уходят в конец
-        // сортировки независимо от направления (asc/desc).
         const addComputedFields = {
             $addFields: {
                 rankingValue: {
@@ -101,7 +98,6 @@ export async function GET(request: Request) {
             },
         };
 
-        // --- диапазонные фильтры (только если явно заданы) ---
         const rangeMatch: any = {};
 
         if (minRanking || maxRanking) {
@@ -116,9 +112,6 @@ export async function GET(request: Request) {
             if (maxTuition) rangeMatch.tuitionValue.$lte = Number(maxTuition);
         }
 
-        // --- направление сортировки ---
-        // "hasRanking/hasTuition: -1" всегда кладёт N/A в конец,
-        // независимо от направления сортировки по значению.
         const sortMap: Record<string, any> = {
             "Ranking: High to Low": { hasRanking: -1, rankingValue: 1 },
             "Ranking: Low to High": { hasRanking: -1, rankingValue: -1 },

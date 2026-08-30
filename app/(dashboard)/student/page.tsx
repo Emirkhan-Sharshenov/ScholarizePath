@@ -88,7 +88,6 @@ export default function ProfilePage() {
     return (
         <main className="min-h-screen bg-[rgb(246,247,251)] p-8">
             <div className="max-w-4xl mx-auto space-y-6">
-                {/* Navigation & Action Bar */}
                 <div className="flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
 
@@ -117,7 +116,6 @@ export default function ProfilePage() {
                     )}
                 </div>
 
-                {/* Components */}
                 <ProfileHeader
                     firstName={formData.firstName}
                     lastName={formData.lastName}

@@ -12,8 +12,7 @@ import {
 } from 'lucide-react';
 import FeatureCard from './FeatureCard';
 
-// Only plain strings cross the server -> client boundary (see page.tsx).
-// The actual icon components live and get resolved entirely on the client.
+
 const ICONS: Record<string, LucideIcon> = {
     GraduationCap,
     Award,

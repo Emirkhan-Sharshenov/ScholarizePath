@@ -12,7 +12,6 @@ export default function UniversitiesPage() {
 
   return (
     <div className="min-h-screen bg-[rgb(246,247,251)] pb-12">
-      {/* HEADER SECTION */}
       <div className="px-4 pt-6 sm:px-8">
         <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
           Universities
@@ -22,16 +21,16 @@ export default function UniversitiesPage() {
         </h2>
       </div>
 
-      {/* MAIN LAYOUT */}
+
       <div className="mt-6 px-4 sm:px-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
 
-          {/* DESKTOP FILTER SIDEBAR ONLY */}
+       
           <div className="hidden w-[320px] shrink-0 lg:block">
             <FilterUniversities filters={filters} setFilters={setFilters} />
           </div>
 
-          {/* MAIN LIST & MOBILE FILTER DRAWER */}
+       
           <div className="min-w-0 flex-1">
             <ListUniversities filters={filters} setFilters={setFilters} />
           </div>

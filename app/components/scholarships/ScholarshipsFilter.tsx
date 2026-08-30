@@ -22,19 +22,20 @@ export const initialFilters: FilterState = {
 };
 
 const COUNTRIES = [
-  'Australia',
-  'Canada',
-  'China',
-  'European Union (multi-country consortium)',
-  'France',
-  'Germany',
-  'Hungary',
-  'Japan',
-  'South Korea',
-  'Switzerland',
-  'Turkey',
-  'United Kingdom',
-  'United States',
+  "United States of America",
+  "United Kingdom",
+  "China",
+  "South Korea",
+  "Germany",
+  "Japan",
+  "Italy",
+  "United Arab Emirates",
+  "Turkey",
+  "Russia",
+  "Saudi Arabia",
+  "Qatar",
+  "Australia",
+  "Czech Republic"
 ];
 
 const STUDY_LEVELS = [
