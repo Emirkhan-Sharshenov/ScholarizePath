@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Loader2, Trash2, GraduationCap, Award, FileDown } from "lucide-react";
+import { Loader2, Trash2, GraduationCap, Award, FileDown, Share2, Link as LinkIcon } from "lucide-react";
 import {
     Document,
     Packer,
@@ -16,6 +16,9 @@ import {
 } from "docx";
 import { saveAs } from "file-saver";
 import { useUniList, UniListItem } from "@/lib/useUniList";
+
+const DOCX_MIME =
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
 function formatMoney(amount?: number | null, currency = "USD") {
     if (amount === undefined || amount === null) return "—";
@@ -146,10 +149,62 @@ function scholarshipSection(sch: any, index: number) {
     ];
 }
 
+// ---- Mobile-safe save/share helper ------------------------------------
+
+/**
+ * Tries, in order:
+ *  1) Web Share API with a real File (best UX on iOS/Android — opens native
+ *     share sheet with "Save to Files" / "Save to Drive" etc.)
+ *  2) file-saver's saveAs (works fine on desktop browsers)
+ *  3) A manual <a download> click as a last-resort fallback
+ *
+ * IMPORTANT: call this directly from a click handler (no awaits before it)
+ * so the browser still considers it a "user gesture" — otherwise iOS Safari
+ * silently rejects navigator.share().
+ */
+async function saveOrShareBlob(blob: Blob, filename: string): Promise<"shared" | "saved" | "cancelled"> {
+    if (typeof navigator !== "undefined" && "share" in navigator && "canShare" in navigator) {
+        try {
+            const file = new File([blob], filename, { type: blob.type || DOCX_MIME });
+            // @ts-ignore - canShare typing varies across TS lib versions
+            if (navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: filename });
+                return "shared";
+            }
+        } catch (err: any) {
+            if (err?.name === "AbortError") return "cancelled"; // user closed the share sheet
+            console.warn("navigator.share failed, falling back:", err);
+        }
+    }
+
+    try {
+        saveAs(blob, filename);
+        return "saved";
+    } catch (err) {
+        console.warn("saveAs failed, falling back to manual link:", err);
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.target = "_blank";
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    return "saved";
+}
+
+// -------------------------------------------------------------------------
+
 export function DocxGenerator() {
     const { universities, scholarships, list, removeFromList, clearList } = useUniList();
     const [generating, setGenerating] = useState(false);
-    const [error, setError] = useState < string | null > (null);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [readyFile, setReadyFile] = useState<{ blob: Blob; filename: string; url: string } | null>(null);
 
     const totalItems = list.length;
 
@@ -159,14 +214,19 @@ export function DocxGenerator() {
         const res = await fetch(endpoint);
         if (!res.ok) throw new Error(`Failed to load ${item.type} ${item.id}`);
         const json = await res.json();
-        // Handles both a raw object and a { success, data } wrapper
         return json?.data || json?.university || json?.scholarship || json;
     }
 
+    // Step 1: build the .docx (async — no direct download/share here,
+    // so it never depends on a "fresh" user gesture).
     async function handleGenerate() {
         if (totalItems === 0) return;
         setGenerating(true);
         setError(null);
+        if (readyFile) {
+            URL.revokeObjectURL(readyFile.url);
+            setReadyFile(null);
+        }
         try {
             const uniItems = list.filter((i) => i.type === "university");
             const schItems = list.filter((i) => i.type === "scholarship");
@@ -217,12 +277,35 @@ export function DocxGenerator() {
 
             const doc = new Document({ sections: [{ properties: {}, children }] });
             const blob = await Packer.toBlob(doc);
-            saveAs(blob, `unilist-report-${Date.now()}.docx`);
+            const typedBlob = blob.type ? blob : new Blob([blob], { type: DOCX_MIME });
+            const filename = `unilist-report-${Date.now()}.docx`;
+            const url = URL.createObjectURL(typedBlob);
+
+            setReadyFile({ blob: typedBlob, filename, url });
         } catch (err) {
             console.error(err);
             setError("Something went wrong while generating your report. Please try again.");
         } finally {
             setGenerating(false);
+        }
+    }
+
+    // Step 2: this click IS the fresh user gesture — safe to call share()/saveAs() here.
+    async function handleSave() {
+        if (!readyFile) return;
+        setSaving(true);
+        setError(null);
+        try {
+            const result = await saveOrShareBlob(readyFile.blob, readyFile.filename);
+            if (result === "saved" || result === "shared") {
+                URL.revokeObjectURL(readyFile.url);
+                setReadyFile(null);
+            }
+        } catch (err) {
+            console.error(err);
+            setError("Couldn't save the file. Try the direct link below instead.");
+        } finally {
+            setSaving(false);
         }
     }
 
@@ -312,23 +395,55 @@ export function DocxGenerator() {
 
                 {error && <p className="text-xs text-rose-500">{error}</p>}
 
-                <button
-                    onClick={handleGenerate}
-                    disabled={totalItems === 0 || generating}
-                    className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl transition-colors shadow-sm text-sm"
-                >
-                    {generating ? (
-                        <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Generating...</span>
-                        </>
-                    ) : (
-                        <>
-                            <FileDown className="w-4 h-4" />
-                            <span>Generate &amp; Download DOCX{totalItems > 0 ? ` (${totalItems})` : ""}</span>
-                        </>
-                    )}
-                </button>
+                {!readyFile ? (
+                    <button
+                        onClick={handleGenerate}
+                        disabled={totalItems === 0 || generating}
+                        className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl transition-colors shadow-sm text-sm"
+                    >
+                        {generating ? (
+                            <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>Generating...</span>
+                            </>
+                        ) : (
+                            <>
+                                <FileDown className="w-4 h-4" />
+                                <span>Generate DOCX{totalItems > 0 ? ` (${totalItems})` : ""}</span>
+                            </>
+                        )}
+                    </button>
+                ) : (
+                    <div className="space-y-2">
+                        <button
+                            onClick={handleSave}
+                            disabled={saving}
+                            className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl transition-colors shadow-sm text-sm"
+                        >
+                            {saving ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>Saving...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Share2 className="w-4 h-4" />
+                                    <span>Save / Share file</span>
+                                </>
+                            )}
+                        </button>
+
+                        {/* Manual fallback for stubborn in-app browsers / WebViews */}
+                        <a
+                            href={readyFile.url}
+                            download={readyFile.filename}
+                            className="flex items-center justify-center gap-2 text-xs text-gray-400 hover:text-gray-600 py-1"
+                        >
+                            <LinkIcon className="w-3 h-3" />
+                            <span>Direct download link (long-press to save)</span>
+                        </a>
+                    </div>
+                )}
             </div>
         </div>
     );
