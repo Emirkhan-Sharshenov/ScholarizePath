@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
                 { status: 401 }
             );
         }
-        const userId = auth;
+        const userId = auth.userId;
 
         const { allowed: dailyAllowed, remaining: dailyRemaining } = await checkDailyRateLimit(
             `chat:daily:${userId}`,
@@ -159,7 +159,11 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const { allowed } = checkRateLimit(userId, CHAT_RATE_LIMIT, CHAT_RATE_WINDOW_MS);
+        const { allowed } = await checkRateLimit(
+            userId,
+            CHAT_RATE_LIMIT,
+            CHAT_RATE_WINDOW_MS
+        );
         if (!allowed) {
             return NextResponse.json(
                 { success: false, message: "Too many messages — please slow down and try again in a minute." },

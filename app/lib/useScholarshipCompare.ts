@@ -11,14 +11,19 @@ interface ScholarshipCompareStore {
     clearCompare: () => void;
 }
 
+// 'id' может отсутствовать в текущем типе Scholarship (только '_id') — читаем безопасно
+function getScholarshipId(scholarship: Scholarship): string | undefined {
+    return (scholarship as { id?: string; _id?: string }).id ?? scholarship._id;
+}
+
 export const useScholarshipCompare = create<ScholarshipCompareStore>()(
     persist(
         (set) => ({
             compareList: [],
             addToCompare: (scholarship) =>
                 set((state) => {
-                    const id = scholarship.id || scholarship._id;
-                    if (state.compareList.some((item) => (item.id || item._id) === id)) {
+                    const id = getScholarshipId(scholarship);
+                    if (state.compareList.some((item) => getScholarshipId(item) === id)) {
                         return state;
                     }
                     if (state.compareList.length >= 4) {
@@ -29,7 +34,7 @@ export const useScholarshipCompare = create<ScholarshipCompareStore>()(
                 }),
             removeFromCompare: (id) =>
                 set((state) => ({
-                    compareList: state.compareList.filter((item) => (item.id || item._id) !== id),
+                    compareList: state.compareList.filter((item) => getScholarshipId(item) !== id),
                 })),
             clearCompare: () => set({ compareList: [] }),
         }),

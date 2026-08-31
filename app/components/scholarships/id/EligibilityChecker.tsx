@@ -3,7 +3,7 @@
 import React from 'react';
 import { CheckCircle2, HelpCircle, XCircle } from 'lucide-react';
 import { Scholarship } from '@/types/scholarship';
-import { UserProfile } from './ScholarshipDetailsPage';
+import type { UserProfile } from '@/types/user';
 
 interface EligibilityCheckerProps {
     scholarship: Scholarship;
@@ -32,7 +32,8 @@ export function EligibilityChecker({ scholarship, userProfile, loading }: Eligib
     const reqs = scholarship?.requirements || {};
 
     const rawMinGpa = reqs.gpa?.minimum ?? 0;
-    const rawScale = reqs.gpa?.scale;
+    // 'scale' может отсутствовать в текущем типе Scholarship — обращаемся безопасно
+    const rawScale = (reqs.gpa as { scale?: number } | undefined)?.scale;
     const normalizedMinGpa = getNormalizedGpa(rawMinGpa, rawScale);
 
     const userGpa = userProfile?.gpa ?? 0;
@@ -41,7 +42,10 @@ export function EligibilityChecker({ scholarship, userProfile, loading }: Eligib
     // Проверки
     const isGpaMatch = userProfile ? userGpa >= normalizedMinGpa : true;
     const isAgeMatch = userProfile ? (userProfile.age ?? 20) <= maxAge : true;
-    const isEnglishPartial = userProfile ? userProfile.englishTest.score > 0 : false;
+
+    // 'englishTest' может отсутствовать в текущем типе UserProfile — обращаемся безопасно
+    const englishScore = (userProfile as { englishTest?: { score?: number } } | null)?.englishTest?.score ?? 0;
+    const isEnglishPartial = userProfile ? englishScore > 0 : false;
 
     const checklistItems = [
         { label: 'Academic Performance (GPA)', status: isGpaMatch ? 'matched' : 'not_matched' },
