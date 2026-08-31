@@ -10,12 +10,12 @@ export default function MapCard() {
                 <h1 className="text-lg md:text-[20px] font-bold text-slate-900">
                     Explore the World
                 </h1>
+
                 <h2 className="text-xs md:text-sm text-gray-500 mt-0.5">
                     Discover top universities across the globe
                 </h2>
             </div>
 
-     
             <div className="mt-4 md:mt-6 h-auto md:h-[70vh]">
                 <MapFilter />
             </div>

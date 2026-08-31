@@ -10,16 +10,19 @@ import { EligibilityCriteriaList } from "./EligibilityCriteriaList";
 import { ApplySidebarCard } from "./ApplySidebarCard";
 import { useCompare } from "@/lib/useCompare";
 import { useUniList } from "@/lib/useUniList";
+import type { UserProfile } from "@/types/user";
 
 export default function ScholarshipDetailsPage({ scholarship }: { scholarship: Scholarship }) {
     const router = useRouter();
-    const [userProfile, setUserProfile] = useState<any>(null);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
     const { scholarshipCompareList, addToScholarshipCompare, removeFromScholarshipCompare } = useCompare();
     const { toggleInList, isInList } = useUniList();
 
-    const currentId = String(scholarship?.id || scholarship?._id || "");
+    // 'id' может отсутствовать в текущем типе Scholarship (только '_id') — обращаемся безопасно
+    const scholarshipId = (scholarship as { id?: string; _id?: string })?.id;
+    const currentId = String(scholarshipId || scholarship?._id || "");
     const isCompared = scholarshipCompareList.some((item: any) => (item.id || item._id) === currentId);
     const inList = isInList(currentId, "scholarship");
 
@@ -75,7 +78,7 @@ export default function ScholarshipDetailsPage({ scholarship }: { scholarship: S
                     <div className="lg:col-span-2 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <EligibilityChecker scholarship={scholarship} userProfile={userProfile} loading={loading} />
-                            <EligibilityCriteriaList scholarship={scholarship} userProfile={userProfile} />
+                            <EligibilityCriteriaList scholarship={scholarship} userProfile={userProfile} loading={loading} />
                         </div>
                     </div>
 

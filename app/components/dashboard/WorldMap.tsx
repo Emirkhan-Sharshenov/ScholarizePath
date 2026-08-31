@@ -3,8 +3,9 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 
+
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
-const PROJECTION_CONFIG = { scale: 145 }; 
+const PROJECTION_CONFIG = { scale: 145 };
 
 export interface RegionConfig {
     id: string;
@@ -147,8 +148,8 @@ const SCHOLARSHIPS_COUNT: Record<string, number> = {
     "Korea, Republic of": 5,
     "Germany": 8,
     "Japan": 6,
-    "Italy" : 6,
-    "UAE" : 6,
+    "Italy": 6,
+    "UAE": 6,
     "Turkey": 5,
     "Russia": 3,
     "Saudi Arabia": 4,
@@ -189,11 +190,13 @@ const CountryGeographies = React.memo(function CountryGeographies({
     activeRegion,
     onCountryEnter,
     onCountryLeave,
+    onCountrySelect,
 }: {
     selectedRegionId?: string | null;
     activeRegion?: RegionConfig;
     onCountryEnter: (name: string, unis: number, scholarships: number) => void;
     onCountryLeave: () => void;
+    onCountrySelect: (e: React.MouseEvent, name: string, unis: number, scholarships: number) => void;
 }) {
     return (
         <Geographies geography={geoUrl}>
@@ -218,11 +221,14 @@ const CountryGeographies = React.memo(function CountryGeographies({
                         <Geography
                             key={geo.rsmKey}
                             geography={geo}
-                         
                             onMouseEnter={() => {
                                 if (hasData) onCountryEnter(countryName, unis, scholarships);
                             }}
                             onMouseLeave={onCountryLeave}
+                            onClick={(e: React.MouseEvent) => {
+                                if (!hasData) return;
+                                onCountrySelect(e, countryName, unis, scholarships);
+                            }}
                             style={{
                                 default: {
                                     fill: fillColor,
@@ -254,6 +260,10 @@ const CountryGeographies = React.memo(function CountryGeographies({
 
 export default function WorldMap({ selectedRegionId }: WorldMapProps) {
     const [hoveredCountry, setHoveredCountry] = useState<HoveredCountry | null>(null);
+    // Пока true, карточка "закреплена" тапом/кликом и игнорирует onMouseLeave —
+    // без этого мобильные браузеры шлют фантомный mouseleave сразу после клика,
+    // и карточка гасла бы мгновенно.
+    const isPinnedRef = useRef(false);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
@@ -266,7 +276,6 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
         [selectedRegionId]
     );
 
-
     const refreshRect = useCallback(() => {
         if (containerRef.current) {
             rectRef.current = containerRef.current.getBoundingClientRect();
@@ -277,30 +286,45 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
         refreshRect();
         window.addEventListener("resize", refreshRect);
         window.addEventListener("scroll", refreshRect, true);
+
+        // Ловим изменения размеров контейнера (смена ориентации телефона,
+        // адаптивные брейкпоинты, появление/исчезновение сайдбара и т.п.)
+        let resizeObserver: ResizeObserver | null = null;
+        if (containerRef.current && typeof ResizeObserver !== "undefined") {
+            resizeObserver = new ResizeObserver(() => refreshRect());
+            resizeObserver.observe(containerRef.current);
+        }
+
         return () => {
             window.removeEventListener("resize", refreshRect);
             window.removeEventListener("scroll", refreshRect, true);
             if (rafId.current != null) cancelAnimationFrame(rafId.current);
+            resizeObserver?.disconnect();
         };
     }, [refreshRect]);
 
-   
     const flushPosition = useCallback(() => {
         rafId.current = null;
         const pos = pendingPos.current;
         const rect = rectRef.current;
-        if (pos && rect && tooltipRef.current) {
+        const tooltipEl = tooltipRef.current;
+        if (pos && rect && tooltipEl) {
+            // Реальные размеры подсказки — точнее хардкода, особенно на узких экранах
+            const tw = tooltipEl.offsetWidth || 150;
+            const th = tooltipEl.offsetHeight || 60;
+
             let localX = pos.x - rect.left + 15;
             let localY = pos.y - rect.top - 15;
 
-          
-            const maxX = rect.width - 160;
-            const maxY = rect.height - 60;
-            if (localX > maxX) localX = pos.x - rect.left - 175; 
-            if (localY < 0) localY = pos.y - rect.top + 15; 
+            const maxX = rect.width - tw - 8;
+            const maxY = rect.height - th - 8;
+
+            if (localX > maxX) localX = pos.x - rect.left - tw - 15;
+            if (localX < 8) localX = 8;
+            if (localY < 8) localY = pos.y - rect.top + 15;
             if (localY > maxY) localY = maxY;
 
-            tooltipRef.current.style.transform = `translate(${localX}px, ${localY}px)`;
+            tooltipEl.style.transform = `translate(${localX}px, ${localY}px)`;
         }
     }, []);
 
@@ -312,11 +336,33 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
     }, [flushPosition]);
 
     const handleCountryEnter = useCallback((name: string, unis: number, scholarships: number) => {
+        if (isPinnedRef.current) return; // карточка закреплена кликом — hover её не трогает
         refreshRect(); // cheap safety net in case layout shifted since last cache
         setHoveredCountry({ name, unis, scholarships });
     }, [refreshRect]);
 
     const handleCountryLeave = useCallback(() => {
+        if (isPinnedRef.current) return; // игнорируем hover-уход, пока карточка закреплена
+        setHoveredCountry(null);
+    }, []);
+
+    // Тап по стране: показывает карточку и она остаётся на экране,
+    // пока не тапнешь в другое место. stopPropagation — чтобы этот же тап
+    // не долетел до контейнера и не закрыл карточку сразу же.
+    const handleCountrySelect = useCallback((e: React.MouseEvent, name: string, unis: number, scholarships: number) => {
+        e.stopPropagation();
+        isPinnedRef.current = true;
+        refreshRect();
+        pendingPos.current = { x: e.clientX, y: e.clientY };
+        if (rafId.current == null) {
+            rafId.current = requestAnimationFrame(flushPosition);
+        }
+        setHoveredCountry({ name, unis, scholarships });
+    }, [flushPosition, refreshRect]);
+
+    // Тап по пустому месту (океан/фон) — закрывает карточку и снимает закрепление
+    const handleContainerClick = useCallback(() => {
+        isPinnedRef.current = false;
         setHoveredCountry(null);
     }, []);
 
@@ -324,7 +370,8 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
         <div
             ref={containerRef}
             onMouseMove={handleMouseMove}
-            className="w-full h-full relative bg-[rgb(246,247,251)]"
+            onClick={handleContainerClick}
+            className="relative w-full aspect-[8/5] max-h-[520px] min-h-[220px] overflow-hidden rounded-xl bg-[rgb(246,247,251)] sm:rounded-2xl touch-pan-y"
         >
             <ComposableMap
                 projectionConfig={PROJECTION_CONFIG}
@@ -337,6 +384,7 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
                     activeRegion={activeRegion}
                     onCountryEnter={handleCountryEnter}
                     onCountryLeave={handleCountryLeave}
+                    onCountrySelect={handleCountrySelect}
                 />
             </ComposableMap>
 
@@ -351,7 +399,7 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
                         pointerEvents: "none",
                         willChange: "transform",
                     }}
-                    className="rounded-xl bg-white p-3 shadow-lg border border-slate-100 text-xs"
+                    className="max-w-[150px] rounded-xl border border-slate-100 bg-white p-2 text-[11px] shadow-lg sm:max-w-none sm:p-3 sm:text-xs"
                 >
                     <div className="font-bold text-slate-900 mb-1">
                         {hoveredCountry.name}

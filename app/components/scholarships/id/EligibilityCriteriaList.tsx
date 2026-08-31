@@ -3,11 +3,12 @@
 import React from 'react';
 import { BarChart2, Globe, User, BookOpen, GraduationCap, FileText, ChevronRight } from 'lucide-react';
 import { Scholarship } from '@/types/scholarship';
-import { UserProfile } from './ScholarshipDetailsPage';
+import type { UserProfile } from '@/types/user';
 
 interface EligibilityCriteriaListProps {
     scholarship: Scholarship;
     userProfile: UserProfile | null;
+    loading: boolean;
 }
 
 export function EligibilityCriteriaList({ scholarship, userProfile }: EligibilityCriteriaListProps) {
@@ -19,6 +20,9 @@ export function EligibilityCriteriaList({ scholarship, userProfile }: Eligibilit
     // Конвертация для сравнения
     const minGpaNormalized = minGpaRaw > 4.0 ? (minGpaRaw / 100) * 4.0 : minGpaRaw;
     const isGpaOk = userGpa >= minGpaNormalized;
+
+    // 'nationality' может отсутствовать в текущем типе requirements — обращаемся безопасно
+    const nationalityReq = (reqs as { nationality?: { eligibleCountries?: string } }).nationality;
 
     const criteria = [
         {
@@ -33,7 +37,7 @@ export function EligibilityCriteriaList({ scholarship, userProfile }: Eligibilit
         {
             icon: <Globe className="h-4 w-4 text-slate-500" />,
             title: 'Nationality',
-            desc: reqs.nationality?.eligibleCountries || 'Open to all international applicants',
+            desc: nationalityReq?.eligibleCountries || 'Open to all international applicants',
             status: 'You meet this requirement',
             isOk: true,
         },
