@@ -1,320 +1,65 @@
 "use client";
 
-import React, { useState } from "react";
-import { Loader2, Trash2, GraduationCap, Award, FileDown, Share2, Link as LinkIcon } from "lucide-react";
-import {
-    Document,
-    Packer,
-    Paragraph,
-    TextRun,
-    HeadingLevel,
-    Table,
-    TableRow,
-    TableCell,
-    WidthType,
-    BorderStyle,
-} from "docx";
-import { saveAs } from "file-saver";
-import { useUniList, UniListItem } from "@/lib/useUniList";
+import React, { useEffect, useMemo, useState } from "react";
+import { Trash2, GraduationCap, Award, FileDown, Loader2, Share2 } from "lucide-react";
+import { useUniList } from "@/lib/useUniList";
 
 const DOCX_MIME =
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
-function formatMoney(amount?: number | null, currency = "USD") {
-    if (amount === undefined || amount === null) return "—";
-    return `${amount.toLocaleString()} ${currency}`;
-}
-
-function kvRow(label: string, value?: string | number | null) {
-    return new TableRow({
-        children: [
-            new TableCell({
-                width: { size: 35, type: WidthType.PERCENTAGE },
-                shading: { fill: "F2F4F8" },
-                children: [new Paragraph({ children: [new TextRun({ text: label, bold: true, size: 20 })] })],
-            }),
-            new TableCell({
-                width: { size: 65, type: WidthType.PERCENTAGE },
-                children: [
-                    new Paragraph({
-                        children: [new TextRun({ text: value === undefined || value === null || value === "" ? "—" : String(value), size: 20 })],
-                    }),
-                ],
-            }),
-        ],
-    });
-}
-
-function buildTable(rows: TableRow[]) {
-    const edge = { style: BorderStyle.SINGLE, size: 1, color: "D9DCE3" };
-    return new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows,
-        borders: { top: edge, bottom: edge, left: edge, right: edge, insideHorizontal: edge, insideVertical: edge },
-    });
-}
-
-function universitySection(uni: any, index: number) {
-    const location = uni.location
-        ? [uni.location.city, uni.location.country].filter(Boolean).join(", ")
-        : "—";
-    const deadlines =
-        (uni.applicationDeadlines || []).map((d: any) => `${d.round}: ${d.date}`).join("; ") || "—";
-    const programs = (uni.programs || []).join(", ") || "—";
-    const req = uni.admissionRequirements || {};
-
-    return [
-        new Paragraph({
-            heading: HeadingLevel.HEADING_2,
-            spacing: { before: 300, after: 150 },
-            children: [new TextRun({ text: `${index}. ${uni.name || "Unnamed University"}` })],
-        }),
-        new Paragraph({
-            spacing: { after: 150 },
-            children: [new TextRun({ text: uni.description || "", italics: true, size: 20 })],
-        }),
-        buildTable([
-            kvRow("Type", uni.type),
-            kvRow("Location", location),
-            kvRow("Global Rank", uni.ranking?.global != null ? `#${uni.ranking.global}` : "—"),
-            kvRow("National Rank", uni.ranking?.national != null ? `#${uni.ranking.national}` : "—"),
-            kvRow("Acceptance Rate", uni.acceptanceRate != null ? `${uni.acceptanceRate}%` : "—"),
-            kvRow("Tuition (Bachelor)", formatMoney(uni.tuition?.bachelor, uni.tuition?.currency)),
-            kvRow("Tuition (Master)", formatMoney(uni.tuition?.master, uni.tuition?.currency)),
-            kvRow(
-                "Living Cost",
-                uni.livingCostUSD
-                    ? `${formatMoney(uni.livingCostUSD.min)} - ${formatMoney(uni.livingCostUSD.max)} / ${uni.livingCostUSD.period || "year"}`
-                    : "—"
-            ),
-            kvRow("Min GPA", req.gpa?.min != null ? `${req.gpa.min} / ${req.gpa.scale || 4}` : "—"),
-            kvRow("Min IELTS", req.ielts?.min ?? "—"),
-            kvRow("Min TOEFL", req.toefl?.min ?? "—"),
-            kvRow("Programs", programs),
-            kvRow("Application Deadlines", deadlines),
-            kvRow("Website", uni.website),
-        ]),
-        new Paragraph({ text: "", spacing: { after: 200 } }),
-    ];
-}
-
-function scholarshipSection(sch: any, index: number) {
-    const studyLevel = (sch.studyLevel || []).join(", ") || "—";
-    const deadlines = (sch.deadlines || []).map((d: any) => `${d.name}: ${d.date}`).join("; ") || "—";
-    const award = sch.award || {};
-    const req = sch.requirements || {};
-    const coverage =
-        [
-            award.tuition && "Tuition",
-            award.stipend && "Stipend",
-            award.travel && "Travel",
-            award.insurance && "Insurance",
-            award.arrivalAllowance && "Arrival Allowance",
-        ]
-            .filter(Boolean)
-            .join(", ") || "—";
-
-    return [
-        new Paragraph({
-            heading: HeadingLevel.HEADING_2,
-            spacing: { before: 300, after: 150 },
-            children: [new TextRun({ text: `${index}. ${sch.scholarshipName || "Unnamed Scholarship"}` })],
-        }),
-        new Paragraph({
-            spacing: { after: 150 },
-            children: [new TextRun({ text: sch.description || "", italics: true, size: 20 })],
-        }),
-        buildTable([
-            kvRow("Provider", sch.provider?.name || sch.fundingOrganization),
-            kvRow("Country", sch.country),
-            kvRow("Field of Study", sch.fieldOfStudy),
-            kvRow("Study Level", studyLevel),
-            kvRow("Award Type", award.type),
-            kvRow("Coverage", coverage),
-            kvRow(
-                "Estimated Value",
-                award.estimatedValue
-                    ? `${formatMoney(award.estimatedValue.min, award.estimatedValue.currency)} - ${formatMoney(award.estimatedValue.max, award.estimatedValue.currency)}`
-                    : "—"
-            ),
-            kvRow("Min GPA", req.gpa?.minimum ?? req.gpa?.description ?? "—"),
-            kvRow("Language Requirement", req.language?.test),
-            kvRow("Eligible Nationalities", req.nationality?.eligibleCountries),
-            kvRow("Number of Awards", sch.numberOfAwards),
-            kvRow("Status", sch.status),
-            kvRow("Deadlines", deadlines),
-            kvRow("Official Website", sch.officialWebsite),
-        ]),
-        new Paragraph({ text: "", spacing: { after: 200 } }),
-    ];
-}
-
-// ---- Mobile-safe save/share helper ------------------------------------
-
-/**
- * Tries, in order:
- *  1) Web Share API with a real File (best UX on iOS/Android — opens native
- *     share sheet with "Save to Files" / "Save to Drive" etc.)
- *  2) file-saver's saveAs (works fine on desktop browsers)
- *  3) A manual <a download> click as a last-resort fallback
- *
- * IMPORTANT: call this directly from a click handler (no awaits before it)
- * so the browser still considers it a "user gesture" — otherwise iOS Safari
- * silently rejects navigator.share().
- */
-async function saveOrShareBlob(blob: Blob, filename: string): Promise<"shared" | "saved" | "cancelled"> {
-    if (typeof navigator !== "undefined" && "share" in navigator && "canShare" in navigator) {
-        try {
-            const file = new File([blob], filename, { type: blob.type || DOCX_MIME });
-            // @ts-ignore - canShare typing varies across TS lib versions
-            if (navigator.canShare({ files: [file] })) {
-                await navigator.share({ files: [file], title: filename });
-                return "shared";
-            }
-        } catch (err: any) {
-            if (err?.name === "AbortError") return "cancelled"; // user closed the share sheet
-            console.warn("navigator.share failed, falling back:", err);
-        }
-    }
-
-    try {
-        saveAs(blob, filename);
-        return "saved";
-    } catch (err) {
-        console.warn("saveAs failed, falling back to manual link:", err);
-    }
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.target = "_blank";
-    a.rel = "noopener";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 10_000);
-    return "saved";
-}
-
-// -------------------------------------------------------------------------
-
 export function DocxGenerator() {
     const { universities, scholarships, list, removeFromList, clearList } = useUniList();
-    const [generating, setGenerating] = useState(false);
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [readyFile, setReadyFile] = useState<{ blob: Blob; filename: string; url: string } | null>(null);
+    const [canShareFiles, setCanShareFiles] = useState(false);
+    const [sharing, setSharing] = useState(false);
+    const [shareError, setShareError] = useState<string | null>(null);
 
     const totalItems = list.length;
 
-    async function fetchItem(item: UniListItem) {
-        const endpoint =
-            item.type === "university" ? `/api/universities/${item.id}` : `/api/scholarships/${item.id}`;
-        const res = await fetch(endpoint);
-        if (!res.ok) throw new Error(`Failed to load ${item.type} ${item.id}`);
-        const json = await res.json();
-        return json?.data || json?.university || json?.scholarship || json;
-    }
+    useEffect(() => {
+        setCanShareFiles(
+            typeof navigator !== "undefined" && "share" in navigator && "canShare" in navigator
+        );
+    }, []);
 
-    // Step 1: build the .docx (async — no direct download/share here,
-    // so it never depends on a "fresh" user gesture).
-    async function handleGenerate() {
-        if (totalItems === 0) return;
-        setGenerating(true);
-        setError(null);
-        if (readyFile) {
-            URL.revokeObjectURL(readyFile.url);
-            setReadyFile(null);
-        }
+    const reportHref = useMemo(() => {
+        if (totalItems === 0) return null;
+        const items = list.map((i) => ({ id: i.id, type: i.type }));
+        const params = new URLSearchParams({ items: JSON.stringify(items) });
+        return `/api/unilist/report?${params.toString()}`;
+    }, [list, totalItems]);
+
+    async function handleShare() {
+        if (!reportHref) return;
+        setSharing(true);
+        setShareError(null);
         try {
-            const uniItems = list.filter((i) => i.type === "university");
-            const schItems = list.filter((i) => i.type === "scholarship");
-
-            const [uniData, schData] = await Promise.all([
-                Promise.all(uniItems.map(fetchItem)),
-                Promise.all(schItems.map(fetchItem)),
-            ]);
-
-            const children: any[] = [
-                new Paragraph({
-                    heading: HeadingLevel.TITLE,
-                    children: [new TextRun({ text: "My University & Scholarship List" })],
-                }),
-                new Paragraph({
-                    spacing: { after: 300 },
-                    children: [
-                        new TextRun({
-                            text: `Generated on ${new Date().toLocaleDateString()} · ${uniData.length} universities · ${schData.length} scholarships`,
-                            color: "666666",
-                            size: 20,
-                        }),
-                    ],
-                }),
-            ];
-
-            if (uniData.length > 0) {
-                children.push(
-                    new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 200, after: 100 },
-                        children: [new TextRun({ text: "Universities" })],
-                    })
-                );
-                uniData.forEach((uni, i) => children.push(...universitySection(uni, i + 1)));
+            const res = await fetch(reportHref, { cache: "no-store" });
+            if (!res.ok) throw new Error("Failed to generate report");
+            const blob = await res.blob();
+            const filename = "unilist-report.docx";
+            const file = new File([blob], filename, { type: DOCX_MIME });
+            // @ts-ignore - canShare typing varies across TS lib versions
+            if (navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: filename });
+            } else {
+                window.location.href = reportHref;
             }
-
-            if (schData.length > 0) {
-                children.push(
-                    new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 200, after: 100 },
-                        children: [new TextRun({ text: "Scholarships" })],
-                    })
-                );
-                schData.forEach((sch, i) => children.push(...scholarshipSection(sch, i + 1)));
+        } catch (err: any) {
+            if (err?.name !== "AbortError") {
+                console.error(err);
+                setShareError("Couldn't share the file. Use the download button instead.");
             }
-
-            const doc = new Document({ sections: [{ properties: {}, children }] });
-            const blob = await Packer.toBlob(doc);
-            const typedBlob = blob.type ? blob : new Blob([blob], { type: DOCX_MIME });
-            const filename = `unilist-report-${Date.now()}.docx`;
-            const url = URL.createObjectURL(typedBlob);
-
-            setReadyFile({ blob: typedBlob, filename, url });
-        } catch (err) {
-            console.error(err);
-            setError("Something went wrong while generating your report. Please try again.");
         } finally {
-            setGenerating(false);
-        }
-    }
-
-    // Step 2: this click IS the fresh user gesture — safe to call share()/saveAs() here.
-    async function handleSave() {
-        if (!readyFile) return;
-        setSaving(true);
-        setError(null);
-        try {
-            const result = await saveOrShareBlob(readyFile.blob, readyFile.filename);
-            if (result === "saved" || result === "shared") {
-                URL.revokeObjectURL(readyFile.url);
-                setReadyFile(null);
-            }
-        } catch (err) {
-            console.error(err);
-            setError("Couldn't save the file. Try the direct link below instead.");
-        } finally {
-            setSaving(false);
+            setSharing(false);
         }
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
-            <h1 className="text-2xl font-bold text-gray-900">Generate DOCX Report</h1>
+        <div className="w-full max-w-4xl mx-auto px-3 sm:px-4 space-y-4 sm:space-y-6">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Generate DOCX Report</h1>
 
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                <h2 className="text-base font-bold text-gray-900">Your List</h2>
+            <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-100 shadow-sm">
+                <h2 className="text-sm sm:text-base font-bold text-gray-900">Your List</h2>
                 <p className="text-xs text-gray-400 mt-0.5 mb-4">
                     Items you&apos;ve added from university and scholarship pages.
                 </p>
@@ -328,19 +73,19 @@ export function DocxGenerator() {
                         {universities.length > 0 && (
                             <div>
                                 <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 mb-2">
-                                    <GraduationCap className="w-3.5 h-3.5" />
+                                    <GraduationCap className="w-3.5 h-3.5 shrink-0" />
                                     <span>Universities ({universities.length})</span>
                                 </div>
                                 <div className="space-y-1.5">
                                     {universities.map((item) => (
                                         <div
                                             key={`${item.type}-${item.id}`}
-                                            className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2"
+                                            className="flex items-center justify-between gap-2 bg-gray-50 rounded-lg px-3 py-2.5 sm:py-2"
                                         >
-                                            <span className="text-sm text-gray-700 truncate">{item.name}</span>
+                                            <span className="text-sm text-gray-700 break-words min-w-0 flex-1">{item.name}</span>
                                             <button
                                                 onClick={() => removeFromList(item.id, item.type)}
-                                                className="text-gray-400 hover:text-rose-500 transition-colors"
+                                                className="shrink-0 -m-2 p-2 text-gray-400 hover:text-rose-500 active:text-rose-500 transition-colors"
                                                 aria-label="Remove"
                                             >
                                                 <Trash2 className="w-3.5 h-3.5" />
@@ -354,19 +99,19 @@ export function DocxGenerator() {
                         {scholarships.length > 0 && (
                             <div>
                                 <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 mb-2">
-                                    <Award className="w-3.5 h-3.5" />
+                                    <Award className="w-3.5 h-3.5 shrink-0" />
                                     <span>Scholarships ({scholarships.length})</span>
                                 </div>
                                 <div className="space-y-1.5">
                                     {scholarships.map((item) => (
                                         <div
                                             key={`${item.type}-${item.id}`}
-                                            className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2"
+                                            className="flex items-center justify-between gap-2 bg-gray-50 rounded-lg px-3 py-2.5 sm:py-2"
                                         >
-                                            <span className="text-sm text-gray-700 truncate">{item.name}</span>
+                                            <span className="text-sm text-gray-700 break-words min-w-0 flex-1">{item.name}</span>
                                             <button
                                                 onClick={() => removeFromList(item.id, item.type)}
-                                                className="text-gray-400 hover:text-rose-500 transition-colors"
+                                                className="shrink-0 -m-2 p-2 text-gray-400 hover:text-rose-500 active:text-rose-500 transition-colors"
                                                 aria-label="Remove"
                                             >
                                                 <Trash2 className="w-3.5 h-3.5" />
@@ -379,7 +124,7 @@ export function DocxGenerator() {
 
                         <button
                             onClick={clearList}
-                            className="text-xs font-medium text-gray-400 hover:text-rose-500 transition-colors"
+                            className="text-xs font-medium text-gray-400 hover:text-rose-500 active:text-rose-500 transition-colors py-1"
                         >
                             Clear all
                         </button>
@@ -387,63 +132,29 @@ export function DocxGenerator() {
                 )}
             </div>
 
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
-                <h2 className="text-base font-bold text-gray-900">Report Options</h2>
+            <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-100 shadow-sm space-y-4">
+                <h2 className="text-sm sm:text-base font-bold text-gray-900">Report Options</h2>
                 <p className="text-xs text-gray-500">
                     Format: <span className="font-semibold text-gray-700">DOCX</span> — includes full details for every item in your list.
                 </p>
 
-                {error && <p className="text-xs text-rose-500">{error}</p>}
+                {shareError && <p className="text-xs text-rose-500 break-words">{shareError}</p>}
 
-                {!readyFile ? (
-                    <button
-                        onClick={handleGenerate}
-                        disabled={totalItems === 0 || generating}
-                        className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl transition-colors shadow-sm text-sm"
+                <div className="space-y-2">
+                
+                    <a
+                        href={reportHref ?? undefined}
+                        aria-disabled={!reportHref}
+                        download
+                        className={`w-full flex items-center justify-center gap-2 font-medium py-3.5 sm:py-3 px-4 rounded-xl transition-colors shadow-sm text-sm min-h-[48px] ${reportHref
+                                ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-700 text-white"
+                                : "bg-gray-300 text-white pointer-events-none cursor-not-allowed"
+                            }`}
                     >
-                        {generating ? (
-                            <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span>Generating...</span>
-                            </>
-                        ) : (
-                            <>
-                                <FileDown className="w-4 h-4" />
-                                <span>Generate DOCX{totalItems > 0 ? ` (${totalItems})` : ""}</span>
-                            </>
-                        )}
-                    </button>
-                ) : (
-                    <div className="space-y-2">
-                        <button
-                            onClick={handleSave}
-                            disabled={saving}
-                            className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl transition-colors shadow-sm text-sm"
-                        >
-                            {saving ? (
-                                <>
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                    <span>Saving...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Share2 className="w-4 h-4" />
-                                    <span>Save / Share file</span>
-                                </>
-                            )}
-                        </button>
-
-                        {/* Manual fallback for stubborn in-app browsers / WebViews */}
-                        <a
-                            href={readyFile.url}
-                            download={readyFile.filename}
-                            className="flex items-center justify-center gap-2 text-xs text-gray-400 hover:text-gray-600 py-1"
-                        >
-                            <LinkIcon className="w-3 h-3" />
-                            <span>Direct download link (long-press to save)</span>
-                        </a>
-                    </div>
-                )}
+                        <FileDown className="w-4 h-4 shrink-0" />
+                        <span className="truncate">Download DOCX{totalItems > 0 ? ` (${totalItems})` : ""}</span>
+                    </a>
+                </div>
             </div>
         </div>
     );
