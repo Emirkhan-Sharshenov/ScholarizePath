@@ -1,17 +1,17 @@
-import jwt, { TokenExpiredError, JsonWebTokenError } from "jsonwebtoken";
+import { jwtVerify } from "jose";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 export type AuthPayload = {
     userId: string;
-    role?: string; 
-    profileSetupComplete: boolean; 
+    role?: string;
+    profileSetupComplete: boolean;
 };
 
 export async function authMiddleware(request: NextRequest): Promise<AuthPayload | NextResponse> {
-    if (!JWT_SECRET) {
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
         console.error("CRITICAL: JWT_SECRET is not defined in environment variables.");
         return NextResponse.json(
             { success: false, message: "Internal server error" },
@@ -36,33 +36,33 @@ export async function authMiddleware(request: NextRequest): Promise<AuthPayload 
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as AuthPayload;
+        // jose работает через Web Crypto API — единственный вариант,
+        // который гарантированно поддерживается в Edge Runtime
+        // (jsonwebtoken тянет Node-only crypto и тут не годится).
+        const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
 
-        if (!decoded || !decoded.userId) {
+        if (!payload || typeof payload.userId !== "string") {
             return NextResponse.json(
                 { success: false, message: "Unauthorized: Invalid token payload" },
                 { status: 401 }
             );
         }
 
-        return decoded;
-    } catch (error) {
-        if (error instanceof TokenExpiredError) {
+        return {
+            userId: payload.userId,
+            role: typeof payload.role === "string" ? payload.role : undefined,
+            profileSetupComplete: Boolean(payload.profileSetupComplete),
+        };
+    } catch (error: any) {
+        if (error?.code === "ERR_JWT_EXPIRED") {
             return NextResponse.json(
                 { success: false, message: "Token expired" },
                 { status: 401 }
             );
         }
 
-        if (error instanceof JsonWebTokenError) {
-            return NextResponse.json(
-                { success: false, message: "Invalid token" },
-                { status: 401 }
-            );
-        }
-
         return NextResponse.json(
-            { success: false, message: "Authentication failed" },
+            { success: false, message: "Invalid token" },
             { status: 401 }
         );
     }
