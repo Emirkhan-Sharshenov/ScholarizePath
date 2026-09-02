@@ -4,4 +4,5 @@ export interface UserProfile {
     field?: string;
     gpa?: number;
     age?: number;
+    nationality?: string;
 }

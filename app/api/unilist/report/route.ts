@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildUniListDocxBuffer } from "@/lib/uniListDocx"
+import { buildUniListDocxBuffer } from "@/lib/uniListDocx";
 
-// The `docx` package needs Node APIs (Buffer, etc.) — not available on the Edge runtime.
 export const runtime = "nodejs";
 
 const DOCX_MIME =
@@ -61,7 +60,7 @@ export async function GET(req: NextRequest) {
         const buffer = await buildUniListDocxBuffer(universities, scholarships);
         const filename = `unilist-report-${Date.now()}.docx`;
 
-        return new NextResponse(buffer, {
+        return new NextResponse(new Uint8Array(buffer), {
             status: 200,
             headers: {
                 "Content-Type": DOCX_MIME,
