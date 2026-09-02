@@ -1,10 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Users, University, GraduationCap, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import {
+    Users,
+    University,
+    GraduationCap,
+    Sparkles,
+} from "lucide-react";
+
 import StatCard from "./StatCard";
 import RecentActivities from "./RecentActivities";
 import UserGrowthChart from "./UserGrowthChart";
+import AdminFeedback from "./AdminFeedback";
 
 interface Stats {
     totalUsers: number;
@@ -22,18 +30,23 @@ export default function AdminOverview() {
             try {
                 const res = await fetch("/api/admin/stats");
                 const json = await res.json();
-                if (json.success) setStats(json.stats);
+
+                if (json.success) {
+                    setStats(json.stats);
+                }
             } catch (err) {
                 console.error("Failed to load admin stats:", err);
             } finally {
                 setLoading(false);
             }
         }
+
         fetchStats();
     }, []);
 
     return (
-        <div className="space-y-6 min-h-screen bg-[rgb(246,247,251)] ">
+        <div className="space-y-6 min-h-screen bg-[rgb(246,247,251)]">
+            {/* Stats */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard
                     title="Total Users"
@@ -75,10 +88,17 @@ export default function AdminOverview() {
                     <Sparkles className="h-5 w-5" />
                 </StatCard>
             </div>
-                <div className="lg:col-span-2">
-                    <UserGrowthChart />
-                </div>
+
+            {/* User Growth */}
+            <div className="lg:col-span-2">
+                <UserGrowthChart />
+            </div>
+
+            {/* Recent Activities */}
             <RecentActivities />
+
+            {/* Feedback */}
+            <AdminFeedback />
         </div>
     );
 }
