@@ -49,7 +49,6 @@ export default function AIRecommendationsCard({
     return (
         <div className="w-full max-w-sm mx-auto bg-white p-4 sm:p-5 rounded-3xl font-sans border border-slate-100 shadow-xs">
 
-            {/* Top Header */}
             <div className="flex items-center justify-between mb-4">
                 <div>
                     <div className="flex items-center">
@@ -72,8 +71,6 @@ export default function AIRecommendationsCard({
                     Ask me about scholarships or universities to see recommendations here.
                 </div>
             )}
-
-            {/* Top Scholarships Section */}
             {scholarships.length > 0 && (
                 <div className="mb-5">
                     <div className="flex items-center justify-between mb-2.5">

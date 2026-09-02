@@ -81,14 +81,12 @@ export default function Home() {
     <div className="min-h-screen bg-slate-50/50 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
 
       <Navbar />
 
       <main className="flex flex-col flex-1">
-        {/* Hero Section — reduced padding and font sizes on small screens */}
         <section
           style={{ backgroundColor: 'rgb(0, 88, 189)' }}
           className="text-white relative pt-14 sm:pt-20 md:pt-24 pb-20 sm:pb-32 md:pb-44 px-4 sm:px-6 overflow-hidden"
@@ -119,8 +117,6 @@ export default function Home() {
             </p>
           </div>
         </section>
-
-        {/* Overlapping Card Grid — overlap and gaps scale down on small screens */}
         <section
           className="max-w-6xl mx-auto px-4 sm:px-6 -mt-10 sm:-mt-16 md:-mt-24 relative z-20 pb-16 sm:pb-20 md:pb-24 w-full"
           aria-labelledby="features-heading"
