@@ -13,17 +13,19 @@ import {
     AlignmentType,
     Footer,
     PageNumber,
+    TableLayoutType,
 } from "docx";
 
-
+// ---- Document design tokens ------------------------------------------
+// A4 page, 1" top/bottom margins, 0.75" side margins.
 const PAGE_WIDTH = 11906;
 const PAGE_HEIGHT = 16838;
 const MARGIN_TOP = 1440;
 const MARGIN_BOTTOM = 1440;
 const MARGIN_SIDE = 1080;
-const CONTENT_WIDTH = PAGE_WIDTH - MARGIN_SIDE * 2; 
+const CONTENT_WIDTH = PAGE_WIDTH - MARGIN_SIDE * 2; // 9746
 const LABEL_COL_WIDTH = 3410;
-const VALUE_COL_WIDTH = CONTENT_WIDTH - LABEL_COL_WIDTH; 
+const VALUE_COL_WIDTH = CONTENT_WIDTH - LABEL_COL_WIDTH; // 6336
 
 const NAVY = "1F3A5F";
 const GOLD = "B08D57";
@@ -69,6 +71,10 @@ function buildTable(rows: TableRow[]) {
     return new Table({
         width: { size: CONTENT_WIDTH, type: WidthType.DXA },
         columnWidths: [LABEL_COL_WIDTH, VALUE_COL_WIDTH],
+        // FIXED stops mobile viewers (Google Docs, WPS, some Word builds) from
+        // re-flowing column widths to fit content, which is what squeezes the
+        // label column down to near-zero and forces text to wrap vertically.
+        layout: TableLayoutType.FIXED,
         rows,
         borders: {
             top: edge,
@@ -81,6 +87,7 @@ function buildTable(rows: TableRow[]) {
     });
 }
 
+// Thin rule used to separate entries — a paragraph border, never a table.
 function divider() {
     return new Paragraph({
         spacing: { before: 120, after: 300 },
@@ -245,6 +252,15 @@ function scholarshipSection(sch: any, index: number) {
     return nodes;
 }
 
+/**
+ * Builds the full "My University & Scholarship List" report as a Buffer,
+ * ready to be sent as an HTTP response with a .docx Content-Type.
+ *
+ * This runs server-side (Node runtime) so the client never has to hold
+ * the `docx` library or a Blob in memory — the browser just downloads a
+ * normal file over the network, which is what makes mobile downloads and
+ * previews reliable.
+ */
 export async function buildUniListDocxBuffer(universities: any[], scholarships: any[]): Promise<Buffer> {
     const children: any[] = [...titleBlock(universities.length, scholarships.length)];
 
