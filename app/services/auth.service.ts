@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
@@ -12,6 +13,12 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const REGISTRATION_SECRET = process.env.JWT_SECRET || "registration-secret-key";
 const EMAIL_FROM =
     process.env.RESEND_FROM || "ScholarizePath <noreply@scholarizepath.xyz>";
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_JWKS = createRemoteJWKSet(
+    new URL("https://www.googleapis.com/oauth2/v3/certs")
+);
 
 export async function register(request: Request) {
     await connectDB();
@@ -292,6 +299,187 @@ export async function logout(request: Request) {
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
         maxAge: 0,
+        path: "/",
+    });
+
+    return response;
+}
+
+function googleRedirectUri(request: Request) {
+    return `${new URL(request.url).origin}/api/auth/google/callback`;
+}
+
+export async function googleLogin(request: Request) {
+    if (!GOOGLE_CLIENT_ID) {
+        return NextResponse.redirect(
+            new URL("/login?error=google_not_configured", request.url)
+        );
+    }
+
+    const state = crypto.randomBytes(16).toString("hex");
+
+    const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    authUrl.searchParams.set("client_id", GOOGLE_CLIENT_ID);
+    authUrl.searchParams.set("redirect_uri", googleRedirectUri(request));
+    authUrl.searchParams.set("response_type", "code");
+    authUrl.searchParams.set("scope", "openid email profile");
+    authUrl.searchParams.set("state", state);
+    authUrl.searchParams.set("prompt", "select_account");
+
+    const response = NextResponse.redirect(authUrl);
+
+    // sameSite must be "lax" (not "strict") — this cookie has to survive the
+    // top-level redirect back from accounts.google.com to our callback.
+    response.cookies.set({
+        name: "google_oauth_state",
+        value: state,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 10 * 60,
+        path: "/",
+    });
+
+    return response;
+}
+
+export async function googleCallback(request: Request) {
+    const loginUrl = new URL("/login", request.url);
+
+    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+        loginUrl.searchParams.set("error", "google_not_configured");
+        return NextResponse.redirect(loginUrl);
+    }
+
+    const url = new URL(request.url);
+    const code = url.searchParams.get("code");
+    const state = url.searchParams.get("state");
+    const oauthError = url.searchParams.get("error");
+
+    const cookieHeader = request.headers.get("cookie") || "";
+    const expectedState = cookieHeader
+        .split("; ")
+        .find((row) => row.startsWith("google_oauth_state="))
+        ?.split("=")[1];
+
+    const clearStateCookie = (response: NextResponse) => {
+        response.cookies.set({
+            name: "google_oauth_state",
+            value: "",
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 0,
+            path: "/",
+        });
+        return response;
+    };
+
+    if (oauthError || !code || !state || !expectedState || state !== expectedState) {
+        loginUrl.searchParams.set("error", "google_auth_failed");
+        return clearStateCookie(NextResponse.redirect(loginUrl));
+    }
+
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+            code,
+            client_id: GOOGLE_CLIENT_ID,
+            client_secret: GOOGLE_CLIENT_SECRET,
+            redirect_uri: googleRedirectUri(request),
+            grant_type: "authorization_code",
+        }),
+    });
+
+    if (!tokenResponse.ok) {
+        console.error("Google token exchange failed:", await tokenResponse.text());
+        loginUrl.searchParams.set("error", "google_auth_failed");
+        return clearStateCookie(NextResponse.redirect(loginUrl));
+    }
+
+    const tokens = await tokenResponse.json();
+    const idToken = tokens.id_token as string | undefined;
+
+    if (!idToken) {
+        loginUrl.searchParams.set("error", "google_auth_failed");
+        return clearStateCookie(NextResponse.redirect(loginUrl));
+    }
+
+    let payload;
+    try {
+        const result = await jwtVerify(idToken, GOOGLE_JWKS, {
+            issuer: ["https://accounts.google.com", "accounts.google.com"],
+            audience: GOOGLE_CLIENT_ID,
+        });
+        payload = result.payload;
+    } catch (err) {
+        console.error("Invalid Google id_token:", err);
+        loginUrl.searchParams.set("error", "google_auth_failed");
+        return clearStateCookie(NextResponse.redirect(loginUrl));
+    }
+
+    const googleId = payload.sub as string;
+    const email = (payload.email as string | undefined)?.toLowerCase().trim();
+    const emailVerified = payload.email_verified as boolean | undefined;
+
+    if (!email || emailVerified === false) {
+        loginUrl.searchParams.set("error", "google_email_unverified");
+        return clearStateCookie(NextResponse.redirect(loginUrl));
+    }
+
+    await connectDB();
+
+    let user = await Users.findOne({ googleId });
+
+    if (!user) {
+        user = await Users.findOne({ email });
+
+        if (user) {
+            // Existing local (email/password) account with the same address —
+            // link it so either sign-in method works from now on. Safe because
+            // Google only reaches here once it has verified the email itself.
+            user.googleId = googleId;
+            if (!user.avatarUrl && typeof payload.picture === "string") {
+                user.avatarUrl = payload.picture;
+            }
+            await user.save();
+        } else {
+            user = await Users.create({
+                firstName: (payload.given_name as string) || "Google",
+                lastName: (payload.family_name as string) || "User",
+                email,
+                googleId,
+                authProvider: "google",
+                isVerified: true,
+                avatarUrl: (payload.picture as string) || null,
+            });
+        }
+    }
+
+    const authToken = jwt.sign(
+        {
+            userId: user._id.toString(),
+            role: user.role,
+            profileSetupComplete: user.profileSetupComplete,
+        },
+        process.env.JWT_SECRET || "secret",
+        { expiresIn: "7d" }
+    );
+
+    const destination = new URL(
+        user.profileSetupComplete ? "/dashboard" : "/profile/setup",
+        request.url
+    );
+    const response = clearStateCookie(NextResponse.redirect(destination));
+
+    response.cookies.set({
+        name: "token",
+        value: authToken,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24 * 7,
         path: "/",
     });
 

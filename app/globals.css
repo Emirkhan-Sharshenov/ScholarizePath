@@ -3,20 +3,24 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Brand palette — single source of truth. Previously duplicated as
+     magic rgb()/hex literals across ~19 files (Navbar, login, dashboard
+     pages, etc). Use bg-brand / text-brand / bg-navy / bg-surface instead
+     of hardcoding these values again. */
+  --brand: #0058bd;
+  --navy: #000139;
+  --surface: #f6f7fb;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-navy: var(--navy);
+  --color-surface: var(--surface);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: white) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
