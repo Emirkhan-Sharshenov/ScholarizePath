@@ -135,6 +135,11 @@ export async function proxy(request: NextRequest) {
 
 // Run on every route except Next.js internals and static assets.
 // Add any other public prefixes (e.g. "/api/public") to the negative lookahead as needed.
+// icon.png / apple-icon.png / opengraph-image.png are Next's file-convention
+// routes (from app/icon.png etc.) — they must stay public or the favicon/
+// share-preview 404s (redirects to /login) for anyone without a session.
 export const config = {
-    matcher: ["/((?!_next/static|_next/image|favicon.ico|images|fonts|icons).*)"],
+    matcher: [
+        "/((?!_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|opengraph-image.png|twitter-image.png|images|fonts|icons).*)",
+    ],
 };
