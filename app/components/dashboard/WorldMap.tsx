@@ -4,8 +4,19 @@ import React, { useState, useRef, useCallback, useMemo, useEffect } from "react"
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 
 
-const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
+// Self-hosted instead of fetched from jsdelivr on every visitor's first load —
+// removes a third-party runtime dependency (and its latency/outage risk) from
+// the dashboard's critical path. Source: world-atlas@2 countries-50m.
+const geoUrl = "/data/countries-50m.json";
 const PROJECTION_CONFIG = { scale: 145 };
+
+// The DB stores plain country names that mostly match world-atlas's
+// `properties.name`, except for these two — checked directly against the
+// topojson file rather than guessed.
+const DB_TO_TOPOJSON_NAME: Record<string, string> = {
+    "United States": "United States of America",
+    "Czech Republic": "Czechia",
+};
 
 export interface RegionConfig {
     id: string;
@@ -104,59 +115,18 @@ export const REGIONS_DATA: RegionConfig[] = [
     },
 ];
 
-const UNIVERSITIES_COUNT: Record<string, number> = {
-    "United Kingdom": 86,
-    "UK": 86,
-    "Canada": 76,
-    "South Korea": 73,
-    "Korea, Republic of": 73,
-    "Italy": 77,
-    "Germany": 79,
-    "Japan": 78,
-    "Singapore": 22,
-    "Netherlands": 52,
-    "Turkey": 85,
-    "Turkiye": 85,
-    "Malaysia": 70,
-    "United Arab Emirates": 54,
-    "UAE": 54,
-    "OAE": 54,
-    "Switzerland": 50,
-    "Finland": 37,
-    "Sweden": 39,
-    "Australia": 42,
-    "United States of America": 74,
-    "United States": 74,
-    "USA": 74,
-    "China": 87,
-    "Russia": 75,
-    "France": 83,
-    "Spain": 80,
-    "Brazil": 73,
-    "India": 79,
-    "Nigeria": 83
-};
+interface MapStats {
+    universities: Record<string, number>;
+    scholarships: Record<string, number>;
+}
 
-const SCHOLARSHIPS_COUNT: Record<string, number> = {
-    "United States of America": 19,
-    "United States": 19,
-    "USA": 19,
-    "United Kingdom": 17,
-    "UK": 17,
-    "China": 5,
-    "South Korea": 5,
-    "Korea, Republic of": 5,
-    "Germany": 8,
-    "Japan": 6,
-    "Italy": 6,
-    "UAE": 6,
-    "Turkey": 5,
-    "Russia": 3,
-    "Saudi Arabia": 4,
-    "Qatar": 5,
-    "Australia": 5,
-    "Chech Republic": 4
-};
+function remapToTopojsonNames(counts: Record<string, number>): Record<string, number> {
+    const remapped: Record<string, number> = {};
+    for (const [country, count] of Object.entries(counts)) {
+        remapped[DB_TO_TOPOJSON_NAME[country] || country] = count;
+    }
+    return remapped;
+}
 
 const COUNTRY_TO_REGION = new Map<string, string>();
 REGIONS_DATA.forEach((region) => {
@@ -188,12 +158,16 @@ interface WorldMapProps {
 const CountryGeographies = React.memo(function CountryGeographies({
     selectedRegionId,
     activeRegion,
+    universityCounts,
+    scholarshipCounts,
     onCountryEnter,
     onCountryLeave,
     onCountrySelect,
 }: {
     selectedRegionId?: string | null;
     activeRegion?: RegionConfig;
+    universityCounts: Record<string, number>;
+    scholarshipCounts: Record<string, number>;
     onCountryEnter: (name: string, unis: number, scholarships: number) => void;
     onCountryLeave: () => void;
     onCountrySelect: (e: React.MouseEvent, name: string, unis: number, scholarships: number) => void;
@@ -204,8 +178,8 @@ const CountryGeographies = React.memo(function CountryGeographies({
                 geographies.map((geo: any) => {
                     const countryName = geo.properties.name as string;
 
-                    const unis = UNIVERSITIES_COUNT[countryName] || 0;
-                    const scholarships = SCHOLARSHIPS_COUNT[countryName] || 0;
+                    const unis = universityCounts[countryName] || 0;
+                    const scholarships = scholarshipCounts[countryName] || 0;
                     const hasData = unis > 0 || scholarships > 0;
 
                     const regionId = COUNTRY_TO_REGION.get(countryName?.toLowerCase());
@@ -260,6 +234,9 @@ const CountryGeographies = React.memo(function CountryGeographies({
 
 export default function WorldMap({ selectedRegionId }: WorldMapProps) {
     const [hoveredCountry, setHoveredCountry] = useState<HoveredCountry | null>(null);
+    const [stats, setStats] = useState<MapStats | null>(null);
+    const [statsError, setStatsError] = useState(false);
+    const [retryKey, setRetryKey] = useState(0);
     // Пока true, карточка "закреплена" тапом/кликом и игнорирует onMouseLeave —
     // без этого мобильные браузеры шлют фантомный mouseleave сразу после клика,
     // и карточка гасла бы мгновенно.
@@ -275,6 +252,33 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
         () => REGIONS_DATA.find((r) => r.id === selectedRegionId),
         [selectedRegionId]
     );
+
+    useEffect(() => {
+        let cancelled = false;
+        setStatsError(false);
+
+        fetch("/api/dashboard/map-stats")
+            .then((res) => {
+                if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+                return res.json();
+            })
+            .then((data: MapStats) => {
+                if (cancelled) return;
+                setStats({
+                    universities: remapToTopojsonNames(data.universities),
+                    scholarships: remapToTopojsonNames(data.scholarships),
+                });
+            })
+            .catch((err) => {
+                if (cancelled) return;
+                console.error("Failed to load map stats:", err);
+                setStatsError(true);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [retryKey]);
 
     const refreshRect = useCallback(() => {
         if (containerRef.current) {
@@ -371,7 +375,7 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
             ref={containerRef}
             onMouseMove={handleMouseMove}
             onClick={handleContainerClick}
-            className="relative w-full aspect-[8/5] max-h-[520px] min-h-[220px] overflow-hidden rounded-xl bg-[rgb(246,247,251)] sm:rounded-2xl touch-pan-y"
+            className="relative w-full aspect-[8/5] max-h-[520px] min-h-[220px] overflow-hidden rounded-xl bg-surface sm:rounded-2xl touch-pan-y"
         >
             <ComposableMap
                 projectionConfig={PROJECTION_CONFIG}
@@ -382,11 +386,29 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
                 <CountryGeographies
                     selectedRegionId={selectedRegionId}
                     activeRegion={activeRegion}
+                    universityCounts={stats?.universities ?? {}}
+                    scholarshipCounts={stats?.scholarships ?? {}}
                     onCountryEnter={handleCountryEnter}
                     onCountryLeave={handleCountryLeave}
                     onCountrySelect={handleCountrySelect}
                 />
             </ComposableMap>
+
+            {statsError && (
+                <div className="absolute top-2 left-2 right-2 z-40 flex items-center justify-between gap-3 rounded-lg bg-white/95 px-3 py-2 text-xs text-slate-600 shadow sm:text-sm">
+                    <span>Couldn&apos;t load live university/scholarship counts.</span>
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setRetryKey((k) => k + 1);
+                        }}
+                        className="shrink-0 font-semibold text-brand hover:underline cursor-pointer"
+                    >
+                        Retry
+                    </button>
+                </div>
+            )}
 
             {hoveredCountry && (
                 <div

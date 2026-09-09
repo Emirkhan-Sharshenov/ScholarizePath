@@ -26,9 +26,8 @@ export default function Navbar() {
                     Sign In
                 </Link>
                 <Link
-                    href="/login"
-                    style={{ backgroundColor: 'rgb(0, 88, 189)' }}
-                    className="px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white rounded-lg hover:opacity-90 transition-opacity inline-block"
+                    href="/login?mode=register"
+                    className="px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-brand rounded-lg hover:opacity-90 transition-opacity inline-block"
                 >
                     Sign Up
                 </Link>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { ErrorBoundary } from "@/components/login/ErrorBoundary";
 import LoginForm from "@/components/login/LoginForm";
 
@@ -16,9 +17,11 @@ export const metadata: Metadata = {
 
 export default function AuthPage() {
     return (
-        <main className="relative min-h-screen bg-[#000139] overflow-hidden">
+        <main className="relative min-h-screen bg-navy overflow-hidden">
             <ErrorBoundary>
-                <LoginForm />
+                <Suspense fallback={null}>
+                    <LoginForm />
+                </Suspense>
             </ErrorBoundary>
         </main>
     );

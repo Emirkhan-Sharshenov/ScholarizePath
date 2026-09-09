@@ -22,10 +22,31 @@ const UserSchema = new Schema(
 
         password: {
             type: String,
-            required: true,
+            // Not required for Google-authenticated accounts, which have no password.
+            required: function (this: { authProvider?: string }) {
+                return this.authProvider !== "google";
+            },
         },
 
- 
+        authProvider: {
+            type: String,
+            enum: ["local", "google"],
+            default: "local",
+        },
+
+        googleId: {
+            type: String,
+            default: null,
+            unique: true,
+            sparse: true,
+        },
+
+        avatarUrl: {
+            type: String,
+            default: null,
+        },
+
+
         isVerified: {
             type: Boolean,
             default: false,

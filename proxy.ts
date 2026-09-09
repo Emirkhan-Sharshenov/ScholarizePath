@@ -7,7 +7,12 @@ import { checkRateLimit } from "@/lib/simpleRateLimit";
 const PUBLIC_PATHS = new Set<string>(["/", "/login"]);
 
 // Pages/APIs reachable with NO token at all (prefix match — covers nested paths too)
-const PUBLIC_PATH_PREFIXES = ["/api/auth/login", "/api/auth/register", "/api/auth/verify"];
+const PUBLIC_PATH_PREFIXES = [
+    "/api/auth/login",
+    "/api/auth/register",
+    "/api/auth/verify",
+    "/api/auth/google",
+];
 
 const PROFILE_SETUP_PATH = "/profile/setup";
 
@@ -135,11 +140,14 @@ export async function proxy(request: NextRequest) {
 
 // Run on every route except Next.js internals and static assets.
 // Add any other public prefixes (e.g. "/api/public") to the negative lookahead as needed.
-// icon.png / apple-icon.png / opengraph-image.png are Next's file-convention
-// routes (from app/icon.png etc.) — they must stay public or the favicon/
-// share-preview 404s (redirects to /login) for anyone without a session.
+// icon.png is a literal static file (app/icon.png), served at that exact path.
+// opengraph-image is a *generated* route (app/opengraph-image.tsx) with no file
+// extension in its URL — add twitter-image/apple-icon the same way if those
+// get added later. Either kind must stay public or it 302s to /login for any
+// visitor without a session — which is exactly what silently broke the
+// favicon before this file's PUBLIC_PATH_PREFIXES fix.
 export const config = {
     matcher: [
-        "/((?!_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|opengraph-image.png|twitter-image.png|images|fonts|icons).*)",
+        "/((?!_next/static|_next/image|favicon.ico|icon.png|opengraph-image|images|fonts|icons).*)",
     ],
 };
