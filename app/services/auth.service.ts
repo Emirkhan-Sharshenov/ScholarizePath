@@ -10,6 +10,8 @@ import VerificationEmail from "../emails/VerificationEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const REGISTRATION_SECRET = process.env.JWT_SECRET || "registration-secret-key";
+const EMAIL_FROM =
+    process.env.RESEND_FROM || "ScholarizePath <noreply@scholarizepath.xyz>";
 
 export async function register(request: Request) {
     await connectDB();
@@ -38,10 +40,11 @@ export async function register(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const verificationCode = crypto.randomInt(100000, 1000000).toString();
 
-    // Отправка письма с кодом
+    // Отправка письма с кодом.
+    // Resend SDK не бросает исключение на ошибку API — она приходит в поле `error`.
     try {
-        await resend.emails.send({
-            from: "ScholarizePath <onboarding@resend.dev>",
+        const { data, error } = await resend.emails.send({
+            from: EMAIL_FROM,
             to: cleanEmail,
             subject: "Your Verification Code - ScholarizePath",
             react: VerificationEmail({
@@ -49,6 +52,16 @@ export async function register(request: Request) {
                 code: verificationCode,
             }),
         });
+
+        if (error) {
+            console.error("Resend rejected the verification email:", error);
+            return NextResponse.json(
+                { success: false, message: "Failed to send verification email" },
+                { status: 500 }
+            );
+        }
+
+        console.log("Verification email sent:", data?.id);
     } catch (emailError) {
         console.error("Failed to send verification email:", emailError);
         return NextResponse.json(
