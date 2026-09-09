@@ -14,8 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://scholarizepath.xyz"),
   title: "ScholarizePath",
-  description: "ScholarizePath"
+  description: "ScholarizePath",
 }
 
 export default function RootLayout({

@@ -8,16 +8,15 @@ export const metadata: Metadata = {
   description:
     'Explore 1,500+ universities and 120+ scholarships worldwide. Get AI-powered university matching, admissions requirements, and personalized acceptance odds — all in one place.',
   alternates: {
-    canonical: 'https://scholarizepath.com/', // TODO: replace with real domain
+    canonical: '/',
   },
   openGraph: {
     title: 'ScholarizePath — Find Universities & Scholarships Worldwide',
     description:
       'Data-driven university matching and scholarship discovery for students planning to study abroad.',
-    url: 'https://scholarizepath.com/', // TODO: replace with real domain
+    url: '/',
     siteName: 'ScholarizePath',
     type: 'website',
-    // images: ['/images/og-home.png'], // TODO: add a real 1200x630 OG image
   },
   twitter: {
     card: 'summary_large_image',
@@ -31,10 +30,10 @@ const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'EducationalOrganization',
   name: 'ScholarizePath',
-  url: 'https://scholarizepath.com/', // TODO: replace with real domain
+  url: 'https://scholarizepath.xyz/',
   description:
     'University discovery and scholarship-matching platform helping students find universities and scholarships worldwide.',
-  // logo: 'https://scholarizepath.com/images/logo.png',
+  logo: 'https://scholarizepath.xyz/images/logo.png',
 };
 
 const features = [
@@ -88,8 +87,7 @@ export default function Home() {
 
       <main className="flex flex-col flex-1">
         <section
-          style={{ backgroundColor: 'rgb(0, 88, 189)' }}
-          className="text-white relative pt-14 sm:pt-20 md:pt-24 pb-20 sm:pb-32 md:pb-44 px-4 sm:px-6 overflow-hidden"
+          className="bg-brand text-white relative pt-14 sm:pt-20 md:pt-24 pb-20 sm:pb-32 md:pb-44 px-4 sm:px-6 overflow-hidden"
           aria-labelledby="hero-heading"
         >
           <div
