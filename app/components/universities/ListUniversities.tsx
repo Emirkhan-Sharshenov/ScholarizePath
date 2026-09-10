@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
 import FilterUniversities, { FilterState } from './FilterUniversities';
+import MobileFilterDrawer from '../common/MobileFilterDrawer';
 import Link from 'next/link';
 
 interface UniversitiesListUIProps {
@@ -143,32 +144,22 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
             </div>
 
             {/* MOBILE DRAWER */}
-            {isMobileFilterOpen && (
-                <div className="fixed inset-0 z-50 flex items-end bg-slate-900/60 backdrop-blur-xs lg:hidden">
-                    <div className="max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl">
-                        <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
-                            <h3 className="text-sm font-bold text-slate-900">Filter Universities</h3>
-                            <button
-                                type="button"
-                                onClick={() => setIsMobileFilterOpen(false)}
-                                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100"
-                            >
-                                <X className="h-5 w-5" />
-                            </button>
-                        </div>
-
-                        <FilterUniversities
-                            filters={filters}
-                            setFilters={setFilters}
-                            onApply={() => setIsMobileFilterOpen(false)}
-                            onReset={() => setIsMobileFilterOpen(false)}
-                        />
-                    </div>
-                </div>
-            )}
+            <MobileFilterDrawer
+                open={isMobileFilterOpen}
+                onClose={() => setIsMobileFilterOpen(false)}
+                title="Filter Universities"
+            >
+                <FilterUniversities
+                    filters={filters}
+                    setFilters={setFilters}
+                    onApply={() => setIsMobileFilterOpen(false)}
+                    onReset={() => setIsMobileFilterOpen(false)}
+                    isMobileModal
+                />
+            </MobileFilterDrawer>
 
             {/* DESKTOP TABLE VIEW */}
-            <div className="hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-xs md:block md:p-8">
+            <div className="hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-xs lg:block lg:p-8">
                 <div className="flex flex-col items-start justify-between gap-4 pb-6 sm:flex-row sm:items-center">
                     <p className="text-xs font-medium text-slate-500">
                         Showing <span className="font-semibold text-slate-800">{showingStart}</span> to{' '}
@@ -319,7 +310,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
             </div>
 
             {/* MOBILE CARDS VIEW */}
-            <div className={`space-y-4 md:hidden transition-opacity ${loading ? 'opacity-50' : 'opacity-100'}`}>
+            <div className={`space-y-4 lg:hidden transition-opacity ${loading ? 'opacity-50' : 'opacity-100'}`}>
                 {universities.length === 0 && !loading ? (
                     <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center text-xs text-slate-400">
                         No universities match the selected filters.
