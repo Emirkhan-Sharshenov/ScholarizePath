@@ -40,23 +40,33 @@ export async function proxy(request: NextRequest) {
             request.headers.get("x-real-ip") ??
             "127.0.0.1";
 
-        const { allowed, remaining } = await checkRateLimit(
-            `${rateLimitRule.prefix}:${ip}`, // scoped per-route, so hammering /login doesn't also lock out /register
-            rateLimitRule.limit,
-            rateLimitRule.windowMs
-        );
-
-        if (!allowed) {
-            return NextResponse.json(
-                { success: false, message: "Too many requests. Try again later." },
-                {
-                    status: 429,
-                    headers: {
-                        "X-RateLimit-Limit": String(rateLimitRule.limit),
-                        "X-RateLimit-Remaining": "0",
-                    },
-                }
+        // Fail OPEN, not closed: this is a network call to Upstash Redis on
+        // every login/register/verify attempt. An unguarded throw here used
+        // to take down the whole request — Next.js Edge Middleware turns an
+        // uncaught exception into a generic 500, so a Redis hiccup meant
+        // nobody could log in at all. Blocking a few bypassed rate-limit
+        // requests during a Redis outage is far cheaper than that.
+        try {
+            const { allowed } = await checkRateLimit(
+                `${rateLimitRule.prefix}:${ip}`, // scoped per-route, so hammering /login doesn't also lock out /register
+                rateLimitRule.limit,
+                rateLimitRule.windowMs
             );
+
+            if (!allowed) {
+                return NextResponse.json(
+                    { success: false, message: "Too many requests. Try again later." },
+                    {
+                        status: 429,
+                        headers: {
+                            "X-RateLimit-Limit": String(rateLimitRule.limit),
+                            "X-RateLimit-Remaining": "0",
+                        },
+                    }
+                );
+            }
+        } catch (err) {
+            console.error("Rate limit check failed, allowing request through:", err);
         }
     }
 
@@ -69,14 +79,18 @@ export async function proxy(request: NextRequest) {
     const authResult = await authMiddleware(request);
     const isAuthenticated = !(authResult instanceof NextResponse);
 
-    // 1. Already-logged-in users can't go back to /login,
-    //    and (once setup is done) can't land on "/" either
+    // 1. A fully set-up user can't go back to /login or land on "/" — both
+    //    bounce straight to the dashboard. Someone still mid-setup, though,
+    //    lands on /login like anyone else instead of being yanked straight to
+    //    /profile/setup: clicking Sign In/Sign Up from the home page should
+    //    always open the login form, never jump ahead of it. Rule 4 below
+    //    still enforces the setup gate on every *other* route, so this only
+    //    changes what /login itself does.
     if (isAuthenticated) {
         const { profileSetupComplete } = authResult;
 
-        if (pathname === "/login") {
-            const destination = profileSetupComplete ? "/dashboard" : PROFILE_SETUP_PATH;
-            return NextResponse.redirect(new URL(destination, request.url));
+        if (pathname === "/login" && profileSetupComplete) {
+            return NextResponse.redirect(new URL("/dashboard", request.url));
         }
 
         if (profileSetupComplete && pathname === "/") {
