@@ -87,6 +87,7 @@ interface FilterUniversitiesProps {
     setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
     onApply?: () => void;
     onReset?: () => void;
+    isMobileModal?: boolean;
 }
 
 export default function FilterUniversities({
@@ -94,6 +95,7 @@ export default function FilterUniversities({
     setFilters,
     onApply,
     onReset,
+    isMobileModal = false,
 }: FilterUniversitiesProps) {
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -112,24 +114,28 @@ export default function FilterUniversities({
     };
 
     return (
-        <div className="w-full rounded-2xl border border-gray-100 bg-white p-5 font-sans shadow-xs">
-            <h2 className="mb-5 text-lg font-bold text-slate-900">Filter Universities</h2>
+        <div className={isMobileModal ? 'w-full font-sans' : 'w-full rounded-2xl border border-gray-100 bg-white p-5 font-sans shadow-xs'}>
+            {!isMobileModal && (
+                <h2 className="mb-5 text-lg font-bold text-slate-900">Filter Universities</h2>
+            )}
 
             <div className="space-y-4">
-                {/* Search */}
-                <div>
-                    <label className="mb-1.5 block text-xs font-bold text-slate-800">
-                        Search
-                    </label>
-                    <input
-                        type="text"
-                        name="search"
-                        value={filters.search}
-                        onChange={handleChange}
-                        placeholder="Search universities..."
-                        className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                    />
-                </div>
+                {/* Search (hidden in the mobile drawer — the sticky bar above it already has one) */}
+                {!isMobileModal && (
+                    <div>
+                        <label className="mb-1.5 block text-xs font-bold text-slate-800">
+                            Search
+                        </label>
+                        <input
+                            type="text"
+                            name="search"
+                            value={filters.search}
+                            onChange={handleChange}
+                            placeholder="Search universities..."
+                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                        />
+                    </div>
+                )}
 
                 {/* Country */}
                 <div>
