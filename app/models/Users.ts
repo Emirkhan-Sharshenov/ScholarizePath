@@ -34,9 +34,13 @@ const UserSchema = new Schema(
             default: "local",
         },
 
+        // No `default: null` here on purpose: a sparse unique index only
+        // excludes documents where the field is *absent*, not documents
+        // where it's present-but-null. `default: null` would give every
+        // local (non-Google) user an explicit googleId: null, and the
+        // second such user to register would collide on the unique index.
         googleId: {
             type: String,
-            default: null,
             unique: true,
             sparse: true,
         },
