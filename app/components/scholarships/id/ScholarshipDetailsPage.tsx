@@ -7,6 +7,7 @@ import { ScholarshipBreadcrumbsHeader } from "./ScholarshipBreadcrumbsHeader";
 import { ScholarshipHeroBanner } from "./ScholarshipHeroBanner";
 import { EligibilityChecker } from "./EligibilityChecker";
 import { EligibilityCriteriaList } from "./EligibilityCriteriaList";
+import { AIEligibilityExplanation } from "./AIEligibilityExplanation";
 import { ApplySidebarCard } from "./ApplySidebarCard";
 import { useCompare } from "@/lib/useCompare";
 import { useUniList } from "@/lib/useUniList";
@@ -80,6 +81,8 @@ export default function ScholarshipDetailsPage({ scholarship }: { scholarship: S
                             <EligibilityChecker scholarship={scholarship} userProfile={userProfile} loading={loading} />
                             <EligibilityCriteriaList scholarship={scholarship} userProfile={userProfile} loading={loading} />
                         </div>
+
+                        <AIEligibilityExplanation scholarshipId={currentId} />
                     </div>
 
                     <div className="lg:col-span-1">

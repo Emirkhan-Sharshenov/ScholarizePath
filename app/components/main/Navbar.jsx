@@ -20,6 +20,12 @@ export default function Navbar() {
 
             <div className="flex items-center gap-2 sm:gap-4">
                 <Link
+                    href="/top"
+                    className="hidden sm:inline-block px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+                >
+                    Rankings
+                </Link>
+                <Link
                     href="/login"
                     className="px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors inline-block"
                 >
