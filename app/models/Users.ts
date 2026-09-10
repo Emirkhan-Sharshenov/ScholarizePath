@@ -138,7 +138,12 @@ const UserSchema = new Schema(
             type: String,
             enum: ["user", "admin"],
             default: "user",
-        }
+        },
+
+        deadlineReminders: {
+            type: Boolean,
+            default: true,
+        },
     },
     {
         timestamps: true,

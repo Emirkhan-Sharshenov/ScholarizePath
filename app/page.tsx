@@ -1,7 +1,14 @@
 import type { Metadata } from 'next';
 import Navbar from '@/components/main/Navbar';
 import FeatureGrid from '@/components/main/FeatureGrid';
+import TopRankingsSection from '@/components/main/TopRankingsSection';
 import Footer from '@/components/main/Footer';
+import { getTopStats } from '@/services/stats.service';
+
+// The homepage now bakes in favorite counts (via getTopStats) — without this,
+// Next statically renders it once at build time and the "most favorited"
+// teaser would never update again until the next deploy.
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'ScholarizePath — Find Universities & Scholarships Worldwide',
@@ -75,7 +82,9 @@ const features = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const { topUniversities, topScholarships } = await getTopStats(4);
+
   return (
     <div className="min-h-screen bg-slate-50/50 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
       <script
@@ -124,10 +133,22 @@ export default function Home() {
           </h2>
           <FeatureGrid features={features} />
         </section>
+        <section
+          className="max-w-6xl mx-auto px-4 sm:px-6 pb-16 sm:pb-20 md:pb-24 w-full"
+          aria-labelledby="top-rankings-heading"
+        >
+          <h2 id="top-rankings-heading" className="sr-only">
+            Most favorited universities and scholarships
+          </h2>
+          <TopRankingsSection
+            topUniversities={topUniversities}
+            topScholarships={topScholarships}
+            variant="teaser"
+          />
+        </section>
       </main>
 
       <Footer />
     </div>
   );
 }
-

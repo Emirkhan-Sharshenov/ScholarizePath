@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { ProfileHeader } from '@/components/student/ProfileHeader';
 import { AcademicScores } from '@/components/student/AcademicScores';
 import { PersonalPreferences } from '@/components/student/PersonalPreferences';
+import { NotificationSettings } from '@/components/student/NotificationSettings';
 
 export interface ProfileData {
     _id: string;
     firstName: string;
     lastName: string;
     email: string;
+    deadlineReminders?: boolean;
     profile: {
         age: number;
         nationality: string;
@@ -140,6 +142,10 @@ export default function ProfilePage() {
                     programLevel={formData.profile?.programLevel || ''}
                     isEditing={isEditing}
                     onChange={handleChange}
+                />
+
+                <NotificationSettings
+                    deadlineReminders={formData.deadlineReminders !== false}
                 />
             </div>
         </main>

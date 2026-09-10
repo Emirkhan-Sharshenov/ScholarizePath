@@ -4,7 +4,7 @@ import { authMiddleware } from "@/middleware/auth.middleware";
 import { checkRateLimit } from "@/lib/simpleRateLimit";
 
 // Pages/APIs reachable with NO token at all (exact match)
-const PUBLIC_PATHS = new Set<string>(["/", "/login"]);
+const PUBLIC_PATHS = new Set<string>(["/", "/login", "/top"]);
 
 // Pages/APIs reachable with NO token at all (prefix match — covers nested paths too)
 const PUBLIC_PATH_PREFIXES = [
@@ -12,6 +12,9 @@ const PUBLIC_PATH_PREFIXES = [
     "/api/auth/register",
     "/api/auth/verify",
     "/api/auth/google",
+    // Server-to-server (Vercel Cron), not a user session — the route itself
+    // gates on `Authorization: Bearer $CRON_SECRET` instead of a user token.
+    "/api/cron",
 ];
 
 const PROFILE_SETUP_PATH = "/profile/setup";
@@ -155,13 +158,16 @@ export async function proxy(request: NextRequest) {
 // Run on every route except Next.js internals and static assets.
 // Add any other public prefixes (e.g. "/api/public") to the negative lookahead as needed.
 // icon.png is a literal static file (app/icon.png), served at that exact path.
-// opengraph-image is a *generated* route (app/opengraph-image.tsx) with no file
-// extension in its URL — add twitter-image/apple-icon the same way if those
-// get added later. Either kind must stay public or it 302s to /login for any
-// visitor without a session — which is exactly what silently broke the
-// favicon before this file's PUBLIC_PATH_PREFIXES fix.
+// opengraph-image, robots.txt and sitemap.xml are *generated* routes
+// (app/opengraph-image.tsx, app/robots.ts, app/sitemap.ts) with no file
+// extension backing them in the App Router sense — add twitter-image/apple-icon
+// the same way if those get added later. Any of these must stay public or it
+// 302s to /login for any visitor without a session (including crawlers, which
+// is exactly what silently broke the favicon before this file's
+// PUBLIC_PATH_PREFIXES fix, and would otherwise make robots.txt/sitemap.xml
+// themselves un-crawlable).
 export const config = {
     matcher: [
-        "/((?!_next/static|_next/image|favicon.ico|icon.png|opengraph-image|images|fonts|icons).*)",
+        "/((?!_next/static|_next/image|favicon.ico|icon.png|opengraph-image|robots.txt|sitemap.xml|images|fonts|icons).*)",
     ],
 };
