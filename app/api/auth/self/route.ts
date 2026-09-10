@@ -71,9 +71,28 @@ export async function PUT(request: AuthRequest) {
             );
         }
 
-        const updateData = await request.json();
+        const body = await request.json();
 
-        delete updateData.profileSetupComplete;
+        // Allowlist, not a blocklist: only fields the current UI actually
+        // needs to self-update. Anything else (role, password, isVerified,
+        // googleId, profileSetupComplete, ...) is silently dropped rather
+        // than trusted from client input — a PUT here used to pass the
+        // whole body straight to findByIdAndUpdate, which let any logged-in
+        // user grant themselves admin via {"role":"admin"}.
+        const ALLOWED_FIELDS = [
+            "firstName",
+            "lastName",
+            "email",
+            "profile",
+            "deadlineReminders",
+            "favoriteUniversities",
+            "favoriteScholarships",
+        ] as const;
+
+        const updateData: Record<string, unknown> = {};
+        for (const field of ALLOWED_FIELDS) {
+            if (field in body) updateData[field] = body[field];
+        }
 
         const updatedUser = await User.findByIdAndUpdate(auth.userId, updateData, {
             new: true,
