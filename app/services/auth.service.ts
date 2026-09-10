@@ -210,7 +210,11 @@ export async function verify(request: Request) {
         value: authToken,
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        // "lax", not "strict" — a "strict" session cookie gets dropped by the
+        // browser on top-level cross-site navigation (an email link, a QR
+        // code, opening from another app), which looks exactly like "randomly
+        // logged out" to a user even though the cookie is still valid.
+        sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7,
         path: "/",
     });
@@ -278,7 +282,7 @@ export async function login(request: Request) {
         value: authToken,
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7,
         path: "/",
     });
@@ -297,7 +301,7 @@ export async function logout(request: Request) {
         value: "",
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge: 0,
         path: "/",
     });
@@ -478,7 +482,7 @@ export async function googleCallback(request: Request) {
         value: authToken,
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7,
         path: "/",
     });
