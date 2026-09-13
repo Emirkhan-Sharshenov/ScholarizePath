@@ -137,7 +137,7 @@ REGIONS_DATA.forEach((region) => {
 });
 
 const CHOROPLETH_STEPS: { max: number | null; color: string; label: string }[] = [
-    { max: 0, color: "#EEF1F6", label: "No data" },
+    { max: 0, color: "#E7EDF6", label: "No data" },
     { max: 25, color: "#BFDBFE", label: "1–25" },
     { max: 45, color: "#60A5FA", label: "26–45" },
     { max: 65, color: "#3B82F6", label: "46–65" },
@@ -391,7 +391,7 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
                 className="relative w-full aspect-[8/5] max-h-[520px] min-h-[220px] overflow-hidden rounded-xl touch-pan-y"
                 style={{
                     background:
-                        "radial-gradient(120% 140% at 50% 20%, #EAF2FF 0%, #F6F9FF 55%, #FFFFFF 100%)",
+                        "radial-gradient(120% 140% at 50% 15%, #CFE3FF 0%, #DCEBFF 45%, #EEF5FF 100%)",
                 }}
             >
                 <ComposableMap
