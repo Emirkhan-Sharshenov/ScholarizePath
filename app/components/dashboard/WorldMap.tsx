@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
+import { Building2, Award } from "lucide-react";
 
 
 // Self-hosted instead of fetched from jsdelivr on every visitor's first load —
@@ -135,13 +136,22 @@ REGIONS_DATA.forEach((region) => {
     });
 });
 
+const CHOROPLETH_STEPS: { max: number | null; color: string; label: string }[] = [
+    { max: 0, color: "#EEF1F6", label: "No data" },
+    { max: 25, color: "#BFDBFE", label: "1–25" },
+    { max: 45, color: "#60A5FA", label: "26–45" },
+    { max: 65, color: "#3B82F6", label: "46–65" },
+    { max: 80, color: "#1D4ED8", label: "66–80" },
+    { max: null, color: "#1E3A8A", label: "80+" },
+];
+
 function getBlueColorByData(unis: number): string {
-    if (unis === 0) return "#F3F4F6";
-    if (unis <= 25) return "#BFDBFE";
-    if (unis <= 45) return "#60A5FA";
-    if (unis <= 65) return "#2563EB";
-    if (unis <= 80) return "#1E40AF";
-    return "#0F172A";
+    if (unis === 0) return CHOROPLETH_STEPS[0].color;
+    if (unis <= 25) return CHOROPLETH_STEPS[1].color;
+    if (unis <= 45) return CHOROPLETH_STEPS[2].color;
+    if (unis <= 65) return CHOROPLETH_STEPS[3].color;
+    if (unis <= 80) return CHOROPLETH_STEPS[4].color;
+    return CHOROPLETH_STEPS[5].color;
 }
 
 interface HoveredCountry {
@@ -206,18 +216,20 @@ const CountryGeographies = React.memo(function CountryGeographies({
                             style={{
                                 default: {
                                     fill: fillColor,
-                                    stroke: isInSelectedRegion ? "#1E293B" : "#D1D5DB",
+                                    stroke: isInSelectedRegion ? "#1E293B" : "#E2E8F0",
                                     strokeWidth: isInSelectedRegion ? 1 : 0.5,
                                     outline: "none",
+                                    transition: "fill 200ms ease, stroke 200ms ease",
                                 },
                                 hover: {
                                     fill: selectedRegionId
-                                        ? (isInSelectedRegion && activeRegion ? activeRegion.hexColor : "#D1D5DB")
-                                        : (hasData ? "#1D4ED8" : "#D1D5DB"),
+                                        ? (isInSelectedRegion && activeRegion ? activeRegion.hexColor : "#CBD5E1")
+                                        : (hasData ? "#0058BD" : "#CBD5E1"),
                                     stroke: "#0F172A",
                                     strokeWidth: 1,
                                     outline: "none",
                                     cursor: hasData ? "pointer" : "default",
+                                    transition: "fill 150ms ease, stroke 150ms ease",
                                 },
                                 pressed: {
                                     fill: fillColor,
@@ -371,67 +383,102 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
     }, []);
 
     return (
-        <div
-            ref={containerRef}
-            onMouseMove={handleMouseMove}
-            onClick={handleContainerClick}
-            className="relative w-full aspect-[8/5] max-h-[520px] min-h-[220px] overflow-hidden rounded-xl bg-surface sm:rounded-2xl touch-pan-y"
-        >
-            <ComposableMap
-                projectionConfig={PROJECTION_CONFIG}
-                width={800}
-                height={500}
-                className="w-full h-full"
+        <div className="relative w-full h-full rounded-2xl border border-slate-100 bg-white p-2.5 shadow-sm sm:rounded-3xl sm:p-4">
+            <div
+                ref={containerRef}
+                onMouseMove={handleMouseMove}
+                onClick={handleContainerClick}
+                className="relative w-full aspect-[8/5] max-h-[520px] min-h-[220px] overflow-hidden rounded-xl touch-pan-y"
+                style={{
+                    background:
+                        "radial-gradient(120% 140% at 50% 20%, #EAF2FF 0%, #F6F9FF 55%, #FFFFFF 100%)",
+                }}
             >
-                <CountryGeographies
-                    selectedRegionId={selectedRegionId}
-                    activeRegion={activeRegion}
-                    universityCounts={stats?.universities ?? {}}
-                    scholarshipCounts={stats?.scholarships ?? {}}
-                    onCountryEnter={handleCountryEnter}
-                    onCountryLeave={handleCountryLeave}
-                    onCountrySelect={handleCountrySelect}
-                />
-            </ComposableMap>
-
-            {statsError && (
-                <div className="absolute top-2 left-2 right-2 z-40 flex items-center justify-between gap-3 rounded-lg bg-white/95 px-3 py-2 text-xs text-slate-600 shadow sm:text-sm">
-                    <span>Couldn&apos;t load live university/scholarship counts.</span>
-                    <button
-                        type="button"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setRetryKey((k) => k + 1);
-                        }}
-                        className="shrink-0 font-semibold text-brand hover:underline cursor-pointer"
-                    >
-                        Retry
-                    </button>
-                </div>
-            )}
-
-            {hoveredCountry && (
-                <div
-                    ref={tooltipRef}
-                    style={{
-                        position: "absolute",
-                        zIndex: 50,
-                        left: 0,
-                        top: 0,
-                        pointerEvents: "none",
-                        willChange: "transform",
-                    }}
-                    className="max-w-[150px] rounded-xl border border-slate-100 bg-white p-2 text-[11px] shadow-lg sm:max-w-none sm:p-3 sm:text-xs"
+                <ComposableMap
+                    projectionConfig={PROJECTION_CONFIG}
+                    width={800}
+                    height={500}
+                    className="w-full h-full"
                 >
-                    <div className="font-bold text-slate-900 mb-1">
-                        {hoveredCountry.name}
+                    <CountryGeographies
+                        selectedRegionId={selectedRegionId}
+                        activeRegion={activeRegion}
+                        universityCounts={stats?.universities ?? {}}
+                        scholarshipCounts={stats?.scholarships ?? {}}
+                        onCountryEnter={handleCountryEnter}
+                        onCountryLeave={handleCountryLeave}
+                        onCountrySelect={handleCountrySelect}
+                    />
+                </ComposableMap>
+
+                {statsError && (
+                    <div className="absolute top-2 left-2 right-2 z-40 flex items-center justify-between gap-3 rounded-lg bg-white/95 px-3 py-2 text-xs text-slate-600 shadow sm:text-sm">
+                        <span>Couldn&apos;t load live university/scholarship counts.</span>
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setRetryKey((k) => k + 1);
+                            }}
+                            className="shrink-0 font-semibold text-brand hover:underline cursor-pointer"
+                        >
+                            Retry
+                        </button>
                     </div>
-                    <div className="text-slate-600 space-y-0.5">
-                        <div>Universities: <span className="font-semibold text-slate-800">{hoveredCountry.unis}</span></div>
-                        <div>Scholarships: <span className="font-semibold text-slate-800">{hoveredCountry.scholarships}</span></div>
+                )}
+
+                {!selectedRegionId && (
+                    <div className="pointer-events-none absolute bottom-2 left-2 z-30 flex items-center gap-1.5 rounded-full border border-slate-100 bg-white/90 px-2.5 py-1.5 shadow-sm backdrop-blur-sm sm:bottom-3 sm:left-3 sm:gap-2 sm:px-3 sm:py-2">
+                        <span className="hidden text-[10px] font-semibold uppercase tracking-wide text-slate-400 sm:inline">
+                            Universities
+                        </span>
+                        {CHOROPLETH_STEPS.map((step) => (
+                            <span
+                                key={step.label}
+                                title={step.label}
+                                className="h-2.5 w-4 rounded-sm sm:h-3 sm:w-5"
+                                style={{ backgroundColor: step.color }}
+                            />
+                        ))}
+                        <span className="text-[10px] font-medium text-slate-400 sm:text-[11px]">
+                            More
+                        </span>
                     </div>
-                </div>
-            )}
+                )}
+
+                {hoveredCountry && (
+                    <div
+                        ref={tooltipRef}
+                        style={{
+                            position: "absolute",
+                            zIndex: 50,
+                            left: 0,
+                            top: 0,
+                            pointerEvents: "none",
+                            willChange: "transform",
+                        }}
+                        className="max-w-[170px] rounded-2xl border border-slate-100 bg-white/95 p-3 text-[11px] shadow-xl backdrop-blur-sm sm:max-w-none sm:text-xs"
+                    >
+                        <div className="mb-1.5 font-bold text-slate-900">
+                            {hoveredCountry.name}
+                        </div>
+                        <div className="space-y-1 text-slate-600">
+                            <div className="flex items-center gap-1.5">
+                                <Building2 className="h-3.5 w-3.5 shrink-0 text-brand" />
+                                <span>
+                                    Universities: <span className="font-semibold text-slate-800">{hoveredCountry.unis}</span>
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <Award className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                                <span>
+                                    Scholarships: <span className="font-semibold text-slate-800">{hoveredCountry.scholarships}</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

@@ -17,7 +17,7 @@ export default function WorldMapFilter({
     };
 
     return (
-        <div className="w-full h-full rounded-3xl border border-slate-100 bg-white p-4 md:p-5 shadow-sm flex flex-col justify-center">
+        <div className="w-full h-full rounded-2xl sm:rounded-3xl border border-slate-100 bg-white p-4 md:p-5 shadow-sm flex flex-col justify-center">
             <div className="mb-3 md:mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Region Filter
             </div>
