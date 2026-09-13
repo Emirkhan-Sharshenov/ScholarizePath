@@ -12,10 +12,10 @@ export const runtime = "nodejs";
 
 const MAX_TRANSIENT_RETRIES = 2;
 
-const ELIGIBILITY_MINUTE_LIMIT = 5;
+const ELIGIBILITY_MINUTE_LIMIT = 3;
 const ELIGIBILITY_MINUTE_WINDOW_MS = 60 * 1000;
 
-const ELIGIBILITY_DAILY_LIMIT = 20;
+const ELIGIBILITY_DAILY_LIMIT = 8;
 const ELIGIBILITY_DAILY_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 type CriterionStatus = "match" | "partial" | "mismatch";

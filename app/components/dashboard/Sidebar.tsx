@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Home, GraduationCap, University, Bot, Scale, BookOpen, Heart, SquareText, LogOut, Loader2, Flag, ClipboardList, Calculator } from "lucide-react";
+import { Home, GraduationCap, University, Bot, Scale, BookOpen, Heart, SquareText, LogOut, Loader2, Flag, ClipboardList, Calculator, Coffee } from "lucide-react";
 import { useSidebar } from "./SidebarContext";
 
 const NAV_ITEMS = [
@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { href: "/favourites", label: "Favourites", icon: Heart },
   { href: "/unilist", label: "Uni List", icon: SquareText },
   { href: "/suggestions", label: "Suggestions", icon: Flag },
+  { href: "/support", label: "Support Us", icon: Coffee },
 ];
 
 export default function Sidebar() {
