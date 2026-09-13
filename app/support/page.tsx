@@ -1,15 +1,19 @@
 import type { Metadata } from 'next';
 import Navbar from '@/components/main/Navbar';
 import Footer from '@/components/main/Footer';
-import { Coffee, Zap, MessageSquare, Sparkles } from 'lucide-react';
+import { HeartHandshake, Zap, MessageSquare, Sparkles } from 'lucide-react';
 
-// Replace with your real Buy Me a Coffee username (buymeacoffee.com/<username>)
-// once the account exists — this is a placeholder.
-const BMC_USERNAME = 'scholarizepath';
-const BMC_URL = `https://www.buymeacoffee.com/${BMC_USERNAME}`;
+// Set this to your real DonationAlerts username (donationalerts.com/r/<username>)
+// once the account exists. Left empty on purpose — a guessed username could
+// resolve to a stranger's real donation page and misdirect real money, so the
+// button stays disabled until this is filled in for real.
+const DONATIONALERTS_USERNAME = '';
+const DONATIONALERTS_URL = DONATIONALERTS_USERNAME
+    ? `https://www.donationalerts.com/r/${DONATIONALERTS_USERNAME}`
+    : null;
 
 export const metadata: Metadata = {
-    title: 'Support ScholarizePath — Buy Us a Coffee',
+    title: 'Support ScholarizePath',
     description:
         'Help fund a bigger AI budget for ScholarizePath so more students can get AI-powered university and scholarship guidance every day.',
     alternates: {
@@ -49,28 +53,35 @@ export default function SupportPage() {
 
                     <div className="max-w-2xl mx-auto flex flex-col items-center text-center relative z-10">
                         <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
-                            <Coffee className="h-7 w-7" />
+                            <HeartHandshake className="h-7 w-7" />
                         </div>
 
                         <h1 className="text-2xl sm:text-4xl font-black leading-tight tracking-tight">
-                            Buy us a coffee, keep the AI running
+                            Support ScholarizePath, keep the AI running
                         </h1>
 
                         <p className="mt-4 text-blue-100/80 text-sm sm:text-base max-w-lg leading-relaxed">
                             Our AI assistant runs on a shared usage budget. It&apos;s enough for a steady stream of
-                            students today, but every coffee goes straight toward upgrading it so more people can
+                            students today, but every donation goes straight toward upgrading it so more people can
                             get AI-powered guidance without hitting a limit.
                         </p>
 
-                        <a
-                            href={BMC_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-8 inline-flex items-center gap-2.5 rounded-xl bg-amber-400 px-6 py-3.5 text-sm sm:text-base font-bold text-slate-900 shadow-lg shadow-black/10 hover:bg-amber-300 transition-colors"
-                        >
-                            <Coffee className="h-5 w-5" />
-                            Buy me a coffee
-                        </a>
+                        {DONATIONALERTS_URL ? (
+                            <a
+                                href={DONATIONALERTS_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-8 inline-flex items-center gap-2.5 rounded-xl bg-amber-400 px-6 py-3.5 text-sm sm:text-base font-bold text-slate-900 shadow-lg shadow-black/10 hover:bg-amber-300 transition-colors"
+                            >
+                                <HeartHandshake className="h-5 w-5" />
+                                Donate via DonationAlerts
+                            </a>
+                        ) : (
+                            <div className="mt-8 inline-flex items-center gap-2.5 rounded-xl bg-white/10 px-6 py-3.5 text-sm sm:text-base font-bold text-white/60 cursor-not-allowed">
+                                <HeartHandshake className="h-5 w-5" />
+                                Donations opening soon
+                            </div>
+                        )}
                     </div>
                 </section>
 
