@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { GraduationCap, Heart, MapPin, Shuffle, Loader2 } from "lucide-react";
 
 interface LocationObject {
     country?: string;
@@ -25,6 +26,9 @@ interface TopUniversitiesCardProps {
     countryName?: string;
 }
 
+const FALLBACK_IDS = new Set([
+    "harvard", "mit", "stanford", "oxford", "cambridge", "eth", "toronto", "imperial",
+]);
 
 const FALLBACK_UNIVERSITIES: University[] = [
     { id: "harvard", name: "Harvard University", shortName: "Harvard", location: "Cambridge, USA", rank: "1" },
@@ -37,55 +41,99 @@ const FALLBACK_UNIVERSITIES: University[] = [
     { id: "imperial", name: "Imperial College London", shortName: "Imperial", location: "London, UK", rank: "8" },
 ];
 
+const FLAG_BY_COUNTRY: Record<string, string> = {
+    "united states": "🇺🇸", "usa": "🇺🇸", "united states of america": "🇺🇸",
+    "united kingdom": "🇬🇧", "uk": "🇬🇧",
+    canada: "🇨🇦", australia: "🇦🇺", germany: "🇩🇪", france: "🇫🇷",
+    switzerland: "🇨🇭", netherlands: "🇳🇱", sweden: "🇸🇪", "south korea": "🇰🇷",
+    japan: "🇯🇵", china: "🇨🇳", singapore: "🇸🇬", "hong kong": "🇭🇰",
+    italy: "🇮🇹", spain: "🇪🇸", ireland: "🇮🇪", "new zealand": "🇳🇿",
+    denmark: "🇩🇰", norway: "🇳🇴", finland: "🇫🇮", austria: "🇦🇹",
+    belgium: "🇧🇪", turkey: "🇹🇷", "czech republic": "🇨🇿", poland: "🇵🇱",
+    russia: "🇷🇺", "united arab emirates": "🇦🇪", uae: "🇦🇪", malaysia: "🇲🇾",
+    india: "🇮🇳", kazakhstan: "🇰🇿", kyrgyzstan: "🇰🇬",
+};
+
+function shuffle<T>(arr: T[]): T[] {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+}
+
 export default function TopUniversitiesCard({ countryName }: TopUniversitiesCardProps) {
     const [universities, setUniversities] = useState<University[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
+    const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+    const [togglingId, setTogglingId] = useState<string | null>(null);
+    const [personalized, setPersonalized] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0);
 
-    useEffect(() => {
-        let isMounted = true;
+    const load = useCallback(async () => {
         setLoading(true);
         setError(false);
 
-        const url = countryName
-            ? `/api/universities?country=${encodeURIComponent(countryName)}`
-            : `/api/universities`;
+        try {
+            let effectiveCountry = countryName;
+            let favorites: string[] = [];
 
-        fetch(url)
-            .then((res) => {
-                if (!res.ok) throw new Error("Failed to fetch");
-                return res.json();
-            })
-            .then((data) => {
-                if (isMounted) {
-                    let list: University[] = [];
-                    if (Array.isArray(data)) {
-                        list = data;
-                    } else if (data && Array.isArray((data as any).data)) {
-                        list = (data as any).data;
+            if (!countryName) {
+                try {
+                    const selfRes = await fetch("/api/auth/self");
+                    if (selfRes.ok) {
+                        const selfData = await selfRes.json();
+                        favorites = selfData?.user?.favoriteUniversities || [];
+                        const preferred = selfData?.user?.profile?.preferredCountry;
+                        if (typeof preferred === "string" && preferred.trim()) {
+                            effectiveCountry = preferred.trim();
+                        }
                     }
-
-                    // Если API возвращает меньше 8 элементов, дополняем из фоллбек-списка
-                    if (list.length < 8) {
-                        const merged = [...list, ...FALLBACK_UNIVERSITIES].slice(0, 8);
-                        setUniversities(merged);
-                    } else {
-                        setUniversities(list.slice(0, 8));
-                    }
-                    setLoading(false);
+                } catch {
+                    // Personalization is a nice-to-have — fall through to the generic pool.
                 }
-            })
-            .catch(() => {
-                if (isMounted) {
-                    setUniversities(FALLBACK_UNIVERSITIES);
-                    setLoading(false);
-                }
-            });
+            }
 
-        return () => {
-            isMounted = false;
-        };
-    }, [countryName]);
+            setPersonalized(Boolean(effectiveCountry));
+            setFavoriteIds(new Set(favorites));
+
+            const url = effectiveCountry
+                ? `/api/universities?country=${encodeURIComponent(effectiveCountry)}&limit=24`
+                : `/api/universities?limit=24`;
+
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("Failed to fetch");
+            const data = await res.json();
+
+            let list: University[] = Array.isArray(data)
+                ? data
+                : Array.isArray((data as any).data)
+                    ? (data as any).data
+                    : [];
+
+            list = shuffle(list);
+
+            if (list.length < 8) {
+                setUniversities([...list, ...shuffle(FALLBACK_UNIVERSITIES)].slice(0, 8));
+            } else {
+                setUniversities(list.slice(0, 8));
+            }
+        } catch {
+            setError(true);
+            setUniversities(FALLBACK_UNIVERSITIES);
+        } finally {
+            setLoading(false);
+        }
+    }, [countryName, refreshKey]);
+
+    useEffect(() => {
+        async function run() {
+            await load();
+        }
+        run();
+    }, [load]);
 
     const formatName = (uni: University): string => {
         if (typeof uni.name === "string") return uni.name;
@@ -95,45 +143,87 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
         return "University";
     };
 
-    const formatLocation = (uni: University): string => {
-        if (typeof uni.location === "string") return uni.location;
-        if (typeof uni.country === "string") return uni.country;
+    const formatLocation = (uni: University): { text: string; country: string } => {
+        if (typeof uni.location === "string") {
+            const parts = uni.location.split(",").map((p) => p.trim());
+            return { text: uni.location, country: parts[parts.length - 1] || "" };
+        }
+        if (typeof uni.country === "string") return { text: uni.country, country: uni.country };
 
         const locObj = (typeof uni.location === "object" ? uni.location : uni.country) as LocationObject;
         if (locObj && typeof locObj === "object") {
             const parts = [locObj.city, locObj.country].filter(
                 (p) => typeof p === "string" && p.trim() !== ""
             );
-            if (parts.length > 0) return parts.join(", ");
+            if (parts.length > 0) return { text: parts.join(", "), country: locObj.country || "" };
         }
 
-        return "Worldwide";
+        return { text: "Worldwide", country: "" };
     };
 
     const formatRank = (uni: University, index: number): string => {
         if (typeof uni.rank === "string" || typeof uni.rank === "number") {
-            return `#${uni.rank} in the World`;
+            return `#${uni.rank}`;
         }
         if (typeof uni.rank === "object" && uni.rank !== null) {
             const val = uni.rank.world || uni.rank.rank;
-            if (val) return `#${val} in the World`;
+            if (val) return `#${val}`;
         }
-        return `#${index + 1} in the World`;
+        return `#${index + 1}`;
     };
 
-    const getUniversityId = (uni: University, fallbackIndex: number): string | number => {
-        return uni.id ?? uni._id ?? fallbackIndex;
+    const getUniversityId = (uni: University, fallbackIndex: number): string => {
+        return String(uni.id ?? uni._id ?? fallbackIndex);
+    };
+
+    const handleToggleFavorite = async (id: string) => {
+        if (FALLBACK_IDS.has(id) || togglingId) return;
+
+        const isFavorite = favoriteIds.has(id);
+        const next = new Set(favoriteIds);
+        if (isFavorite) next.delete(id);
+        else next.add(id);
+
+        setTogglingId(id);
+        setFavoriteIds(next);
+
+        try {
+            await fetch("/api/auth/self", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ favoriteUniversities: Array.from(next) }),
+            });
+        } catch {
+            setFavoriteIds(favoriteIds); // revert on failure
+        } finally {
+            setTogglingId(null);
+        }
     };
 
     return (
         <div className="w-full mt-8">
-            <div className="mb-6">
-                <h1 className="text-xl font-bold text-slate-900">
-                    Suggested Universities {countryName ? `in ${countryName}` : ""}
-                </h1>
-                <p className="text-xs text-slate-500 mt-0.5">
-                    Explore some of the best universities around the world
-                </p>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h1 className="text-xl font-bold text-slate-900">
+                        Suggested Universities {countryName ? `in ${countryName}` : ""}
+                    </h1>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                        {personalized
+                            ? "Picked based on your profile preferences"
+                            : "A fresh mix from around the world — reshuffle for more"}
+                    </p>
+                </div>
+                {!countryName && (
+                    <button
+                        type="button"
+                        onClick={() => setRefreshKey((k) => k + 1)}
+                        disabled={loading}
+                        className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-brand disabled:opacity-50"
+                    >
+                        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Shuffle className="h-3.5 w-3.5" />}
+                        Shuffle
+                    </button>
+                )}
             </div>
 
             {loading && (
@@ -141,41 +231,61 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                     {Array.from({ length: 8 }).map((_, i) => (
                         <div
                             key={i}
-                            className="h-[160px] rounded-2xl bg-gray-100 animate-pulse w-full"
+                            className="h-[172px] rounded-2xl bg-gray-100 animate-pulse w-full"
                         />
                     ))}
                 </div>
             )}
 
-  
-            {error && (
+            {error && !loading && universities.length === 0 && (
                 <p className="text-sm text-red-500 py-4">
-                    Couldn't find any university
+                    Couldn&apos;t find any university
                 </p>
             )}
 
-          
             {!loading && !error && universities.length === 0 && (
                 <p className="text-sm text-slate-500 py-4">Universities not found</p>
             )}
 
-    
-            {!loading && !error && universities.length > 0 && (
+            {!loading && universities.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {universities.map((uni, idx) => {
                         const uniId = getUniversityId(uni, idx);
                         const uniName = formatName(uni);
-                        const locationText = formatLocation(uni);
+                        const { text: locationText, country } = formatLocation(uni);
                         const rankText = formatRank(uni, idx);
+                        const flag = FLAG_BY_COUNTRY[country.toLowerCase()];
+                        const isFallback = FALLBACK_IDS.has(uniId);
+                        const isFavorite = favoriteIds.has(uniId);
 
                         return (
                             <div
-                                key={uniId}
-                                className="w-full rounded-2xl border border-slate-100 bg-white p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group"
+                                key={`${uniId}-${idx}`}
+                                className="group relative w-full overflow-hidden rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between"
                             >
-                              
+                                <div
+                                    aria-hidden="true"
+                                    className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-400 opacity-80"
+                                />
+
+                                {!isFallback && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleToggleFavorite(uniId)}
+                                        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                                        aria-pressed={isFavorite}
+                                        className="absolute right-3 top-3.5 rounded-full p-1.5 text-slate-300 transition-colors hover:bg-rose-50 hover:text-rose-500"
+                                    >
+                                        <Heart className={`h-4 w-4 ${isFavorite ? "fill-rose-500 text-rose-500" : ""}`} />
+                                    </button>
+                                )}
+
                                 <div>
-                                    <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2">
+                                    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-brand transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                                        <GraduationCap className="h-4.5 w-4.5" />
+                                    </div>
+
+                                    <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 pr-6">
                                         {uniName}
                                     </h3>
 
@@ -185,24 +295,25 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                                         </p>
                                     )}
 
-                                    {/* Location */}
                                     <div className="flex items-center gap-1 text-slate-400 text-xs mt-3">
-                                        <svg className="w-3.5 h-3.5 flex-shrink-0 stroke-current fill-none stroke-2" viewBox="0 0 24 24">
-                                            <path d="M12 21s-6-5.333-6-10a6 6 0 0 1 12 0c0 4.667-6 10-6 10z" />
-                                            <circle cx="12" cy="11" r="2" />
-                                        </svg>
+                                        {flag ? (
+                                            <span className="text-sm leading-none">{flag}</span>
+                                        ) : (
+                                            <MapPin className="w-3.5 h-3.5 shrink-0" />
+                                        )}
                                         <span className="truncate">{locationText}</span>
                                     </div>
                                 </div>
+
                                 <div className="flex items-center justify-between mt-6 pt-2">
-                                    <span className="text-[11px] font-semibold text-slate-400">
-                                        {rankText}
+                                    <span className="rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-bold text-slate-500">
+                                        {rankText} World
                                     </span>
                                     <Link
                                         href={`/universities/${uniId}`}
                                         className="text-xs font-semibold text-slate-800 hover:text-blue-600 flex items-center gap-1 transition-colors"
                                     >
-                                        View Details <span className="text-sm">→</span>
+                                        View <span className="text-sm">→</span>
                                     </Link>
                                 </div>
                             </div>
