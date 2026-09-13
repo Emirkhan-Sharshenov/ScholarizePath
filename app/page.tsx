@@ -49,36 +49,90 @@ const features = [
     badgeText: '1500+ Institutions',
     title: 'Global Universities',
     description: 'Explore over 1,500 top-ranked universities worldwide tailored to your academic profile.',
+    longDescription:
+      "Browse a constantly growing catalog of universities from every major study destination — filter by country, ranking, tuition, and program to zero in on schools that actually fit your profile, not just the famous names.",
+    highlights: [
+      'Detailed profiles: rankings, tuition, acceptance rates, and campus life',
+      'Filter by country, field of study, budget, and academic requirements',
+      'Save favorites and compare institutions side by side',
+    ],
+    href: '/universities',
+    ctaLabel: 'Browse universities',
   },
   {
     icon: 'Award' as const,
     badgeText: '120+ Grants',
     title: 'Scholarship Finder',
     description: 'Discover fully funded and partial scholarships matching your target field and criteria.',
+    longDescription:
+      'Search a curated database of scholarships and grants — from full-ride awards to field-specific grants — and instantly see which ones you qualify for based on your nationality, GPA, and program of interest.',
+    highlights: [
+      'Fully funded and partial scholarships from 120+ programs',
+      'Eligibility criteria and deadlines at a glance',
+      'Matches refined by your academic and financial profile',
+    ],
+    href: '/scholarships',
+    ctaLabel: 'Find scholarships',
   },
   {
     icon: 'Bot' as const,
     badgeText: 'AI Powered',
     title: 'Smart Assistant',
     description: 'Leverage interactive AI tools to streamline, draft, and automate your entire application process.',
+    longDescription:
+      'Chat with an AI assistant trained to help with every stage of studying abroad — from shortlisting universities to drafting essays — and get personalized recommendations based on the details you share.',
+    highlights: [
+      'Conversational AI that answers questions about universities and scholarships',
+      'Personalized university and scholarship recommendations',
+      'Drafting help for essays and application documents',
+    ],
+    href: '/aibot',
+    ctaLabel: 'Try the assistant',
   },
   {
     icon: 'SlidersHorizontal' as const,
     badgeText: 'Algorithmic',
     title: 'List Generator',
     description: 'Generate highly curated university lists matched precisely to your budget and preferences.',
+    longDescription:
+      'Turn your preferences — budget, location, field of study, and academic scores — into a ready-to-use, exportable list of universities worth applying to, so you spend less time searching and more time applying.',
+    highlights: [
+      'Curated shortlist based on your budget and preferences',
+      'Export your list as a document to share or keep for reference',
+      'Balanced mix of reach, match, and safety schools',
+    ],
+    href: '/unilist',
+    ctaLabel: 'Generate a list',
   },
   {
     icon: 'FileCheck2' as const,
     badgeText: 'Requirements',
     title: 'Admissions Details',
     description: 'Access complete admissions criteria, required document checklists, and key deadlines.',
+    longDescription:
+      "Every university page breaks down exactly what's required to apply — test scores, required documents, application deadlines — so nothing catches you off guard late in the process.",
+    highlights: [
+      'Required test scores (SAT, IELTS/TOEFL, and more) per university',
+      'Document checklists for each application',
+      'Key deadlines so you never miss a submission window',
+    ],
+    href: '/universities',
+    ctaLabel: 'View requirements',
   },
   {
     icon: 'TrendingUp' as const,
     badgeText: 'Analytics',
     title: 'Personalized Odds',
     description: 'Evaluate your target programs with an algorithmic estimate of your acceptance chances.',
+    longDescription:
+      'Based on your GPA, test scores, and profile compared against each university\'s historical admissions data, get an estimated acceptance chance for every program you\'re considering — so you can build a balanced list with confidence.',
+    highlights: [
+      'Acceptance-chance estimates tailored to your academic profile',
+      'Benchmarks against real historical admissions data',
+      'Helps you balance reach, match, and safety schools',
+    ],
+    href: '/universities',
+    ctaLabel: 'Check your odds',
   },
 ];
 
