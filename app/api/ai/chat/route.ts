@@ -20,11 +20,11 @@ const MAX_TOOL_TURNS = 4;
 const MAX_TRANSIENT_RETRIES = 2;
 
 
-const CHAT_RATE_LIMIT = 15; 
-const CHAT_RATE_WINDOW_MS = 60 * 1000; 
+const CHAT_RATE_LIMIT = 8;
+const CHAT_RATE_WINDOW_MS = 60 * 1000;
 
 
-const CHAT_DAILY_LIMIT = 5; 
+const CHAT_DAILY_LIMIT = 3;
 const CHAT_DAILY_WINDOW_MS = 24 * 60 * 60 * 1000; 
 
 const FALLBACK_RESPONSE: AIChatResponse = {
