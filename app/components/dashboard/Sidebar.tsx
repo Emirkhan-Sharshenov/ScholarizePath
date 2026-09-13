@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Home, GraduationCap, University, Bot, Scale, BookOpen, Heart, SquareText, LogOut, Loader2, Flag } from "lucide-react";
+import { Home, GraduationCap, University, Bot, Scale, BookOpen, Heart, SquareText, LogOut, Loader2, Flag, ClipboardList } from "lucide-react";
 import { useSidebar } from "./SidebarContext";
 
 const NAV_ITEMS = [
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: "/universities", label: "University", icon: University },
   { href: "/aibot", label: "AI Bot", icon: Bot },
   { href: "/compare", label: "Compare", icon: Scale },
+  { href: "/tracker", label: "Tracker", icon: ClipboardList },
   { href: "/student", label: "Student", icon: BookOpen },
   { href: "/favourites", label: "Favourites", icon: Heart },
   { href: "/unilist", label: "Uni List", icon: SquareText },
