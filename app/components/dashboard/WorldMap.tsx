@@ -415,10 +415,6 @@ export default function WorldMap({ selectedRegionId, hoveredRegionId }: WorldMap
                 onMouseMove={handleMouseMove}
                 onClick={handleContainerClick}
                 className="relative w-full aspect-[8/5] max-h-[520px] min-h-[220px] overflow-hidden rounded-xl touch-pan-y"
-                style={{
-                    background:
-                        "radial-gradient(120% 140% at 50% 15%, #CFE3FF 0%, #DCEBFF 45%, #EEF5FF 100%)",
-                }}
             >
                 <ComposableMap
                     projectionConfig={PROJECTION_CONFIG}
