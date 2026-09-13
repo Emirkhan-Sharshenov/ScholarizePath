@@ -3,11 +3,7 @@ import Navbar from '@/components/main/Navbar';
 import Footer from '@/components/main/Footer';
 import { HeartHandshake, Zap, MessageSquare, Sparkles } from 'lucide-react';
 
-// Set this to your real DonationAlerts username (donationalerts.com/r/<username>)
-// once the account exists. Left empty on purpose — a guessed username could
-// resolve to a stranger's real donation page and misdirect real money, so the
-// button stays disabled until this is filled in for real.
-const DONATIONALERTS_USERNAME = '';
+const DONATIONALERTS_USERNAME = 'scholarizepath';
 const DONATIONALERTS_URL = DONATIONALERTS_USERNAME
     ? `https://www.donationalerts.com/r/${DONATIONALERTS_USERNAME}`
     : null;
