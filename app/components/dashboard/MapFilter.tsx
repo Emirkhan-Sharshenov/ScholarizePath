@@ -11,7 +11,9 @@ import WorldMapFilter from './WorldMapFilter';
 const WorldMap = dynamic(() => import('./WorldMap'), {
     ssr: false,
     loading: () => (
-        <div className="w-full h-full min-h-[220px] rounded-xl bg-surface animate-pulse sm:rounded-2xl" />
+        <div className="h-full min-h-[220px] w-full animate-pulse rounded-2xl border border-slate-100 bg-white p-2.5 shadow-sm sm:rounded-3xl sm:p-4">
+            <div className="h-full w-full rounded-xl bg-surface" />
+        </div>
     ),
 });
 
@@ -20,7 +22,7 @@ function MapFilter() {
 
     return (
         <div className="flex flex-col gap-4 md:flex-row md:gap-6 md:h-[70vh]">
-            <div className="w-full h-[280px] sm:h-[350px] md:h-full md:flex-[8.5] rounded-2xl md:rounded-3xl overflow-hidden">
+            <div className="w-full h-[280px] sm:h-[350px] md:h-full md:flex-[8.5]">
                 <WorldMap selectedRegionId={selectedRegionId} />
             </div>
 
