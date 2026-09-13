@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Mail, Coffee } from 'lucide-react';
+import { Mail, HeartHandshake } from 'lucide-react';
 
 
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -51,8 +51,8 @@ export default function Footer() {
                         href="/support"
                         className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-amber-600 transition-colors"
                     >
-                        <Coffee aria-hidden="true" className="w-4 h-4" />
-                        Buy us a coffee
+                        <HeartHandshake aria-hidden="true" className="w-4 h-4" />
+                        Support us
                     </Link>
                 </div>
 
