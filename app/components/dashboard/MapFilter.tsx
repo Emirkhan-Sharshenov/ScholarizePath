@@ -19,17 +19,19 @@ const WorldMap = dynamic(() => import('./WorldMap'), {
 
 function MapFilter() {
     const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
+    const [hoveredRegionId, setHoveredRegionId] = useState<string | null>(null);
 
     return (
         <div className="flex flex-col gap-4 md:flex-row md:gap-6 md:h-[70vh]">
             <div className="w-full h-[280px] sm:h-[350px] md:h-full md:flex-[8.5]">
-                <WorldMap selectedRegionId={selectedRegionId} />
+                <WorldMap selectedRegionId={selectedRegionId} hoveredRegionId={hoveredRegionId} />
             </div>
 
             <div className="w-full md:flex-[1.5]">
                 <WorldMapFilter
                     selectedRegionId={selectedRegionId}
                     onSelectRegion={setSelectedRegionId}
+                    onHoverRegion={setHoveredRegionId}
                 />
             </div>
         </div>

@@ -145,6 +145,22 @@ const CHOROPLETH_STEPS: { max: number | null; color: string; label: string }[] =
     { max: null, color: "#1E3A8A", label: "80+" },
 ];
 
+// Darkens a "#rrggbb" color by `amount` (0-1) — used to preview which zone
+// the mouse is over in the region filter list, layered on top of whatever
+// fill a country already has (choropleth shade, selected, or neutral).
+function darkenColor(hex: string, amount: number): string {
+    const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!match) return hex;
+
+    const [, r, g, b] = match;
+    const scale = (channel: string) => Math.round(parseInt(channel, 16) * (1 - amount));
+
+    return `#${[r, g, b]
+        .map(scale)
+        .map((v) => v.toString(16).padStart(2, "0"))
+        .join("")}`;
+}
+
 function getBlueColorByData(unis: number): string {
     if (unis === 0) return CHOROPLETH_STEPS[0].color;
     if (unis <= 25) return CHOROPLETH_STEPS[1].color;
@@ -162,11 +178,13 @@ interface HoveredCountry {
 
 interface WorldMapProps {
     selectedRegionId?: string | null;
+    hoveredRegionId?: string | null;
 }
 
 
 const CountryGeographies = React.memo(function CountryGeographies({
     selectedRegionId,
+    hoveredRegionId,
     activeRegion,
     universityCounts,
     scholarshipCounts,
@@ -175,6 +193,7 @@ const CountryGeographies = React.memo(function CountryGeographies({
     onCountrySelect,
 }: {
     selectedRegionId?: string | null;
+    hoveredRegionId?: string | null;
     activeRegion?: RegionConfig;
     universityCounts: Record<string, number>;
     scholarshipCounts: Record<string, number>;
@@ -194,11 +213,18 @@ const CountryGeographies = React.memo(function CountryGeographies({
 
                     const regionId = COUNTRY_TO_REGION.get(countryName?.toLowerCase());
                     const isInSelectedRegion = selectedRegionId && regionId === selectedRegionId;
+                    // True while the mouse is over this region's row in the filter list —
+                    // darkens the zone on the map so it's obvious which countries it covers.
+                    const isInHoveredRegion = Boolean(hoveredRegionId) && regionId === hoveredRegionId;
 
                     let fillColor = getBlueColorByData(unis);
 
                     if (selectedRegionId) {
                         fillColor = isInSelectedRegion && activeRegion ? activeRegion.hexColor : "#E5E7EB";
+                    }
+
+                    if (isInHoveredRegion) {
+                        fillColor = darkenColor(fillColor, 0.25);
                     }
 
                     return (
@@ -216,8 +242,8 @@ const CountryGeographies = React.memo(function CountryGeographies({
                             style={{
                                 default: {
                                     fill: fillColor,
-                                    stroke: isInSelectedRegion ? "#1E293B" : "#E2E8F0",
-                                    strokeWidth: isInSelectedRegion ? 1 : 0.5,
+                                    stroke: isInSelectedRegion || isInHoveredRegion ? "#1E293B" : "#E2E8F0",
+                                    strokeWidth: isInSelectedRegion || isInHoveredRegion ? 1 : 0.5,
                                     outline: "none",
                                     transition: "fill 200ms ease, stroke 200ms ease",
                                 },
@@ -244,7 +270,7 @@ const CountryGeographies = React.memo(function CountryGeographies({
     );
 });
 
-export default function WorldMap({ selectedRegionId }: WorldMapProps) {
+export default function WorldMap({ selectedRegionId, hoveredRegionId }: WorldMapProps) {
     const [hoveredCountry, setHoveredCountry] = useState<HoveredCountry | null>(null);
     const [stats, setStats] = useState<MapStats | null>(null);
     const [statsError, setStatsError] = useState(false);
@@ -402,6 +428,7 @@ export default function WorldMap({ selectedRegionId }: WorldMapProps) {
                 >
                     <CountryGeographies
                         selectedRegionId={selectedRegionId}
+                        hoveredRegionId={hoveredRegionId}
                         activeRegion={activeRegion}
                         universityCounts={stats?.universities ?? {}}
                         scholarshipCounts={stats?.scholarships ?? {}}

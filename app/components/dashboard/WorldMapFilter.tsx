@@ -6,11 +6,13 @@ import { REGIONS_DATA } from "./WorldMap";
 interface WorldMapFilterProps {
     selectedRegionId: string | null;
     onSelectRegion: (regionId: string | null) => void;
+    onHoverRegion?: (regionId: string | null) => void;
 }
 
 export default function WorldMapFilter({
     selectedRegionId,
     onSelectRegion,
+    onHoverRegion,
 }: WorldMapFilterProps) {
     const handleToggle = (id: string) => {
         onSelectRegion(selectedRegionId === id ? null : id);
@@ -31,9 +33,13 @@ export default function WorldMapFilter({
                             key={region.id}
                             type="button"
                             onClick={() => handleToggle(region.id)}
+                            onMouseEnter={() => onHoverRegion?.(region.id)}
+                            onMouseLeave={() => onHoverRegion?.(null)}
+                            onFocus={() => onHoverRegion?.(region.id)}
+                            onBlur={() => onHoverRegion?.(null)}
                             className={`flex w-full items-center gap-2 md:gap-3 rounded-xl px-3 py-2.5 text-left text-xs md:text-sm font-medium transition-all duration-200 ${isSelected
                                     ? "bg-slate-900 text-white shadow-md"
-                                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                                 }`}
                         >
                             <span
