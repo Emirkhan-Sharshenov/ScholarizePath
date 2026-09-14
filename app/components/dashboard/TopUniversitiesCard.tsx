@@ -107,7 +107,7 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
             if (!res.ok) throw new Error("Failed to fetch");
             const data = await res.json();
 
-            let list: University[] = Array.isArray(data)
+            const list: University[] = Array.isArray(data)
                 ? data
                 : Array.isArray((data as any).data)
                     ? (data as any).data
