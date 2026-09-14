@@ -96,26 +96,38 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                 }
             }
 
-            setPersonalized(Boolean(effectiveCountry));
             setFavoriteIds(new Set(favorites));
 
-            const url = effectiveCountry
-                ? `/api/universities?country=${encodeURIComponent(effectiveCountry)}&limit=24`
-                : `/api/universities?limit=24`;
+            const fetchPool = async (country?: string): Promise<University[]> => {
+                const url = country
+                    ? `/api/universities?country=${encodeURIComponent(country)}&limit=24`
+                    : `/api/universities?limit=24`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error("Failed to fetch");
+                const data = await res.json();
+                return Array.isArray(data)
+                    ? data
+                    : Array.isArray((data as any).data)
+                        ? (data as any).data
+                        : [];
+            };
 
-            const res = await fetch(url);
-            if (!res.ok) throw new Error("Failed to fetch");
-            const data = await res.json();
+            let list = await fetchPool(effectiveCountry);
+            let usedPersonalization = Boolean(effectiveCountry);
 
-            const list: University[] = Array.isArray(data)
-                ? data
-                : Array.isArray((data as any).data)
-                    ? (data as any).data
-                    : [];
+            // The preferred-country filter is a soft default, not a hard requirement —
+            // if it has no real matches (a country with few/no listed universities),
+            // fall back to the generic pool instead of showing an empty section. An
+            // explicitly-requested countryName (map selection) is respected as-is.
+            if (list.length === 0 && effectiveCountry && !countryName) {
+                list = await fetchPool(undefined);
+                usedPersonalization = false;
+            }
 
-            // Real results only — padding a short (e.g. country-filtered) list with the
-            // fallback universities below would show "View" links to IDs that don't
-            // exist in the database and land on a "university not found" page.
+            setPersonalized(usedPersonalization);
+            // Real results only — padding a short list with the fallback universities
+            // below would show "View" links to IDs that don't exist in the database
+            // and land on a "university not found" page.
             setUniversities(shuffle(list).slice(0, 8));
         } catch {
             setError(true);
