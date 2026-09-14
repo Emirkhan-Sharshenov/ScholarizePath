@@ -113,13 +113,10 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                     ? (data as any).data
                     : [];
 
-            list = shuffle(list);
-
-            if (list.length < 8) {
-                setUniversities([...list, ...shuffle(FALLBACK_UNIVERSITIES)].slice(0, 8));
-            } else {
-                setUniversities(list.slice(0, 8));
-            }
+            // Real results only — padding a short (e.g. country-filtered) list with the
+            // fallback universities below would show "View" links to IDs that don't
+            // exist in the database and land on a "university not found" page.
+            setUniversities(shuffle(list).slice(0, 8));
         } catch {
             setError(true);
             setUniversities(FALLBACK_UNIVERSITIES);
@@ -309,12 +306,16 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                                     <span className="rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-bold text-slate-500">
                                         {rankText} World
                                     </span>
-                                    <Link
-                                        href={`/universities/${uniId}`}
-                                        className="text-xs font-semibold text-slate-800 hover:text-blue-600 flex items-center gap-1 transition-colors"
-                                    >
-                                        View <span className="text-sm">→</span>
-                                    </Link>
+                                    {isFallback ? (
+                                        <span className="text-xs font-medium text-slate-300">Unavailable</span>
+                                    ) : (
+                                        <Link
+                                            href={`/universities/${uniId}`}
+                                            className="text-xs font-semibold text-slate-800 hover:text-blue-600 flex items-center gap-1 transition-colors"
+                                        >
+                                            View <span className="text-sm">→</span>
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
                         );
