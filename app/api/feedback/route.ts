@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Feedback from "@/models/Feedback";
+import { requireAdmin } from "@/lib/requireAdmin";
+import { AuthRequest } from "@/types/auth";
 
 export async function POST(request: Request) {
     try {
@@ -147,7 +149,12 @@ export async function POST(request: Request) {
     }
 }
 
-export async function GET() {
+export async function GET(request: AuthRequest) {
+    const auth = await requireAdmin(request);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+
     try {
         await connectDB();
 
@@ -175,7 +182,12 @@ export async function GET() {
     }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: AuthRequest) {
+    const auth = await requireAdmin(request);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+
     try {
         await connectDB();
 
