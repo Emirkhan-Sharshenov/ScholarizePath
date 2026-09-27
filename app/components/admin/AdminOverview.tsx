@@ -45,12 +45,12 @@ export default function AdminOverview() {
     }, []);
 
     return (
-        <div className="space-y-6 min-h-screen bg-[rgb(246,247,251)]">
+        <div className="space-y-5 md:space-y-6">
             {/* Stats */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
                 <StatCard
-                    title="Total Users"
-                    value={stats?.totalUsers ?? 0}
+                    title="Total users"
+                    value={stats ? stats.totalUsers : "—"}
                     loading={loading}
                     iconBg="bg-blue-50"
                     iconColor="text-blue-600"
@@ -60,7 +60,7 @@ export default function AdminOverview() {
 
                 <StatCard
                     title="Universities"
-                    value={stats?.totalUniversities ?? 0}
+                    value={stats ? stats.totalUniversities : "—"}
                     loading={loading}
                     iconBg="bg-emerald-50"
                     iconColor="text-emerald-600"
@@ -70,7 +70,7 @@ export default function AdminOverview() {
 
                 <StatCard
                     title="Scholarships"
-                    value={stats?.totalScholarships ?? 0}
+                    value={stats ? stats.totalScholarships : "—"}
                     loading={loading}
                     iconBg="bg-violet-50"
                     iconColor="text-violet-600"
@@ -79,8 +79,8 @@ export default function AdminOverview() {
                 </StatCard>
 
                 <StatCard
-                    title="Open Scholarships"
-                    value={stats?.openScholarships ?? 0}
+                    title="Open scholarships"
+                    value={stats ? stats.openScholarships : "—"}
                     loading={loading}
                     iconBg="bg-amber-50"
                     iconColor="text-amber-600"
@@ -89,13 +89,14 @@ export default function AdminOverview() {
                 </StatCard>
             </div>
 
-            {/* User Growth */}
-            <div className="lg:col-span-2">
-                <UserGrowthChart />
+            <div className="grid grid-cols-1 gap-5 md:gap-6 lg:grid-cols-12">
+                <div className="lg:col-span-8">
+                    <UserGrowthChart />
+                </div>
+                <div className="lg:col-span-4">
+                    <RecentActivities />
+                </div>
             </div>
-
-            {/* Recent Activities */}
-            <RecentActivities />
 
             {/* Feedback */}
             <AdminFeedback />

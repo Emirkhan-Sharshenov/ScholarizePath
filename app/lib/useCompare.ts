@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 export function useCompare() {
     const [compareList, setCompareList] = useState<any[]>([]);
     const [scholarshipCompareList, setScholarshipCompareList] = useState<any[]>([]);
+    // False until localStorage has been read, so pages don't flash an empty state.
+    const [ready, setReady] = useState(false);
 
   
     useEffect(() => {
@@ -27,6 +29,7 @@ export function useCompare() {
                 console.error("Failed to parse scholarship compare storage", e);
             }
         }
+        setReady(true);
     }, []);
 
    
@@ -87,8 +90,20 @@ export function useCompare() {
         });
     };
 
+    const clearCompare = (type: "university" | "scholarship") => {
+        if (type === "university") {
+            setCompareList([]);
+            localStorage.removeItem("compare_universities");
+        } else {
+            setScholarshipCompareList([]);
+            localStorage.removeItem("compare_scholarships");
+        }
+    };
+
     return {
-   
+        ready,
+        clearCompare,
+
         compareList,
         addToCompare,
         removeFromCompare,

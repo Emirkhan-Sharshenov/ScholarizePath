@@ -1,176 +1,74 @@
 "use client";
 
-import React, { useState, useRef, useCallback, useMemo, useEffect } from "react";
-import { ComposableMap, Geographies, Geography } from "react-simple-maps";
+import React, { useState, useRef, useCallback, useMemo, useEffect, useLayoutEffect } from "react";
+import MapGL, { Layer, NavigationControl, Source, type MapEvent, type MapLayerMouseEvent, type MapRef } from "react-map-gl/maplibre";
+import type { ExpressionSpecification, StyleSpecification } from "maplibre-gl";
+import { feature as topojsonFeature } from "topojson-client";
+import type { GeometryCollection, Topology } from "topojson-specification";
+import type { Feature, FeatureCollection, Geometry, Position } from "geojson";
 import { Building2, Award } from "lucide-react";
+import "maplibre-gl/dist/maplibre-gl.css";
+import {
+    CHOROPLETH_STEPS,
+    COUNTRY_TO_REGION,
+    REGIONS_DATA,
+    remapToTopojsonNames,
+    type MapStats,
+} from "./mapData";
 
 
 // Self-hosted instead of fetched from jsdelivr on every visitor's first load —
 // removes a third-party runtime dependency (and its latency/outage risk) from
 // the dashboard's critical path. Source: world-atlas@2 countries-50m.
 const geoUrl = "/data/countries-50m.json";
-const PROJECTION_CONFIG = { scale: 145 };
 
-// The DB stores plain country names that mostly match world-atlas's
-// `properties.name`, except for these two — checked directly against the
-// topojson file rather than guessed.
-const DB_TO_TOPOJSON_NAME: Record<string, string> = {
-    "United States": "United States of America",
-    "Czech Republic": "Czechia",
+// Camera targets for each region in the filter list. Hardcoded instead of
+// computed from the countries' geometry: Europe includes Russia, whose bbox
+// would otherwise stretch the view across half the planet.
+const REGION_BOUNDS: Record<string, [[number, number], [number, number]]> = {
+    "north-america": [[-168, 7], [-52, 72]],
+    "south-america": [[-92, -56], [-32, 13]],
+    europe: [[-25, 34], [45, 71]],
+    asia: [[25, -11], [150, 55]],
+    africa: [[-20, -36], [55, 38]],
+    australia: [[110, -48], [180, 0]],
 };
 
-export interface RegionConfig {
-    id: string;
-    label: string;
-    color: string;
-    hexColor: string;
-    countries: string[];
-}
+const WORLD_BOUNDS: [[number, number], [number, number]] = [[-168, -56], [180, 78]];
 
-export const REGIONS_DATA: RegionConfig[] = [
-    {
-        id: "north-america",
-        label: "North America",
-        color: "bg-blue-600",
-        hexColor: "#2563EB",
-        countries: [
-            "Canada", "United States of America", "United States", "USA", "Mexico",
-            "Guatemala", "Belize", "El Salvador", "Honduras", "Nicaragua", "Costa Rica", "Panama",
-            "Cuba", "Jamaica", "Haiti", "Dominican Rep.", "Dominican Republic", "Bahamas",
-            "Trinidad and Tobago", "Barbados", "Saint Lucia", "St. Vincent and the Grenadines",
-            "Grenada", "Antigua and Barbuda", "Dominica", "Saint Kitts and Nevis",
-            "Puerto Rico", "Greenland"
-        ],
-    },
-    {
-        id: "south-america",
-        label: "South America",
-        color: "bg-amber-400",
-        hexColor: "#FBBF24",
-        countries: [
-            "Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Ecuador",
-            "Guyana", "Paraguay", "Peru", "Suriname", "Uruguay", "Venezuela",
-            "Falkland Is.", "French Guiana"
-        ],
-    },
-    {
-        id: "europe",
-        label: "Europe",
-        color: "bg-indigo-500",
-        hexColor: "#6366F1",
-        countries: [
-            "Albania", "Andorra", "Austria", "Belarus", "Belgium", "Bosnia and Herz.", "Bosnia and Herzegovina",
-            "Bulgaria", "Croatia", "Cyprus", "Czechia", "Czech Republic", "Denmark", "Estonia",
-            "Finland", "France", "Georgia", "Germany", "Greece", "Hungary", "Iceland",
-            "Ireland", "Italy", "Kosovo", "Latvia", "Liechtenstein", "Lithuania", "Luxembourg",
-            "Moldova", "Monaco", "Montenegro", "Netherlands", "North Macedonia", "Macedonia",
-            "Norway", "Poland", "Portugal", "Romania", "Russia", "Russian Federation", "San Marino",
-            "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Turkey", "Turkiye",
-            "Ukraine", "United Kingdom", "UK"
-        ],
-    },
-    {
-        id: "asia",
-        label: "Asia",
-        color: "bg-sky-400",
-        hexColor: "#38BDF8",
-        countries: [
-            "Afghanistan", "Armenia", "Azerbaijan", "Bahrain", "Bangladesh", "Bhutan", "Brunei",
-            "Cambodia", "China", "Hong Kong", "India", "Indonesia", "Iran", "Iraq", "Israel",
-            "Japan", "Jordan", "Kazakhstan", "Kuwait", "Kyrgyzstan", "Laos", "Lebanon",
-            "Malaysia", "Maldives", "Mongolia", "Myanmar", "Nepal", "North Korea", "Dem. Rep. Korea",
-            "Oman", "Pakistan", "Palestine", "Philippines", "Qatar", "Saudi Arabia", "Singapore",
-            "South Korea", "Korea, Republic of", "Sri Lanka", "Syria", "Taiwan", "Tajikistan",
-            "Thailand", "Timor-Leste", "Turkmenistan", "United Arab Emirates", "UAE", "OAE", "Uzbekistan",
-            "Vietnam", "Yemen"
-        ],
-    },
-    {
-        id: "africa",
-        label: "Africa",
-        color: "bg-pink-400",
-        hexColor: "#F472B6",
-        countries: [
-            "Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cabo Verde",
-            "Cameroon", "Central African Rep.", "Central African Republic", "Chad", "Comoros",
-            "Congo", "Dem. Rep. Congo", "Democratic Republic of the Congo", "Djibouti", "Egypt",
-            "Eq. Guinea", "Equatorial Guinea", "Eritrea", "Eswatini", "Ethiopia", "Gabon",
-            "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Ivory Coast", "Cote d'Ivoire",
-            "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi", "Mali", "Mauritania",
-            "Mauritius", "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria", "Rwanda",
-            "S. Sudan", "South Sudan", "Sao Tome and Principe", "Senegal", "Seychelles",
-            "Sierra Leone", "Somalia", "Somaliland", "South Africa", "Sudan", "Tanzania",
-            "Togo", "Tunisia", "Uganda", "Zambia", "Zimbabwe", "W. Sahara"
-        ],
-    },
-    {
-        id: "australia",
-        label: "Australia & Oceania",
-        color: "bg-emerald-400",
-        hexColor: "#34D399",
-        countries: [
-            "Australia", "Fiji", "Kiribati", "Marshall Is.", "Micronesia", "Nauru",
-            "New Zealand", "Palau", "Papua New Guinea", "Samoa", "Solomon Is.",
-            "Tonga", "Tuvalu", "Vanuatu", "New Caledonia"
-        ],
-    },
+// No basemap tiles — just the self-hosted country polygons on a plain
+// background, so the map keeps the site's flat blue look and needs no API key.
+const MAP_STYLE: StyleSpecification = {
+    version: 8,
+    sources: {},
+    layers: [{ id: "background", type: "background", paint: { "background-color": "#F8FAFD" } }],
+};
+
+// The same thresholds as CHOROPLETH_STEPS, as a MapLibre `step` expression.
+const CHOROPLETH_FILL: ExpressionSpecification = [
+    "step",
+    ["get", "unis"],
+    CHOROPLETH_STEPS[0].color,
+    1, CHOROPLETH_STEPS[1].color,
+    26, CHOROPLETH_STEPS[2].color,
+    46, CHOROPLETH_STEPS[3].color,
+    66, CHOROPLETH_STEPS[4].color,
+    81, CHOROPLETH_STEPS[5].color,
 ];
 
-interface MapStats {
-    universities: Record<string, number>;
-    scholarships: Record<string, number>;
+const HOVER_FILL = "#0058BD";
+const SELECTED_FILL = "#F5A524";
+const NEUTRAL_FILL = "#E5E7EB";
+
+interface CountryProperties {
+    name: string;
+    unis: number;
+    scholarships: number;
+    regionId: string;
+    hasData: boolean;
 }
 
-function remapToTopojsonNames(counts: Record<string, number>): Record<string, number> {
-    const remapped: Record<string, number> = {};
-    for (const [country, count] of Object.entries(counts)) {
-        remapped[DB_TO_TOPOJSON_NAME[country] || country] = count;
-    }
-    return remapped;
-}
-
-const COUNTRY_TO_REGION = new Map<string, string>();
-REGIONS_DATA.forEach((region) => {
-    region.countries.forEach((country) => {
-        COUNTRY_TO_REGION.set(country.toLowerCase(), region.id);
-    });
-});
-
-const CHOROPLETH_STEPS: { max: number | null; color: string; label: string }[] = [
-    { max: 0, color: "#E7EDF6", label: "No data" },
-    { max: 25, color: "#BFDBFE", label: "1–25" },
-    { max: 45, color: "#60A5FA", label: "26–45" },
-    { max: 65, color: "#3B82F6", label: "46–65" },
-    { max: 80, color: "#1D4ED8", label: "66–80" },
-    { max: null, color: "#1E3A8A", label: "80+" },
-];
-
-// Darkens a "#rrggbb" color by `amount` (0-1) — used to preview which zone
-// the mouse is over in the region filter list, layered on top of whatever
-// fill a country already has (choropleth shade, selected, or neutral).
-function darkenColor(hex: string, amount: number): string {
-    const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    if (!match) return hex;
-
-    const [, r, g, b] = match;
-    const scale = (channel: string) => Math.round(parseInt(channel, 16) * (1 - amount));
-
-    return `#${[r, g, b]
-        .map(scale)
-        .map((v) => v.toString(16).padStart(2, "0"))
-        .join("")}`;
-}
-
-function getBlueColorByData(unis: number): string {
-    if (unis === 0) return CHOROPLETH_STEPS[0].color;
-    if (unis <= 25) return CHOROPLETH_STEPS[1].color;
-    if (unis <= 45) return CHOROPLETH_STEPS[2].color;
-    if (unis <= 65) return CHOROPLETH_STEPS[3].color;
-    if (unis <= 80) return CHOROPLETH_STEPS[4].color;
-    return CHOROPLETH_STEPS[5].color;
-}
-
-interface HoveredCountry {
+export interface MapCountry {
     name: string;
     unis: number;
     scholarships: number;
@@ -179,112 +77,82 @@ interface HoveredCountry {
 interface WorldMapProps {
     selectedRegionId?: string | null;
     hoveredRegionId?: string | null;
+    selectedCountryName?: string | null;
+    onSelectCountry?: (country: MapCountry | null) => void;
+    /** Total universities across all countries, once the live counts load. */
+    onTotalChange?: (total: number) => void;
 }
 
+// Rings that cross the antimeridian (Russia's Chukotka, Fiji) jump from +180
+// to -180 and MapLibre draws them as a band across the whole map. Shift the
+// western half by +360° so the shape stays in one piece east of 180°.
+function unwrapAntimeridian(geometry: Geometry): Geometry {
+    const fixRing = (ring: Position[]): Position[] => {
+        const lons = ring.map((p) => p[0]);
+        if (Math.max(...lons) - Math.min(...lons) <= 180) return ring;
+        return ring.map(([lon, lat]) => [lon < 0 ? lon + 360 : lon, lat]);
+    };
 
-const CountryGeographies = React.memo(function CountryGeographies({
+    if (geometry.type === "Polygon") {
+        return { ...geometry, coordinates: geometry.coordinates.map(fixRing) };
+    }
+    if (geometry.type === "MultiPolygon") {
+        return { ...geometry, coordinates: geometry.coordinates.map((polygon) => polygon.map(fixRing)) };
+    }
+    return geometry;
+}
+
+// Loads the world-atlas TopoJSON once and converts it to the GeoJSON MapLibre
+// expects. Antarctica is dropped: on a Mercator map it becomes a huge band
+// along the bottom with no universities in it.
+function useCountryShapes() {
+    const [shapes, setShapes] = useState<Feature<Geometry, { name: string }>[] | null>(null);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        fetch(geoUrl)
+            .then((res) => res.json())
+            .then((topology: Topology) => {
+                if (cancelled) return;
+                const collection = topojsonFeature(
+                    topology,
+                    topology.objects.countries as GeometryCollection<{ name: string }>
+                );
+                setShapes(
+                    collection.features
+                        .filter((f) => f.properties.name !== "Antarctica")
+                        .map((f) => ({ ...f, geometry: unwrapAntimeridian(f.geometry) }))
+                );
+            })
+            .catch((err) => console.error("Failed to load country shapes:", err));
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    return shapes;
+}
+
+export default function WorldMap({
     selectedRegionId,
     hoveredRegionId,
-    activeRegion,
-    universityCounts,
-    scholarshipCounts,
-    onCountryEnter,
-    onCountryLeave,
-    onCountrySelect,
-}: {
-    selectedRegionId?: string | null;
-    hoveredRegionId?: string | null;
-    activeRegion?: RegionConfig;
-    universityCounts: Record<string, number>;
-    scholarshipCounts: Record<string, number>;
-    onCountryEnter: (name: string, unis: number, scholarships: number) => void;
-    onCountryLeave: () => void;
-    onCountrySelect: (e: React.MouseEvent, name: string, unis: number, scholarships: number) => void;
-}) {
-    return (
-        <Geographies geography={geoUrl}>
-            {({ geographies }: { geographies: any[] }) =>
-                geographies.map((geo: any) => {
-                    const countryName = geo.properties.name as string;
-
-                    const unis = universityCounts[countryName] || 0;
-                    const scholarships = scholarshipCounts[countryName] || 0;
-                    const hasData = unis > 0 || scholarships > 0;
-
-                    const regionId = COUNTRY_TO_REGION.get(countryName?.toLowerCase());
-                    const isInSelectedRegion = selectedRegionId && regionId === selectedRegionId;
-                    // True while the mouse is over this region's row in the filter list —
-                    // darkens the zone on the map so it's obvious which countries it covers.
-                    const isInHoveredRegion = Boolean(hoveredRegionId) && regionId === hoveredRegionId;
-
-                    let fillColor = getBlueColorByData(unis);
-
-                    if (selectedRegionId) {
-                        fillColor = isInSelectedRegion && activeRegion ? activeRegion.hexColor : "#E5E7EB";
-                    }
-
-                    if (isInHoveredRegion) {
-                        fillColor = darkenColor(fillColor, 0.25);
-                    }
-
-                    return (
-                        <Geography
-                            key={geo.rsmKey}
-                            geography={geo}
-                            onMouseEnter={() => {
-                                if (hasData) onCountryEnter(countryName, unis, scholarships);
-                            }}
-                            onMouseLeave={onCountryLeave}
-                            onClick={(e: React.MouseEvent) => {
-                                if (!hasData) return;
-                                onCountrySelect(e, countryName, unis, scholarships);
-                            }}
-                            style={{
-                                default: {
-                                    fill: fillColor,
-                                    stroke: isInSelectedRegion || isInHoveredRegion ? "#1E293B" : "#E2E8F0",
-                                    strokeWidth: isInSelectedRegion || isInHoveredRegion ? 1 : 0.5,
-                                    outline: "none",
-                                    transition: "fill 200ms ease, stroke 200ms ease",
-                                },
-                                hover: {
-                                    fill: selectedRegionId
-                                        ? (isInSelectedRegion && activeRegion ? activeRegion.hexColor : "#CBD5E1")
-                                        : (hasData ? "#0058BD" : "#CBD5E1"),
-                                    stroke: "#0F172A",
-                                    strokeWidth: 1,
-                                    outline: "none",
-                                    cursor: hasData ? "pointer" : "default",
-                                    transition: "fill 150ms ease, stroke 150ms ease",
-                                },
-                                pressed: {
-                                    fill: fillColor,
-                                    outline: "none",
-                                },
-                            }}
-                        />
-                    );
-                })
-            }
-        </Geographies>
-    );
-});
-
-export default function WorldMap({ selectedRegionId, hoveredRegionId }: WorldMapProps) {
-    const [hoveredCountry, setHoveredCountry] = useState<HoveredCountry | null>(null);
+    selectedCountryName,
+    onSelectCountry,
+    onTotalChange,
+}: WorldMapProps) {
+    const [hoveredCountry, setHoveredCountry] = useState<MapCountry | null>(null);
+    const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
     const [stats, setStats] = useState<MapStats | null>(null);
     const [statsError, setStatsError] = useState(false);
     const [retryKey, setRetryKey] = useState(0);
-    // Пока true, карточка "закреплена" тапом/кликом и игнорирует onMouseLeave —
-    // без этого мобильные браузеры шлют фантомный mouseleave сразу после клика,
-    // и карточка гасла бы мгновенно.
-    const isPinnedRef = useRef(false);
 
+    const mapRef = useRef<MapRef>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
-    const rectRef = useRef<DOMRect | null>(null);
-    const rafId = useRef<number | null>(null);
-    const pendingPos = useRef<{ x: number; y: number } | null>(null);
+
+    const shapes = useCountryShapes();
 
     const activeRegion = useMemo(
         () => REGIONS_DATA.find((r) => r.id === selectedRegionId),
@@ -293,7 +161,6 @@ export default function WorldMap({ selectedRegionId, hoveredRegionId }: WorldMap
 
     useEffect(() => {
         let cancelled = false;
-        setStatsError(false);
 
         fetch("/api/dashboard/map-stats")
             .then((res) => {
@@ -302,6 +169,7 @@ export default function WorldMap({ selectedRegionId, hoveredRegionId }: WorldMap
             })
             .then((data: MapStats) => {
                 if (cancelled) return;
+                onTotalChange?.(Object.values(data.universities).reduce((sum, n) => sum + n, 0));
                 setStats({
                     universities: remapToTopojsonNames(data.universities),
                     scholarships: remapToTopojsonNames(data.scholarships),
@@ -316,131 +184,218 @@ export default function WorldMap({ selectedRegionId, hoveredRegionId }: WorldMap
         return () => {
             cancelled = true;
         };
+        // onTotalChange is a notification callback; re-fetching when its identity
+        // changes would be wasteful.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [retryKey]);
 
-    const refreshRect = useCallback(() => {
-        if (containerRef.current) {
-            rectRef.current = containerRef.current.getBoundingClientRect();
-        }
-    }, []);
+    // Country polygons with the per-country counts baked into their properties,
+    // so the fill color can be computed by MapLibre on the GPU.
+    const countries = useMemo<FeatureCollection<Geometry, CountryProperties> | null>(() => {
+        if (!shapes) return null;
 
-    useEffect(() => {
-        refreshRect();
-        window.addEventListener("resize", refreshRect);
-        window.addEventListener("scroll", refreshRect, true);
+        return {
+            type: "FeatureCollection",
+            features: shapes.map((shape, index) => {
+                const name = shape.properties.name;
+                const unis = stats?.universities[name] ?? 0;
+                const scholarships = stats?.scholarships[name] ?? 0;
 
-        // Ловим изменения размеров контейнера (смена ориентации телефона,
-        // адаптивные брейкпоинты, появление/исчезновение сайдбара и т.п.)
-        let resizeObserver: ResizeObserver | null = null;
-        if (containerRef.current && typeof ResizeObserver !== "undefined") {
-            resizeObserver = new ResizeObserver(() => refreshRect());
-            resizeObserver.observe(containerRef.current);
-        }
-
-        return () => {
-            window.removeEventListener("resize", refreshRect);
-            window.removeEventListener("scroll", refreshRect, true);
-            if (rafId.current != null) cancelAnimationFrame(rafId.current);
-            resizeObserver?.disconnect();
+                return {
+                    ...shape,
+                    id: index,
+                    properties: {
+                        name,
+                        unis,
+                        scholarships,
+                        regionId: COUNTRY_TO_REGION.get(name.toLowerCase()) ?? "",
+                        hasData: unis > 0 || scholarships > 0,
+                    },
+                };
+            }),
         };
-    }, [refreshRect]);
+    }, [shapes, stats]);
 
-    const flushPosition = useCallback(() => {
-        rafId.current = null;
-        const pos = pendingPos.current;
-        const rect = rectRef.current;
+    const fillColor = useMemo<ExpressionSpecification>(() => {
+        const baseColor: ExpressionSpecification | string = activeRegion
+            ? ["case", ["==", ["get", "regionId"], activeRegion.id], activeRegion.hexColor, NEUTRAL_FILL]
+            : CHOROPLETH_FILL;
+        const hoverColor: ExpressionSpecification | string = activeRegion
+            ? ["case", ["==", ["get", "regionId"], activeRegion.id], activeRegion.hexColor, "#CBD5E1"]
+            : ["case", ["get", "hasData"], HOVER_FILL, "#CBD5E1"];
+
+        return [
+            "case",
+            ["==", ["get", "name"], selectedCountryName ?? "__none__"], SELECTED_FILL,
+            ["boolean", ["feature-state", "hover"], false], hoverColor,
+            baseColor,
+        ];
+    }, [activeRegion, selectedCountryName]);
+
+    // Fly to the region picked in the filter list, or back out to the whole world.
+    useEffect(() => {
+        const map = mapRef.current;
+        if (!map) return;
+
+        const bounds = selectedRegionId ? REGION_BOUNDS[selectedRegionId] : WORLD_BOUNDS;
+        if (bounds) map.fitBounds(bounds, { padding: 24, duration: 900 });
+    }, [selectedRegionId]);
+
+    // Keeps the tooltip inside the map card — flips to the other side of the
+    // cursor near the right/bottom edges.
+    useLayoutEffect(() => {
         const tooltipEl = tooltipRef.current;
-        if (pos && rect && tooltipEl) {
-            // Реальные размеры подсказки — точнее хардкода, особенно на узких экранах
-            const tw = tooltipEl.offsetWidth || 150;
-            const th = tooltipEl.offsetHeight || 60;
+        const container = containerRef.current;
+        if (!tooltipEl || !container || !tooltipPos) return;
 
-            let localX = pos.x - rect.left + 15;
-            let localY = pos.y - rect.top - 15;
+        const tw = tooltipEl.offsetWidth;
+        const th = tooltipEl.offsetHeight;
+        const { width, height } = container.getBoundingClientRect();
 
-            const maxX = rect.width - tw - 8;
-            const maxY = rect.height - th - 8;
+        let x = tooltipPos.x + 15;
+        let y = tooltipPos.y - 15;
+        if (x > width - tw - 8) x = tooltipPos.x - tw - 15;
+        if (x < 8) x = 8;
+        if (y < 8) y = tooltipPos.y + 15;
+        if (y > height - th - 8) y = height - th - 8;
 
-            if (localX > maxX) localX = pos.x - rect.left - tw - 15;
-            if (localX < 8) localX = 8;
-            if (localY < 8) localY = pos.y - rect.top + 15;
-            if (localY > maxY) localY = maxY;
+        tooltipEl.style.transform = `translate(${x}px, ${y}px)`;
+    }, [tooltipPos, hoveredCountry]);
 
-            tooltipEl.style.transform = `translate(${localX}px, ${localY}px)`;
-        }
+    // Hover highlight lives in MapLibre's feature-state (no React re-render per
+    // mouse move); the ref remembers which country to un-highlight next.
+    const hoveredFeatureIdRef = useRef<number | null>(null);
+    const setHoverState = useCallback((id: number | null) => {
+        const map = mapRef.current;
+        const prev = hoveredFeatureIdRef.current;
+        if (prev === id) return;
+        if (map && prev !== null) map.setFeatureState({ source: "countries", id: prev }, { hover: false });
+        if (map && id !== null) map.setFeatureState({ source: "countries", id }, { hover: true });
+        hoveredFeatureIdRef.current = id;
     }, []);
 
-    const handleMouseMove = useCallback((e: React.MouseEvent) => {
-        pendingPos.current = { x: e.clientX, y: e.clientY };
-        if (rafId.current == null) {
-            rafId.current = requestAnimationFrame(flushPosition);
+    // "__none__" never matches a real region, so nothing gets outlined/darkened.
+    const outlinedRegionId = selectedRegionId ?? hoveredRegionId ?? "__none__";
+
+    const handleMouseMove = useCallback((e: MapLayerMouseEvent) => {
+        const feature = e.features?.[0];
+        const props = feature?.properties as CountryProperties | undefined;
+
+        setHoverState(typeof feature?.id === "number" ? feature.id : null);
+
+        if (props?.hasData) {
+            setHoveredCountry({ name: props.name, unis: props.unis, scholarships: props.scholarships });
+            setTooltipPos({ x: e.point.x, y: e.point.y });
+        } else {
+            setHoveredCountry(null);
         }
-    }, [flushPosition]);
+    }, [setHoverState]);
 
-    const handleCountryEnter = useCallback((name: string, unis: number, scholarships: number) => {
-        if (isPinnedRef.current) return; // карточка закреплена кликом — hover её не трогает
-        refreshRect(); // cheap safety net in case layout shifted since last cache
-        setHoveredCountry({ name, unis, scholarships });
-    }, [refreshRect]);
-
-    const handleCountryLeave = useCallback(() => {
-        if (isPinnedRef.current) return; // игнорируем hover-уход, пока карточка закреплена
+    const handleMouseLeave = useCallback(() => {
+        setHoverState(null);
         setHoveredCountry(null);
+    }, [setHoverState]);
+
+    // Клик/тап по стране открывает её панель, по пустому месту (океан) — закрывает.
+    const handleClick = useCallback((e: MapLayerMouseEvent) => {
+        const props = e.features?.[0]?.properties as CountryProperties | undefined;
+        onSelectCountry?.(
+            props?.hasData ? { name: props.name, unis: props.unis, scholarships: props.scholarships } : null
+        );
+    }, [onSelectCountry]);
+
+    // Don't let users zoom out past the fitted world view — there's nothing
+    // but empty background beyond it.
+    const [minZoom, setMinZoom] = useState(-2);
+    const handleLoad = useCallback((e: MapEvent) => {
+        setMinZoom(Math.max(-2, e.target.getZoom() - 0.25));
     }, []);
 
-    // Тап по стране: показывает карточку и она остаётся на экране,
-    // пока не тапнешь в другое место. stopPropagation — чтобы этот же тап
-    // не долетел до контейнера и не закрыл карточку сразу же.
-    const handleCountrySelect = useCallback((e: React.MouseEvent, name: string, unis: number, scholarships: number) => {
-        e.stopPropagation();
-        isPinnedRef.current = true;
-        refreshRect();
-        pendingPos.current = { x: e.clientX, y: e.clientY };
-        if (rafId.current == null) {
-            rafId.current = requestAnimationFrame(flushPosition);
-        }
-        setHoveredCountry({ name, unis, scholarships });
-    }, [flushPosition, refreshRect]);
-
-    // Тап по пустому месту (океан/фон) — закрывает карточку и снимает закрепление
-    const handleContainerClick = useCallback(() => {
-        isPinnedRef.current = false;
-        setHoveredCountry(null);
-    }, []);
+    const hoveredCountryHasData = hoveredCountry !== null;
 
     return (
-        <div className="relative w-full h-full rounded-2xl border border-slate-100 bg-white p-2.5 shadow-sm sm:rounded-3xl sm:p-4">
+        <div className="relative w-full h-full">
             <div
                 ref={containerRef}
-                onMouseMove={handleMouseMove}
-                onClick={handleContainerClick}
-                className="relative w-full aspect-[8/5] max-h-[520px] min-h-[220px] overflow-hidden rounded-xl touch-pan-y"
+                className="relative w-full h-full min-h-[220px] overflow-hidden rounded-2xl bg-[#F8FAFD]"
             >
-                <ComposableMap
-                    projectionConfig={PROJECTION_CONFIG}
-                    width={800}
-                    height={500}
-                    className="w-full h-full"
+                <MapGL
+                    ref={mapRef}
+                    initialViewState={{ bounds: WORLD_BOUNDS, fitBoundsOptions: { padding: 8 } }}
+                    mapStyle={MAP_STYLE}
+                    style={{ width: "100%", height: "100%" }}
+                    renderWorldCopies={false}
+                    attributionControl={false}
+                    dragRotate={false}
+                    pitchWithRotate={false}
+                    touchPitch={false}
+                    // Scrolling the page over the map shouldn't hijack it: zoom with
+                    // Ctrl/⌘ + scroll, two fingers on touch, or the +/− buttons.
+                    cooperativeGestures
+                    // Starts below zoom 0 so the whole world still fits a narrow phone
+                    // card (at zoom 0 the world is 512px wide); tightened on load.
+                    minZoom={minZoom}
+                    maxZoom={6}
+                    interactiveLayerIds={["country-fill"]}
+                    cursor={hoveredCountryHasData ? "pointer" : "grab"}
+                    onLoad={handleLoad}
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={handleMouseLeave}
+                    onClick={handleClick}
                 >
-                    <CountryGeographies
-                        selectedRegionId={selectedRegionId}
-                        hoveredRegionId={hoveredRegionId}
-                        activeRegion={activeRegion}
-                        universityCounts={stats?.universities ?? {}}
-                        scholarshipCounts={stats?.scholarships ?? {}}
-                        onCountryEnter={handleCountryEnter}
-                        onCountryLeave={handleCountryLeave}
-                        onCountrySelect={handleCountrySelect}
-                    />
-                </ComposableMap>
+                    <NavigationControl position="top-right" showCompass={false} />
+
+                    {countries && (
+                        <Source id="countries" type="geojson" data={countries}>
+                            <Layer
+                                id="country-fill"
+                                type="fill"
+                                paint={{ "fill-color": fillColor, "fill-color-transition": { duration: 200 } }}
+                            />
+                            {/* Darkens the zone while its row in the filter list is hovered,
+                                so it's obvious which countries it covers. */}
+                            <Layer
+                                id="region-preview"
+                                type="fill"
+                                filter={["==", ["get", "regionId"], hoveredRegionId ?? "__none__"]}
+                                paint={{ "fill-color": "#0F172A", "fill-opacity": 0.18 }}
+                            />
+                            <Layer
+                                id="country-border"
+                                type="line"
+                                paint={{ "line-color": "#FFFFFF", "line-width": 0.6 }}
+                            />
+                            <Layer
+                                id="country-outline-selected"
+                                type="line"
+                                filter={["==", ["get", "name"], selectedCountryName ?? "__none__"]}
+                                paint={{ "line-color": "#0A1A3F", "line-width": 1.5 }}
+                            />
+                            <Layer
+                                id="country-outline-active"
+                                type="line"
+                                paint={{
+                                    "line-color": "#1E293B",
+                                    "line-width": 1,
+                                    "line-opacity": [
+                                        "case",
+                                        ["boolean", ["feature-state", "hover"], false], 1,
+                                        ["==", ["get", "regionId"], outlinedRegionId], 1,
+                                        0,
+                                    ],
+                                }}
+                            />
+                        </Source>
+                    )}
+                </MapGL>
 
                 {statsError && (
-                    <div className="absolute top-2 left-2 right-2 z-40 flex items-center justify-between gap-3 rounded-lg bg-white/95 px-3 py-2 text-xs text-slate-600 shadow sm:text-sm">
+                    <div className="absolute top-2 left-2 right-14 z-40 flex items-center justify-between gap-3 rounded-lg bg-white/95 px-3 py-2 text-xs text-slate-600 shadow sm:text-sm">
                         <span>Couldn&apos;t load live university/scholarship counts.</span>
                         <button
                             type="button"
-                            onClick={(e) => {
-                                e.stopPropagation();
+                            onClick={() => {
+                                setStatsError(false);
                                 setRetryKey((k) => k + 1);
                             }}
                             className="shrink-0 font-semibold text-brand hover:underline cursor-pointer"
@@ -480,7 +435,7 @@ export default function WorldMap({ selectedRegionId, hoveredRegionId }: WorldMap
                             pointerEvents: "none",
                             willChange: "transform",
                         }}
-                        className="max-w-[170px] rounded-2xl border border-slate-100 bg-white/95 p-3 text-[11px] shadow-xl backdrop-blur-sm sm:max-w-none sm:text-xs"
+                        className="max-w-[170px] rounded-2xl border border-slate-100 bg-white/95 p-3 text-[11px] shadow-xl backdrop-blur-sm pointer-coarse:hidden sm:max-w-none sm:text-xs"
                     >
                         <div className="mb-1.5 font-bold text-slate-900">
                             {hoveredCountry.name}

@@ -32,9 +32,12 @@ function writeList(list: UniListItem[]) {
 
 export function useUniList() {
     const [list, setList] = useState<UniListItem[]>([]);
+    // False until localStorage has been read, so pages don't flash an empty state.
+    const [ready, setReady] = useState(false);
 
     useEffect(() => {
         setList(readList());
+        setReady(true);
         const handler = () => setList(readList());
         window.addEventListener(EVENT_NAME, handler);
         window.addEventListener("storage", handler);
@@ -79,6 +82,7 @@ export function useUniList() {
     }, []);
 
     return {
+        ready,
         list,
         universities: list.filter((i) => i.type === "university"),
         scholarships: list.filter((i) => i.type === "scholarship"),

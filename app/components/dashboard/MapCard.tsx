@@ -5,22 +5,21 @@ import TopUniversitiesCard from "./TopUniversitiesCard";
 
 export default function MapCard() {
     return (
-        <main className="w-full px-4 sm:px-6 md:px-10 pb-12">
-            <div className="pt-4 md:pt-6">
-                <h1 className="text-lg md:text-[20px] font-bold text-slate-900">
+        <main className="w-full px-4 pb-12 font-body sm:px-6 md:px-10">
+            <div className="pt-5 md:pt-8">
+                <h1 className="font-display text-2xl font-bold tracking-tight text-ink md:text-4xl">
                     Explore the World
                 </h1>
-
-                <h2 className="text-xs md:text-sm text-gray-500 mt-0.5">
-                    Discover top universities across the globe
-                </h2>
+                <p className="mt-1.5 text-sm text-slate-500 md:text-base">
+                    Discover top universities and scholarships across the globe
+                </p>
             </div>
 
-            <div className="mt-4 md:mt-6 h-auto md:h-[70vh]">
+            <div className="mt-5 md:mt-7">
                 <MapFilter />
             </div>
 
-            <div className="mt-10">
+            <div className="mt-10 md:mt-14">
                 <TopUniversitiesCard />
             </div>
         </main>

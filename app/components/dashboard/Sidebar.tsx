@@ -2,64 +2,62 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
-import { Home, GraduationCap, University, Bot, Scale, BookOpen, Heart, SquareText, LogOut, Loader2, Flag, ClipboardList, Calculator, HeartHandshake } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Loader2, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useSidebar } from "./SidebarContext";
+import {
+  NAV_ITEMS,
+  isNavItemActive,
+  useCurrentUser,
+  useLogout,
+  userDisplayName,
+  userInitials,
+  type NavItem,
+} from "./navigation";
 
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: Home },
-  { href: "/scholarships", label: "Scholarships", icon: GraduationCap },
-  { href: "/universities", label: "University", icon: University },
-  { href: "/aibot", label: "AI Bot", icon: Bot },
-  { href: "/compare", label: "Compare", icon: Scale },
-  { href: "/tracker", label: "Tracker", icon: ClipboardList },
-  { href: "/calculator", label: "Calculator", icon: Calculator },
-  { href: "/student", label: "Student", icon: BookOpen },
-  { href: "/favourites", label: "Favourites", icon: Heart },
-  { href: "/unilist", label: "Uni List", icon: SquareText },
-  { href: "/suggestions", label: "Suggestions", icon: Flag },
-  { href: "/support", label: "Support Us", icon: HeartHandshake },
-];
-
+// Desktop-only sidebar (md and up). On phones navigation lives in the bottom
+// tab bar rendered by MainContent instead.
 export default function Sidebar() {
   const { collapsed, setCollapsed } = useSidebar();
   const pathname = usePathname();
-  const router = useRouter();
-  const [loggingOut, setLoggingOut] = useState(false);
+  const { logout, loggingOut } = useLogout();
+  const user = useCurrentUser();
 
-  const handleLogout = async () => {
-    setLoggingOut(true);
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      router.push("/login");
-      router.refresh();
-    } catch (error) {
-      console.error("Logout failed:", error);
-      setLoggingOut(false);
-    }
+  const mainItems = NAV_ITEMS.filter((item) => !item.secondary);
+  const secondaryItems = NAV_ITEMS.filter((item) => item.secondary);
+
+  const renderItem = ({ href, label, icon: Icon }: NavItem) => {
+    const isActive = isNavItemActive(pathname, href);
+    return (
+      <Link
+        key={href}
+        href={href}
+        title={collapsed ? label : undefined}
+        aria-current={isActive ? "page" : undefined}
+        className={`group flex h-11 items-center rounded-xl text-[15px] font-medium transition-colors ${isActive
+          ? "bg-brand text-white shadow-[0_6px_16px_rgba(0,88,189,0.25)]"
+          : "text-slate-600 hover:bg-slate-100 hover:text-ink"
+          }`}
+      >
+        <span className="flex h-11 w-14 shrink-0 items-center justify-center">
+          <Icon aria-hidden="true" className="h-5 w-5" />
+        </span>
+        <span className={`whitespace-nowrap transition-opacity duration-150 ${collapsed ? "pointer-events-none opacity-0" : "opacity-100"}`}>
+          {label}
+        </span>
+      </Link>
+    );
   };
 
   return (
-    <>
-      <div
-        onClick={() => setCollapsed(true)}
-        aria-hidden={collapsed}
-        className={`fixed inset-0 z-40 bg-black/40 md:hidden transition-opacity duration-200 ease-out ${collapsed ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
-          }`}
-      />
-
-      <aside
-        className={`fixed left-0 top-0 z-50 h-screen bg-[rgb(252,253,255)] flex flex-col items-start overflow-hidden
-          transform-gpu will-change-[width,transform] [contain:layout_paint]
-          transition-[width,transform] duration-200 ease-out
-          ${collapsed ? "-translate-x-full md:translate-x-0 md:w-20" : "translate-x-0 w-64"}`}
-      >
-        <Link
-          href="/dashboard"
-          className="mt-4 flex h-11 w-full shrink-0 items-center px-3"
-        >
-          <div className="flex h-11 w-14 shrink-0 items-center justify-center">
+    <aside
+      className={`fixed left-0 top-0 z-40 hidden h-screen flex-col overflow-hidden border-r border-slate-200/70 bg-white font-body md:flex
+        transform-gpu [contain:layout_paint] transition-[width] duration-200 ease-out
+        ${collapsed ? "w-20" : "w-64"}`}
+    >
+      <div className="flex h-[72px] shrink-0 items-center justify-between px-3">
+        <Link href="/dashboard" className="flex min-w-0 items-center" title="ScholarizePath">
+          <span className="flex h-11 w-14 shrink-0 items-center justify-center">
             <Image
               src="/images/logo-icon.png"
               alt="ScholarizePath"
@@ -68,76 +66,69 @@ export default function Sidebar() {
               priority
               className="h-8 w-auto object-contain"
             />
-          </div>
-          <span
-            className={`ml-2 whitespace-nowrap text-lg font-bold tracking-tight text-[rgb(18,26,59)] transition-opacity duration-150 ease-out ${collapsed ? "opacity-0 pointer-events-none" : "opacity-100"
-              }`}
-          >
+          </span>
+          <span className={`whitespace-nowrap font-display text-lg font-bold tracking-tight text-ink transition-opacity duration-150 ${collapsed ? "pointer-events-none opacity-0" : "opacity-100"}`}>
             ScholarizePath
           </span>
         </Link>
+      </div>
 
-        <div className="mb-4 mt-2 w-full px-3 shrink-0">
+      <nav aria-label="App navigation" className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden px-3 py-2">
+        {mainItems.map(renderItem)}
+        <div className="mx-2 my-3 h-px shrink-0 bg-slate-200" />
+        {secondaryItems.map(renderItem)}
+      </nav>
+
+      <div className="shrink-0 border-t border-slate-200/70 p-3">
+        <button
+          type="button"
+          onClick={() => setCollapsed(!collapsed)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="mb-2 flex h-10 w-full items-center rounded-xl text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-ink"
+        >
+          <span className="flex h-10 w-14 shrink-0 items-center justify-center">
+            {collapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+          </span>
+          <span className={`whitespace-nowrap transition-opacity duration-150 ${collapsed ? "pointer-events-none opacity-0" : "opacity-100"}`}>
+            Collapse
+          </span>
+        </button>
+
+        {collapsed ? (
           <button
-            onClick={() => setCollapsed(!collapsed)}
-            aria-label="Toggle sidebar"
-            className="flex h-11 w-14 flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-gray-100"
-          >
-            <span className={`block h-0.5 w-5 rounded-full bg-black transform-gpu transition-transform duration-200 ease-out ${!collapsed ? "translate-y-2 rotate-45" : ""}`} />
-            <span className={`block h-0.5 w-5 rounded-full bg-black transition-opacity duration-150 ease-out ${!collapsed ? "opacity-0" : "opacity-100"}`} />
-            <span className={`block h-0.5 w-5 rounded-full bg-black transform-gpu transition-transform duration-200 ease-out ${!collapsed ? "-translate-y-2 -rotate-45" : ""}`} />
-          </button>
-        </div>
-
-        <nav className="flex w-full flex-col gap-1 px-3 shrink-0">
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-            const isActive = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => {
-                  if (typeof window !== "undefined" && window.innerWidth < 768) {
-                    setCollapsed(true);
-                  }
-                }}
-                className={`relative flex h-11 items-center rounded-xl ${isActive ? "bg-[rgb(2,76,209)] text-white" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-              >
-                <div className="flex h-11 w-14 shrink-0 items-center justify-center">
-                  <Icon className="h-5 w-5" />
-                </div>
-
-                <span
-                  className={`whitespace-nowrap font-medium transition-opacity duration-150 ease-out ${collapsed ? "opacity-0 md:opacity-0 pointer-events-none" : "opacity-100"
-                    }`}
-                >
-                  {label}
-                </span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="mt-auto mb-4 w-full px-3 shrink-0">
-          <button
-            onClick={handleLogout}
+            type="button"
+            onClick={logout}
             disabled={loggingOut}
-            className="flex h-11 w-full items-center rounded-xl text-red-600 hover:bg-red-50 disabled:opacity-50"
+            aria-label="Log out"
+            title="Log out"
+            className="flex h-11 w-14 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
           >
-            <div className="flex h-11 w-14 shrink-0 items-center justify-center">
-              {loggingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
-            </div>
-
-            <span
-              className={`whitespace-nowrap font-medium transition-opacity duration-150 ease-out ${collapsed ? "opacity-0 md:opacity-0 pointer-events-none" : "opacity-100"
-                }`}
-            >
-              Logout
-            </span>
+            {loggingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
           </button>
-        </div>
-      </aside>
-    </>
+        ) : (
+          <div className="flex items-center rounded-xl bg-slate-50">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand font-display text-xs font-bold text-white">
+                {userInitials(user)}
+              </span>
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-semibold text-ink">{userDisplayName(user)}</span>
+              {user?.email && <span className="block truncate text-xs text-slate-500">{user.email}</span>}
+            </span>
+            <button
+              type="button"
+              onClick={logout}
+              disabled={loggingOut}
+              aria-label="Log out"
+              title="Log out"
+              className="mr-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+            >
+              {loggingOut ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : <LogOut className="h-[18px] w-[18px]" />}
+            </button>
+          </div>
+        )}
+      </div>
+    </aside>
   );
 }

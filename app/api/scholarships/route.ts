@@ -46,18 +46,46 @@ export async function GET(request: Request) {
         }
 
      
+        // Start of today (UTC): a deadline dated today still counts as open, matching the cards.
+        const now = new Date(new Date().toISOString().slice(0, 10));
         const pipeline: any[] = [
             { $match: match },
             {
+                // Exact deadline dates only: "Application Opens" entries aren't
+                // deadlines, and free-text estimates ("varies, typically Jan 2027")
+                // fail the conversion and are dropped.
                 $addFields: {
-                    _deadlineDate: {
-                        $convert: {
-                            input: { $arrayElemAt: ["$deadlines.date", 0] },
-                            to: "date",
-                            onError: null,
-                            onNull: null,
+                    _dates: {
+                        $filter: {
+                            input: {
+                                $map: {
+                                    input: {
+                                        $filter: {
+                                            input: { $ifNull: ["$deadlines", []] },
+                                            as: "d",
+                                            cond: { $not: [{ $regexMatch: { input: { $toString: { $ifNull: ["$$d.name", ""] } }, regex: "open", options: "i" } }] },
+                                        },
+                                    },
+                                    as: "d",
+                                    in: { $convert: { input: "$$d.date", to: "date", onError: null, onNull: null } },
+                                },
+                            },
+                            as: "x",
+                            cond: { $ne: ["$$x", null] },
                         },
                     },
+                },
+            },
+            {
+                $addFields: {
+                    _nextDeadline: { $min: { $filter: { input: "$_dates", as: "x", cond: { $gte: ["$$x", now] } } } },
+                    _lastDeadline: { $max: "$_dates" },
+                },
+            },
+            {
+                $addFields: {
+                    // Upcoming deadline if there is one, otherwise the most recent past one.
+                    _deadlineDate: { $ifNull: ["$_nextDeadline", "$_lastDeadline"] },
                     _amount: {
                         $ifNull: [
                             "$award.estimatedValue.max",
@@ -79,9 +107,19 @@ export async function GET(request: Request) {
             }
         }
 
+        // Deadline sorts: open scholarships first, then closed ones, then those
+        // without an exact date (MongoDB would otherwise put nulls first ascending).
+        pipeline.push({
+            $addFields: {
+                _deadlineGroup: {
+                    $cond: [{ $ne: ["$_nextDeadline", null] }, 0, { $cond: [{ $ne: ["$_lastDeadline", null] }, 1, 2] }],
+                },
+            },
+        });
+
         const sortMap: Record<string, any> = {
-            "Deadline (Earliest)": { _deadlineDate: 1 },
-            "Deadline (Latest)": { _deadlineDate: -1 },
+            "Deadline (Earliest)": { _deadlineGroup: 1, _deadlineDate: 1 },
+            "Deadline (Latest)": { _deadlineGroup: 1, _deadlineDate: -1 },
             "Amount (Highest)": { _amount: -1 },
             "Amount (Lowest)": { _amount: 1 },
         };
@@ -96,6 +134,8 @@ export async function GET(request: Request) {
                 amount: 1,
                 deadlines: 1,
                 country: 1,
+                studyLevel: 1,
+                provider: 1,
             },
         });
 
