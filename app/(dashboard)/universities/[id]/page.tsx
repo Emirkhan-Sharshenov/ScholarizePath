@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { notFound } from 'next/navigation';
 import UniversityDetailsPage from '@/components/universities/id/UniversityDetailsPage';
 import { getBaseUrl } from '@/lib/getBaseUrl';
 
@@ -35,16 +36,7 @@ export default async function Page({ params }: PageProps) {
     const universityData = await getUniversity(id);
 
     if (!universityData) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-slate-50">
-                <div className="text-center">
-                    <h2 className="text-xl font-bold text-slate-800">Университет не найден</h2>
-                    <p className="mt-2 text-sm text-slate-500">
-                        Не удалось загрузить данные по идентификатору: <code className="font-mono text-blue-600">{id}</code>
-                    </p>
-                </div>
-            </div>
-        );
+        notFound();
     }
 
     return <UniversityDetailsPage university={universityData} />;

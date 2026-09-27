@@ -1,0 +1,6281 @@
+[
+  {
+    "_id": "unam-mexico",
+    "name": "National Autonomous University of Mexico (UNAM)",
+    "type": "Public",
+    "location": {
+      "country": "Mexico",
+      "city": "Mexico City",
+      "region": "North America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Medicine",
+      "Law",
+      "Economics",
+      "Architecture",
+      "Natural Sciences",
+      "Humanities",
+      "Social Sciences",
+      "Business"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Mexico City, Mexico, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.unam.mx/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "mexico",
+      "mexico city",
+      "national autonomous university of mexico (unam)",
+      "unam"
+    ],
+    "sources": [
+      "https://www.unam.mx/",
+      "https://en.wikipedia.org/wiki/National_Autonomous_University_of_Mexico"
+    ]
+  },
+  {
+    "_id": "tec-monterrey-mexico",
+    "name": "Monterrey Institute of Technology and Higher Education (Tec de Monterrey)",
+    "type": "Private",
+    "location": {
+      "country": "Mexico",
+      "city": "Monterrey",
+      "region": "North America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Business",
+      "Computer Science",
+      "Medicine",
+      "Architecture",
+      "Law",
+      "Social Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Monterrey, Mexico, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://tec.mx/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "itesm",
+      "mexico",
+      "monterrey",
+      "monterrey institute of technology and higher education (tec de monterrey)",
+      "tec",
+      "tec de monterrey"
+    ],
+    "sources": [
+      "https://tec.mx/",
+      "https://en.wikipedia.org/wiki/Monterrey_Institute_of_Technology_and_Higher_Education"
+    ]
+  },
+  {
+    "_id": "ipn-mexico",
+    "name": "National Polytechnic Institute (IPN)",
+    "type": "Public",
+    "location": {
+      "country": "Mexico",
+      "city": "Mexico City",
+      "region": "North America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Computer Science",
+      "Medicine",
+      "Business",
+      "Natural Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Mexico City, Mexico, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.ipn.mx/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "instituto politecnico nacional",
+      "ipn",
+      "mexico",
+      "mexico city",
+      "national polytechnic institute (ipn)"
+    ],
+    "sources": [
+      "https://www.ipn.mx/",
+      "https://en.wikipedia.org/wiki/Instituto_Politécnico_Nacional"
+    ]
+  },
+  {
+    "_id": "uam-mexico",
+    "name": "Metropolitan Autonomous University (UAM)",
+    "type": "Public",
+    "location": {
+      "country": "Mexico",
+      "city": "Mexico City",
+      "region": "North America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Natural Sciences",
+      "Social Sciences",
+      "Humanities",
+      "Design",
+      "Medicine",
+      "Economics"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Mexico City, Mexico, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.uam.mx/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "metropolitan autonomous university (uam)",
+      "mexico",
+      "mexico city",
+      "uam",
+      "universidad autonoma metropolitana"
+    ],
+    "sources": [
+      "https://www.uam.mx/",
+      "https://en.wikipedia.org/wiki/Metropolitan_Autonomous_University"
+    ]
+  },
+  {
+    "_id": "udg-mexico",
+    "name": "University of Guadalajara",
+    "type": "Public",
+    "location": {
+      "country": "Mexico",
+      "city": "Guadalajara",
+      "region": "North America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Medicine",
+      "Law",
+      "Economics",
+      "Business",
+      "Natural Sciences",
+      "Humanities",
+      "Social Sciences",
+      "Architecture"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Guadalajara, Mexico, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.udg.mx/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "guadalajara",
+      "mexico",
+      "udg",
+      "universidad de guadalajara",
+      "university of guadalajara"
+    ],
+    "sources": [
+      "https://www.udg.mx/",
+      "https://en.wikipedia.org/wiki/University_of_Guadalajara"
+    ]
+  },
+  {
+    "_id": "ibero-mexico",
+    "name": "Ibero-American University (IBERO)",
+    "type": "Private",
+    "location": {
+      "country": "Mexico",
+      "city": "Mexico City",
+      "region": "North America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Architecture",
+      "Business",
+      "Law",
+      "Communication",
+      "Design",
+      "Engineering",
+      "Psychology",
+      "Social Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Mexico City, Mexico, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.ibero.mx/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "ibero",
+      "ibero-american university (ibero)",
+      "mexico",
+      "mexico city",
+      "universidad iberoamericana"
+    ],
+    "sources": [
+      "https://www.ibero.mx/",
+      "https://en.wikipedia.org/wiki/Universidad_Iberoamericana"
+    ]
+  },
+  {
+    "_id": "itam-mexico",
+    "name": "Mexico Autonomous Institute of Technology (ITAM)",
+    "type": "Private",
+    "location": {
+      "country": "Mexico",
+      "city": "Mexico City",
+      "region": "North America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Economics",
+      "Business",
+      "Law",
+      "Computer Science",
+      "Political Science",
+      "Actuarial Science",
+      "Mathematics"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Mexico City, Mexico, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.itam.mx/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "itam",
+      "mexico",
+      "mexico autonomous institute of technology (itam)",
+      "mexico city"
+    ],
+    "sources": [
+      "https://www.itam.mx/",
+      "https://en.wikipedia.org/wiki/Instituto_Tecnológico_Autónomo_de_México"
+    ]
+  },
+  {
+    "_id": "uanl-mexico",
+    "name": "Autonomous University of Nuevo León (UANL)",
+    "type": "Public",
+    "location": {
+      "country": "Mexico",
+      "city": "San Nicolás de los Garza",
+      "region": "North America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Medicine",
+      "Law",
+      "Business",
+      "Architecture",
+      "Natural Sciences",
+      "Social Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in San Nicolás de los Garza, Mexico, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.uanl.mx/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "autonomous university of nuevo león (uanl)",
+      "mexico",
+      "monterrey",
+      "san nicolás de los garza",
+      "uanl"
+    ],
+    "sources": [
+      "https://www.uanl.mx/",
+      "https://en.wikipedia.org/wiki/Autonomous_University_of_Nuevo_León"
+    ]
+  },
+  {
+    "_id": "udlap-mexico",
+    "name": "University of the Americas Puebla (UDLAP)",
+    "type": "Private",
+    "location": {
+      "country": "Mexico",
+      "city": "San Andrés Cholula",
+      "region": "North America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Business",
+      "Architecture",
+      "Social Sciences",
+      "Humanities",
+      "Natural Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in San Andrés Cholula, Mexico, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.udlap.mx/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "mexico",
+      "puebla",
+      "san andrés cholula",
+      "udlap",
+      "university of the americas puebla (udlap)"
+    ],
+    "sources": [
+      "https://www.udlap.mx/",
+      "https://en.wikipedia.org/wiki/Universidad_de_las_Américas_Puebla"
+    ]
+  },
+  {
+    "_id": "buap-mexico",
+    "name": "Meritorious Autonomous University of Puebla (BUAP)",
+    "type": "Public",
+    "location": {
+      "country": "Mexico",
+      "city": "Puebla",
+      "region": "North America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Medicine",
+      "Law",
+      "Architecture",
+      "Natural Sciences",
+      "Social Sciences",
+      "Humanities",
+      "Business"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Puebla, Mexico, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.buap.mx/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "buap",
+      "meritorious autonomous university of puebla (buap)",
+      "mexico",
+      "puebla"
+    ],
+    "sources": [
+      "https://www.buap.mx/",
+      "https://en.wikipedia.org/wiki/Benemérita_Universidad_Autónoma_de_Puebla"
+    ]
+  },
+  {
+    "_id": "up-mexico",
+    "name": "Panamerican University (UP)",
+    "type": "Private",
+    "location": {
+      "country": "Mexico",
+      "city": "Mexico City",
+      "region": "North America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Law",
+      "Business",
+      "Engineering",
+      "Medicine",
+      "Economics",
+      "Philosophy",
+      "Communication"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Mexico City, Mexico, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.up.edu.mx/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "mexico",
+      "mexico city",
+      "panamerican university (up)",
+      "universidad panamericana"
+    ],
+    "sources": [
+      "https://www.up.edu.mx/",
+      "https://en.wikipedia.org/wiki/Universidad_Panamericana"
+    ]
+  },
+  {
+    "_id": "uba-argentina",
+    "name": "University of Buenos Aires (UBA)",
+    "type": "Public",
+    "location": {
+      "country": "Argentina",
+      "city": "Buenos Aires",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Law",
+      "Engineering",
+      "Economics",
+      "Architecture",
+      "Natural Sciences",
+      "Humanities",
+      "Social Sciences",
+      "Psychology"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Buenos Aires, Argentina, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.uba.ar/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "argentina",
+      "buenos aires",
+      "uba",
+      "university of buenos aires (uba)"
+    ],
+    "sources": [
+      "https://www.uba.ar/",
+      "https://en.wikipedia.org/wiki/University_of_Buenos_Aires"
+    ]
+  },
+  {
+    "_id": "unc-argentina",
+    "name": "National University of Córdoba (UNC)",
+    "type": "Public",
+    "location": {
+      "country": "Argentina",
+      "city": "Córdoba",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Law",
+      "Engineering",
+      "Economics",
+      "Architecture",
+      "Natural Sciences",
+      "Humanities",
+      "Social Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Córdoba, Argentina, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.unc.edu.ar/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "argentina",
+      "cordoba",
+      "córdoba",
+      "national university of córdoba (unc)",
+      "unc"
+    ],
+    "sources": [
+      "https://www.unc.edu.ar/",
+      "https://en.wikipedia.org/wiki/National_University_of_Córdoba"
+    ]
+  },
+  {
+    "_id": "unlp-argentina",
+    "name": "National University of La Plata (UNLP)",
+    "type": "Public",
+    "location": {
+      "country": "Argentina",
+      "city": "La Plata",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Law",
+      "Engineering",
+      "Economics",
+      "Architecture",
+      "Natural Sciences",
+      "Humanities",
+      "Journalism"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in La Plata, Argentina, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://unlp.edu.ar/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "argentina",
+      "la plata",
+      "national university of la plata (unlp)",
+      "unlp"
+    ],
+    "sources": [
+      "https://unlp.edu.ar/",
+      "https://en.wikipedia.org/wiki/National_University_of_La_Plata"
+    ]
+  },
+  {
+    "_id": "uca-argentina",
+    "name": "Pontifical Catholic University of Argentina (UCA)",
+    "type": "Private",
+    "location": {
+      "country": "Argentina",
+      "city": "Buenos Aires",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Law",
+      "Economics",
+      "Business",
+      "Engineering",
+      "Medicine",
+      "Humanities",
+      "Social Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Buenos Aires, Argentina, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://uca.edu.ar/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "argentina",
+      "buenos aires",
+      "pontifical catholic university of argentina (uca)",
+      "uca"
+    ],
+    "sources": [
+      "https://uca.edu.ar/",
+      "https://en.wikipedia.org/wiki/Pontifical_Catholic_University_of_Argentina"
+    ]
+  },
+  {
+    "_id": "austral-argentina",
+    "name": "Austral University",
+    "type": "Private",
+    "location": {
+      "country": "Argentina",
+      "city": "Buenos Aires",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Business",
+      "Law",
+      "Medicine",
+      "Engineering",
+      "Communication"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Buenos Aires, Argentina, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.austral.edu.ar/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "argentina",
+      "austral university",
+      "buenos aires",
+      "iae",
+      "universidad austral"
+    ],
+    "sources": [
+      "https://www.austral.edu.ar/",
+      "https://en.wikipedia.org/wiki/Austral_University"
+    ]
+  },
+  {
+    "_id": "utdt-argentina",
+    "name": "Torcuato di Tella University (UTDT)",
+    "type": "Private",
+    "location": {
+      "country": "Argentina",
+      "city": "Buenos Aires",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Economics",
+      "Business",
+      "Law",
+      "Political Science",
+      "Architecture",
+      "Social Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Buenos Aires, Argentina, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.utdt.edu/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "argentina",
+      "buenos aires",
+      "di tella",
+      "torcuato di tella university (utdt)",
+      "utdt"
+    ],
+    "sources": [
+      "https://www.utdt.edu/",
+      "https://en.wikipedia.org/wiki/Torcuato_di_Tella_University"
+    ]
+  },
+  {
+    "_id": "udesa-argentina",
+    "name": "University of San Andrés (UdeSA)",
+    "type": "Private",
+    "location": {
+      "country": "Argentina",
+      "city": "Victoria",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Economics",
+      "Business",
+      "Law",
+      "Political Science",
+      "Humanities",
+      "Education"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Victoria, Argentina, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.udesa.edu.ar/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "argentina",
+      "san andres",
+      "udesa",
+      "university of san andrés (udesa)",
+      "victoria"
+    ],
+    "sources": [
+      "https://www.udesa.edu.ar/",
+      "https://en.wikipedia.org/wiki/University_of_San_Andrés"
+    ]
+  },
+  {
+    "_id": "unr-argentina",
+    "name": "National University of Rosario (UNR)",
+    "type": "Public",
+    "location": {
+      "country": "Argentina",
+      "city": "Rosario",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Law",
+      "Engineering",
+      "Economics",
+      "Architecture",
+      "Natural Sciences",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Rosario, Argentina, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://unr.edu.ar/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "argentina",
+      "national university of rosario (unr)",
+      "rosario",
+      "unr"
+    ],
+    "sources": [
+      "https://unr.edu.ar/",
+      "https://en.wikipedia.org/wiki/National_University_of_Rosario"
+    ]
+  },
+  {
+    "_id": "itba-argentina",
+    "name": "Buenos Aires Institute of Technology (ITBA)",
+    "type": "Private",
+    "location": {
+      "country": "Argentina",
+      "city": "Buenos Aires",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Computer Science",
+      "Business"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Buenos Aires, Argentina, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.itba.edu.ar/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "argentina",
+      "buenos aires",
+      "buenos aires institute of technology (itba)",
+      "itba"
+    ],
+    "sources": [
+      "https://www.itba.edu.ar/",
+      "https://en.wikipedia.org/wiki/Instituto_Tecnológico_de_Buenos_Aires"
+    ]
+  },
+  {
+    "_id": "uncuyo-argentina",
+    "name": "National University of Cuyo (UNCuyo)",
+    "type": "Public",
+    "location": {
+      "country": "Argentina",
+      "city": "Mendoza",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Law",
+      "Engineering",
+      "Economics",
+      "Agriculture",
+      "Natural Sciences",
+      "Humanities",
+      "Fine Arts"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Mendoza, Argentina, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.uncuyo.edu.ar/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "argentina",
+      "mendoza",
+      "national university of cuyo (uncuyo)",
+      "uncuyo"
+    ],
+    "sources": [
+      "https://www.uncuyo.edu.ar/",
+      "https://en.wikipedia.org/wiki/National_University_of_Cuyo"
+    ]
+  },
+  {
+    "_id": "utn-argentina",
+    "name": "National Technological University (UTN)",
+    "type": "Public",
+    "location": {
+      "country": "Argentina",
+      "city": "Buenos Aires",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Computer Science"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Buenos Aires, Argentina, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.utn.edu.ar/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "argentina",
+      "buenos aires",
+      "national technological university (utn)",
+      "utn"
+    ],
+    "sources": [
+      "https://www.utn.edu.ar/",
+      "https://en.wikipedia.org/wiki/National_Technological_University"
+    ]
+  },
+  {
+    "_id": "puc-chile",
+    "name": "Pontifical Catholic University of Chile (UC)",
+    "type": "Private",
+    "location": {
+      "country": "Chile",
+      "city": "Santiago",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Medicine",
+      "Law",
+      "Business",
+      "Economics",
+      "Architecture",
+      "Natural Sciences",
+      "Humanities",
+      "Social Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Santiago, Chile, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.uc.cl/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "chile",
+      "pontifical catholic university of chile (uc)",
+      "pontificia universidad catolica de chile",
+      "puc",
+      "santiago",
+      "uc chile"
+    ],
+    "sources": [
+      "https://www.uc.cl/",
+      "https://en.wikipedia.org/wiki/Pontifical_Catholic_University_of_Chile"
+    ]
+  },
+  {
+    "_id": "uchile-chile",
+    "name": "University of Chile",
+    "type": "Public",
+    "location": {
+      "country": "Chile",
+      "city": "Santiago",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Medicine",
+      "Law",
+      "Economics",
+      "Business",
+      "Architecture",
+      "Natural Sciences",
+      "Humanities",
+      "Social Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Santiago, Chile, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://uchile.cl/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "chile",
+      "santiago",
+      "uchile",
+      "universidad de chile",
+      "university of chile"
+    ],
+    "sources": [
+      "https://uchile.cl/",
+      "https://en.wikipedia.org/wiki/University_of_Chile"
+    ]
+  },
+  {
+    "_id": "udec-chile",
+    "name": "University of Concepción",
+    "type": "Private",
+    "location": {
+      "country": "Chile",
+      "city": "Concepción",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Medicine",
+      "Law",
+      "Business",
+      "Natural Sciences",
+      "Humanities",
+      "Agriculture",
+      "Forestry"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Concepción, Chile, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.udec.cl/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "chile",
+      "concepción",
+      "udec",
+      "universidad de concepcion",
+      "university of concepción"
+    ],
+    "sources": [
+      "https://www.udec.cl/",
+      "https://en.wikipedia.org/wiki/University_of_Concepción"
+    ]
+  },
+  {
+    "_id": "usach-chile",
+    "name": "University of Santiago, Chile (USACH)",
+    "type": "Public",
+    "location": {
+      "country": "Chile",
+      "city": "Santiago",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Medicine",
+      "Business",
+      "Natural Sciences",
+      "Humanities",
+      "Architecture"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Santiago, Chile, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.usach.cl/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "chile",
+      "santiago",
+      "university of santiago, chile (usach)",
+      "usach"
+    ],
+    "sources": [
+      "https://www.usach.cl/",
+      "https://en.wikipedia.org/wiki/University_of_Santiago,_Chile"
+    ]
+  },
+  {
+    "_id": "usm-chile",
+    "name": "Federico Santa María Technical University (USM)",
+    "type": "Private",
+    "location": {
+      "country": "Chile",
+      "city": "Valparaíso",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Computer Science",
+      "Architecture",
+      "Natural Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Valparaíso, Chile, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.usm.cl/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "chile",
+      "federico santa maría technical university (usm)",
+      "santa maria",
+      "usm",
+      "utfsm",
+      "valparaíso"
+    ],
+    "sources": [
+      "https://www.usm.cl/",
+      "https://en.wikipedia.org/wiki/Federico_Santa_María_Technical_University"
+    ]
+  },
+  {
+    "_id": "pucv-chile",
+    "name": "Pontifical Catholic University of Valparaíso (PUCV)",
+    "type": "Private",
+    "location": {
+      "country": "Chile",
+      "city": "Valparaíso",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Law",
+      "Business",
+      "Education",
+      "Natural Sciences",
+      "Humanities",
+      "Architecture"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Valparaíso, Chile, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.pucv.cl/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "chile",
+      "pontifical catholic university of valparaíso (pucv)",
+      "pucv",
+      "valparaíso"
+    ],
+    "sources": [
+      "https://www.pucv.cl/",
+      "https://en.wikipedia.org/wiki/Pontifical_Catholic_University_of_Valparaíso"
+    ]
+  },
+  {
+    "_id": "uai-chile",
+    "name": "Adolfo Ibáñez University (UAI)",
+    "type": "Private",
+    "location": {
+      "country": "Chile",
+      "city": "Santiago",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Business",
+      "Engineering",
+      "Law",
+      "Psychology",
+      "Design"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Santiago, Chile, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.uai.cl/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "adolfo ibanez",
+      "adolfo ibáñez university (uai)",
+      "chile",
+      "santiago",
+      "uai"
+    ],
+    "sources": [
+      "https://www.uai.cl/",
+      "https://en.wikipedia.org/wiki/Adolfo_Ibáñez_University"
+    ]
+  },
+  {
+    "_id": "uach-chile",
+    "name": "Austral University of Chile (UACh)",
+    "type": "Private",
+    "location": {
+      "country": "Chile",
+      "city": "Valdivia",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Law",
+      "Engineering",
+      "Natural Sciences",
+      "Agriculture",
+      "Forestry",
+      "Veterinary Medicine",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Valdivia, Chile, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.uach.cl/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "austral university of chile (uach)",
+      "chile",
+      "uach",
+      "valdivia"
+    ],
+    "sources": [
+      "https://www.uach.cl/",
+      "https://en.wikipedia.org/wiki/Austral_University_of_Chile"
+    ]
+  },
+  {
+    "_id": "uandes-chile",
+    "name": "University of the Andes, Chile",
+    "type": "Private",
+    "location": {
+      "country": "Chile",
+      "city": "Santiago",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Law",
+      "Engineering",
+      "Business",
+      "Education",
+      "Humanities",
+      "Communication"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Santiago, Chile, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.uandes.cl/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "chile",
+      "santiago",
+      "uandes",
+      "universidad de los andes chile",
+      "university of the andes, chile"
+    ],
+    "sources": [
+      "https://www.uandes.cl/",
+      "https://en.wikipedia.org/wiki/University_of_the_Andes,_Chile"
+    ]
+  },
+  {
+    "_id": "udp-chile",
+    "name": "Diego Portales University (UDP)",
+    "type": "Private",
+    "location": {
+      "country": "Chile",
+      "city": "Santiago",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Law",
+      "Business",
+      "Economics",
+      "Medicine",
+      "Architecture",
+      "Engineering",
+      "Social Sciences",
+      "Communication"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Santiago, Chile, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.udp.cl/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "chile",
+      "diego portales university (udp)",
+      "santiago",
+      "udp"
+    ],
+    "sources": [
+      "https://www.udp.cl/",
+      "https://en.wikipedia.org/wiki/Diego_Portales_University"
+    ]
+  },
+  {
+    "_id": "uv-chile",
+    "name": "University of Valparaíso",
+    "type": "Public",
+    "location": {
+      "country": "Chile",
+      "city": "Valparaíso",
+      "region": "South America",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Spanish"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Law",
+      "Engineering",
+      "Business",
+      "Natural Sciences",
+      "Humanities",
+      "Architecture"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Valparaíso, Chile, offering bachelor's, master's and doctoral programmes taught mainly in Spanish.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.uv.cl/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "chile",
+      "universidad de valparaiso",
+      "university of valparaíso",
+      "uv",
+      "valparaíso"
+    ],
+    "sources": [
+      "https://www.uv.cl/",
+      "https://en.wikipedia.org/wiki/University_of_Valparaíso"
+    ]
+  },
+  {
+    "_id": "uct-south-africa",
+    "name": "University of Cape Town",
+    "type": "Public",
+    "location": {
+      "country": "South Africa",
+      "city": "Cape Town",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Law",
+      "Business",
+      "Economics",
+      "Natural Sciences",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Cape Town, South Africa, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.uct.ac.za/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "cape town",
+      "south africa",
+      "uct",
+      "university of cape town"
+    ],
+    "sources": [
+      "https://www.uct.ac.za/",
+      "https://en.wikipedia.org/wiki/University_of_Cape_Town"
+    ]
+  },
+  {
+    "_id": "wits-south-africa",
+    "name": "University of the Witwatersrand",
+    "type": "Public",
+    "location": {
+      "country": "South Africa",
+      "city": "Johannesburg",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Law",
+      "Business",
+      "Economics",
+      "Natural Sciences",
+      "Humanities",
+      "Architecture"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Johannesburg, South Africa, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.wits.ac.za/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "johannesburg",
+      "south africa",
+      "university of the witwatersrand",
+      "wits"
+    ],
+    "sources": [
+      "https://www.wits.ac.za/",
+      "https://en.wikipedia.org/wiki/University_of_the_Witwatersrand"
+    ]
+  },
+  {
+    "_id": "stellenbosch-south-africa",
+    "name": "Stellenbosch University",
+    "type": "Public",
+    "location": {
+      "country": "South Africa",
+      "city": "Stellenbosch",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English",
+      "Afrikaans"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Law",
+      "Business",
+      "Economics",
+      "Agriculture",
+      "Natural Sciences",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Stellenbosch, South Africa, offering bachelor's, master's and doctoral programmes taught mainly in English and Afrikaans.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.sun.ac.za/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "maties",
+      "south africa",
+      "stellenbosch",
+      "stellenbosch university",
+      "sun"
+    ],
+    "sources": [
+      "https://www.sun.ac.za/",
+      "https://en.wikipedia.org/wiki/Stellenbosch_University"
+    ]
+  },
+  {
+    "_id": "up-south-africa",
+    "name": "University of Pretoria",
+    "type": "Public",
+    "location": {
+      "country": "South Africa",
+      "city": "Pretoria",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Law",
+      "Business",
+      "Economics",
+      "Veterinary Medicine",
+      "Natural Sciences",
+      "Humanities",
+      "Education"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Pretoria, South Africa, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.up.ac.za/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "pretoria",
+      "south africa",
+      "tuks",
+      "university of pretoria",
+      "up"
+    ],
+    "sources": [
+      "https://www.up.ac.za/",
+      "https://en.wikipedia.org/wiki/University_of_Pretoria"
+    ]
+  },
+  {
+    "_id": "uj-south-africa",
+    "name": "University of Johannesburg",
+    "type": "Public",
+    "location": {
+      "country": "South Africa",
+      "city": "Johannesburg",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Law",
+      "Business",
+      "Economics",
+      "Health Sciences",
+      "Humanities",
+      "Education",
+      "Natural Sciences",
+      "Architecture"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Johannesburg, South Africa, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.uj.ac.za/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "johannesburg",
+      "south africa",
+      "uj",
+      "university of johannesburg"
+    ],
+    "sources": [
+      "https://www.uj.ac.za/",
+      "https://en.wikipedia.org/wiki/University_of_Johannesburg"
+    ]
+  },
+  {
+    "_id": "ukzn-south-africa",
+    "name": "University of KwaZulu-Natal",
+    "type": "Public",
+    "location": {
+      "country": "South Africa",
+      "city": "Durban",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Law",
+      "Business",
+      "Agriculture",
+      "Natural Sciences",
+      "Humanities",
+      "Education"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Durban, South Africa, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://ukzn.ac.za/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "durban",
+      "south africa",
+      "ukzn",
+      "university of kwazulu-natal"
+    ],
+    "sources": [
+      "https://ukzn.ac.za/",
+      "https://en.wikipedia.org/wiki/University_of_KwaZulu-Natal"
+    ]
+  },
+  {
+    "_id": "rhodes-south-africa",
+    "name": "Rhodes University",
+    "type": "Public",
+    "location": {
+      "country": "South Africa",
+      "city": "Makhanda",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Law",
+      "Humanities",
+      "Natural Sciences",
+      "Pharmacy",
+      "Business",
+      "Journalism",
+      "Education"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Makhanda, South Africa, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.ru.ac.za/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "grahamstown",
+      "makhanda",
+      "rhodes",
+      "rhodes university",
+      "south africa"
+    ],
+    "sources": [
+      "https://www.ru.ac.za/",
+      "https://en.wikipedia.org/wiki/Rhodes_University"
+    ]
+  },
+  {
+    "_id": "uwc-south-africa",
+    "name": "University of the Western Cape",
+    "type": "Public",
+    "location": {
+      "country": "South Africa",
+      "city": "Bellville",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Law",
+      "Dentistry",
+      "Pharmacy",
+      "Natural Sciences",
+      "Economics",
+      "Business",
+      "Education",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Bellville, South Africa, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.uwc.ac.za/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "bellville",
+      "south africa",
+      "university of the western cape",
+      "uwc"
+    ],
+    "sources": [
+      "https://www.uwc.ac.za/",
+      "https://en.wikipedia.org/wiki/University_of_the_Western_Cape"
+    ]
+  },
+  {
+    "_id": "nwu-south-africa",
+    "name": "North-West University",
+    "type": "Public",
+    "location": {
+      "country": "South Africa",
+      "city": "Potchefstroom",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English",
+      "Afrikaans"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Law",
+      "Engineering",
+      "Education",
+      "Business",
+      "Economics",
+      "Natural Sciences",
+      "Health Sciences",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Potchefstroom, South Africa, offering bachelor's, master's and doctoral programmes taught mainly in English and Afrikaans.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.nwu.ac.za/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "north-west university",
+      "nwu",
+      "potchefstroom",
+      "south africa"
+    ],
+    "sources": [
+      "https://www.nwu.ac.za/",
+      "https://en.wikipedia.org/wiki/North-West_University"
+    ]
+  },
+  {
+    "_id": "unisa-south-africa",
+    "name": "University of South Africa (UNISA)",
+    "type": "Public",
+    "location": {
+      "country": "South Africa",
+      "city": "Pretoria",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Law",
+      "Education",
+      "Business",
+      "Economics",
+      "Humanities",
+      "Natural Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Pretoria, South Africa, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.unisa.ac.za/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "distance learning",
+      "pretoria",
+      "south africa",
+      "unisa",
+      "university of south africa (unisa)"
+    ],
+    "sources": [
+      "https://www.unisa.ac.za/",
+      "https://en.wikipedia.org/wiki/University_of_South_Africa"
+    ]
+  },
+  {
+    "_id": "ufs-south-africa",
+    "name": "University of the Free State",
+    "type": "Public",
+    "location": {
+      "country": "South Africa",
+      "city": "Bloemfontein",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Law",
+      "Education",
+      "Economics",
+      "Business",
+      "Natural Sciences",
+      "Humanities",
+      "Agriculture"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Bloemfontein, South Africa, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.ufs.ac.za/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "bloemfontein",
+      "south africa",
+      "ufs",
+      "university of the free state"
+    ],
+    "sources": [
+      "https://www.ufs.ac.za/",
+      "https://en.wikipedia.org/wiki/University_of_the_Free_State"
+    ]
+  },
+  {
+    "_id": "cairo-uni-egypt",
+    "name": "Cairo University",
+    "type": "Public",
+    "location": {
+      "country": "Egypt",
+      "city": "Giza",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Arabic",
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Law",
+      "Economics",
+      "Business",
+      "Pharmacy",
+      "Dentistry",
+      "Natural Sciences",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Giza, Egypt, offering bachelor's, master's and doctoral programmes taught mainly in Arabic and English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://cu.edu.eg/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "cairo",
+      "cairo university",
+      "cu",
+      "egypt",
+      "giza"
+    ],
+    "sources": [
+      "https://cu.edu.eg/",
+      "https://en.wikipedia.org/wiki/Cairo_University"
+    ]
+  },
+  {
+    "_id": "auc-egypt",
+    "name": "The American University in Cairo (AUC)",
+    "type": "Private",
+    "location": {
+      "country": "Egypt",
+      "city": "New Cairo",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Business",
+      "Engineering",
+      "Computer Science",
+      "Humanities",
+      "Social Sciences",
+      "Natural Sciences"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in New Cairo, Egypt, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.aucegypt.edu/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "auc",
+      "cairo",
+      "egypt",
+      "new cairo",
+      "the american university in cairo (auc)"
+    ],
+    "sources": [
+      "https://www.aucegypt.edu/",
+      "https://en.wikipedia.org/wiki/American_University_in_Cairo"
+    ]
+  },
+  {
+    "_id": "ain-shams-egypt",
+    "name": "Ain Shams University",
+    "type": "Public",
+    "location": {
+      "country": "Egypt",
+      "city": "Cairo",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Arabic",
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Law",
+      "Business",
+      "Pharmacy",
+      "Dentistry",
+      "Natural Sciences",
+      "Humanities",
+      "Education"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Cairo, Egypt, offering bachelor's, master's and doctoral programmes taught mainly in Arabic and English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.asu.edu.eg/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "ain shams university",
+      "asu",
+      "cairo",
+      "egypt"
+    ],
+    "sources": [
+      "https://www.asu.edu.eg/",
+      "https://en.wikipedia.org/wiki/Ain_Shams_University"
+    ]
+  },
+  {
+    "_id": "alexandria-uni-egypt",
+    "name": "Alexandria University",
+    "type": "Public",
+    "location": {
+      "country": "Egypt",
+      "city": "Alexandria",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Arabic",
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Law",
+      "Business",
+      "Pharmacy",
+      "Dentistry",
+      "Agriculture",
+      "Natural Sciences",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Alexandria, Egypt, offering bachelor's, master's and doctoral programmes taught mainly in Arabic and English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.alexu.edu.eg/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "alexandria",
+      "alexandria university",
+      "alexu",
+      "egypt"
+    ],
+    "sources": [
+      "https://www.alexu.edu.eg/",
+      "https://en.wikipedia.org/wiki/Alexandria_University"
+    ]
+  },
+  {
+    "_id": "mansoura-egypt",
+    "name": "Mansoura University",
+    "type": "Public",
+    "location": {
+      "country": "Egypt",
+      "city": "Mansoura",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Arabic",
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Law",
+      "Business",
+      "Pharmacy",
+      "Dentistry",
+      "Natural Sciences",
+      "Education"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Mansoura, Egypt, offering bachelor's, master's and doctoral programmes taught mainly in Arabic and English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.mans.edu.eg/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "egypt",
+      "mansoura",
+      "mansoura university"
+    ],
+    "sources": [
+      "https://www.mans.edu.eg/",
+      "https://en.wikipedia.org/wiki/Mansoura_University"
+    ]
+  },
+  {
+    "_id": "assiut-egypt",
+    "name": "Assiut University",
+    "type": "Public",
+    "location": {
+      "country": "Egypt",
+      "city": "Assiut",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Arabic",
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Law",
+      "Business",
+      "Pharmacy",
+      "Agriculture",
+      "Natural Sciences",
+      "Veterinary Medicine"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Assiut, Egypt, offering bachelor's, master's and doctoral programmes taught mainly in Arabic and English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.aun.edu.eg/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "assiut",
+      "assiut university",
+      "aun",
+      "egypt"
+    ],
+    "sources": [
+      "https://www.aun.edu.eg/",
+      "https://en.wikipedia.org/wiki/Assiut_University"
+    ]
+  },
+  {
+    "_id": "zewail-city-egypt",
+    "name": "Zewail City of Science, Technology and Innovation",
+    "type": "Private",
+    "location": {
+      "country": "Egypt",
+      "city": "6th of October City",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Natural Sciences",
+      "Computer Science",
+      "Business"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in 6th of October City, Egypt, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.zewailcity.edu.eg/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "6th of october city",
+      "egypt",
+      "zewail",
+      "zewail city",
+      "zewail city of science, technology and innovation"
+    ],
+    "sources": [
+      "https://www.zewailcity.edu.eg/",
+      "https://en.wikipedia.org/wiki/Zewail_City_of_Science,_Technology_and_Innovation"
+    ]
+  },
+  {
+    "_id": "guc-egypt",
+    "name": "German University in Cairo (GUC)",
+    "type": "Private",
+    "location": {
+      "country": "Egypt",
+      "city": "New Cairo",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Pharmacy",
+      "Business",
+      "Computer Science",
+      "Architecture",
+      "Law"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in New Cairo, Egypt, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.guc.edu.eg/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "egypt",
+      "german university in cairo (guc)",
+      "guc",
+      "new cairo"
+    ],
+    "sources": [
+      "https://www.guc.edu.eg/",
+      "https://en.wikipedia.org/wiki/German_University_in_Cairo"
+    ]
+  },
+  {
+    "_id": "bue-egypt",
+    "name": "The British University in Egypt (BUE)",
+    "type": "Private",
+    "location": {
+      "country": "Egypt",
+      "city": "Cairo",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Business",
+      "Pharmacy",
+      "Dentistry",
+      "Law",
+      "Computer Science"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master"
+    ],
+    "description": "A private university in Cairo, Egypt, offering bachelor's and master's programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.bue.edu.eg/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "bue",
+      "cairo",
+      "egypt",
+      "the british university in egypt (bue)"
+    ],
+    "sources": [
+      "https://www.bue.edu.eg/",
+      "https://en.wikipedia.org/wiki/British_University_in_Egypt"
+    ]
+  },
+  {
+    "_id": "capital-uni-egypt",
+    "name": "Capital University (formerly Helwan University)",
+    "type": "Public",
+    "location": {
+      "country": "Egypt",
+      "city": "Cairo",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "Arabic",
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Fine Arts",
+      "Business",
+      "Law",
+      "Medicine",
+      "Pharmacy",
+      "Education",
+      "Tourism"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Cairo, Egypt, offering bachelor's, master's and doctoral programmes taught mainly in Arabic and English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.capu.edu.eg/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "cairo",
+      "capital university (formerly helwan university)",
+      "capu",
+      "egypt",
+      "helwan",
+      "helwan university"
+    ],
+    "sources": [
+      "https://www.capu.edu.eg/",
+      "https://en.wikipedia.org/wiki/Helwan_University"
+    ]
+  },
+  {
+    "_id": "nile-uni-egypt",
+    "name": "Nile University",
+    "type": "Private",
+    "location": {
+      "country": "Egypt",
+      "city": "Sheikh Zayed City",
+      "region": "Africa",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Computer Science",
+      "Business",
+      "Biotechnology"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A private university in Sheikh Zayed City, Egypt, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.nu.edu.eg/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "egypt",
+      "nile",
+      "nile university",
+      "nu",
+      "sheikh zayed city"
+    ],
+    "sources": [
+      "https://www.nu.edu.eg/",
+      "https://en.wikipedia.org/wiki/Nile_University"
+    ]
+  },
+  {
+    "_id": "auckland-new-zealand",
+    "name": "University of Auckland",
+    "type": "Public",
+    "location": {
+      "country": "New Zealand",
+      "city": "Auckland",
+      "region": "Oceania",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Law",
+      "Business",
+      "Architecture",
+      "Education",
+      "Natural Sciences",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Auckland, New Zealand, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.auckland.ac.nz/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "auckland",
+      "new zealand",
+      "university of auckland",
+      "uoa",
+      "waipapa taumata rau"
+    ],
+    "sources": [
+      "https://www.auckland.ac.nz/",
+      "https://en.wikipedia.org/wiki/University_of_Auckland"
+    ]
+  },
+  {
+    "_id": "otago-new-zealand",
+    "name": "University of Otago",
+    "type": "Public",
+    "location": {
+      "country": "New Zealand",
+      "city": "Dunedin",
+      "region": "Oceania",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Medicine",
+      "Dentistry",
+      "Pharmacy",
+      "Law",
+      "Business",
+      "Natural Sciences",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Dunedin, New Zealand, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.otago.ac.nz/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "dunedin",
+      "new zealand",
+      "otago",
+      "university of otago"
+    ],
+    "sources": [
+      "https://www.otago.ac.nz/",
+      "https://en.wikipedia.org/wiki/University_of_Otago"
+    ]
+  },
+  {
+    "_id": "vuw-new-zealand",
+    "name": "Victoria University of Wellington",
+    "type": "Public",
+    "location": {
+      "country": "New Zealand",
+      "city": "Wellington",
+      "region": "Oceania",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Law",
+      "Business",
+      "Architecture",
+      "Engineering",
+      "Natural Sciences",
+      "Humanities",
+      "Education"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Wellington, New Zealand, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.wgtn.ac.nz/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "new zealand",
+      "te herenga waka",
+      "victoria university of wellington",
+      "vuw",
+      "wellington"
+    ],
+    "sources": [
+      "https://www.wgtn.ac.nz/",
+      "https://en.wikipedia.org/wiki/Victoria_University_of_Wellington"
+    ]
+  },
+  {
+    "_id": "canterbury-new-zealand",
+    "name": "University of Canterbury",
+    "type": "Public",
+    "location": {
+      "country": "New Zealand",
+      "city": "Christchurch",
+      "region": "Oceania",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Engineering",
+      "Law",
+      "Business",
+      "Natural Sciences",
+      "Education",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Christchurch, New Zealand, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.canterbury.ac.nz/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "christchurch",
+      "new zealand",
+      "uc",
+      "university of canterbury"
+    ],
+    "sources": [
+      "https://www.canterbury.ac.nz/",
+      "https://en.wikipedia.org/wiki/University_of_Canterbury"
+    ]
+  },
+  {
+    "_id": "massey-new-zealand",
+    "name": "Massey University",
+    "type": "Public",
+    "location": {
+      "country": "New Zealand",
+      "city": "Palmerston North",
+      "region": "Oceania",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Veterinary Medicine",
+      "Agriculture",
+      "Business",
+      "Engineering",
+      "Natural Sciences",
+      "Design",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Palmerston North, New Zealand, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.massey.ac.nz/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "massey",
+      "massey university",
+      "new zealand",
+      "palmerston north"
+    ],
+    "sources": [
+      "https://www.massey.ac.nz/",
+      "https://en.wikipedia.org/wiki/Massey_University"
+    ]
+  },
+  {
+    "_id": "waikato-new-zealand",
+    "name": "University of Waikato",
+    "type": "Public",
+    "location": {
+      "country": "New Zealand",
+      "city": "Hamilton",
+      "region": "Oceania",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Law",
+      "Engineering",
+      "Business",
+      "Education",
+      "Natural Sciences",
+      "Computer Science",
+      "Humanities"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Hamilton, New Zealand, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.waikato.ac.nz/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "hamilton",
+      "new zealand",
+      "university of waikato",
+      "waikato"
+    ],
+    "sources": [
+      "https://www.waikato.ac.nz/",
+      "https://en.wikipedia.org/wiki/University_of_Waikato"
+    ]
+  },
+  {
+    "_id": "lincoln-new-zealand",
+    "name": "Lincoln University",
+    "type": "Public",
+    "location": {
+      "country": "New Zealand",
+      "city": "Lincoln",
+      "region": "Oceania",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Agriculture",
+      "Agricultural Sciences",
+      "Environmental Science",
+      "Business",
+      "Tourism"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Lincoln, New Zealand, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.lincoln.ac.nz/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "lincoln",
+      "lincoln nz",
+      "lincoln university",
+      "new zealand"
+    ],
+    "sources": [
+      "https://www.lincoln.ac.nz/",
+      "https://en.wikipedia.org/wiki/Lincoln_University_(New_Zealand)"
+    ]
+  },
+  {
+    "_id": "aut-new-zealand",
+    "name": "Auckland University of Technology (AUT)",
+    "type": "Public",
+    "location": {
+      "country": "New Zealand",
+      "city": "Auckland",
+      "region": "Oceania",
+      "coordinates": null
+    },
+    "campus": {
+      "setting": null,
+      "size": null
+    },
+    "ranking": {
+      "global": null,
+      "national": null,
+      "source": null
+    },
+    "tuition": {
+      "currency": "USD",
+      "bachelor": null,
+      "master": null,
+      "phd": null
+    },
+    "livingCostUSD": {
+      "min": null,
+      "max": null,
+      "period": "year"
+    },
+    "students": {
+      "total": null,
+      "international": null
+    },
+    "languages": [
+      "English"
+    ],
+    "acceptanceRate": null,
+    "programs": [
+      "Business",
+      "Health Sciences",
+      "Engineering",
+      "Computer Science",
+      "Law",
+      "Design",
+      "Communication"
+    ],
+    "degreeLevels": [
+      "Bachelor",
+      "Master",
+      "PhD"
+    ],
+    "description": "A public university in Auckland, New Zealand, offering bachelor's, master's and doctoral programmes taught mainly in English.",
+    "admissionRequirements": {
+      "gpa": {
+        "min": null,
+        "scale": null
+      },
+      "sat": {
+        "min": null,
+        "max": null
+      },
+      "act": {
+        "min": null,
+        "max": null
+      },
+      "ielts": {
+        "min": null
+      },
+      "toefl": {
+        "min": null
+      },
+      "otherExams": []
+    },
+    "applicationDeadlines": [],
+    "website": "https://www.aut.ac.nz/",
+    "applicationLink": "",
+    "socials": {
+      "instagram": "",
+      "youtube": "",
+      "linkedin": ""
+    },
+    "images": {
+      "logo": "",
+      "banner": "",
+      "gallery": []
+    },
+    "scholarships": [],
+    "searchKeywords": [
+      "auckland",
+      "auckland university of technology (aut)",
+      "aut",
+      "new zealand"
+    ],
+    "sources": [
+      "https://www.aut.ac.nz/",
+      "https://en.wikipedia.org/wiki/Auckland_University_of_Technology"
+    ]
+  }
+]

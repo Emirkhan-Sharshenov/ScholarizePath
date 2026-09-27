@@ -2,13 +2,65 @@
 
 import { useEffect, useState } from 'react'
 import React from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { motion } from 'framer-motion'
+import {
+    ArrowLeft,
+    ArrowRight,
+    Award,
+    Bot,
+    ClipboardList,
+    Eye,
+    EyeOff,
+    GraduationCap,
+    Heart,
+    Lock,
+    Mail,
+    MailCheck,
+    TrendingUp,
+    User,
+    type LucideIcon,
+} from 'lucide-react'
 
 const GOOGLE_ERROR_MESSAGES: Record<string, string> = {
     google_not_configured: "Google sign-in isn't available right now.",
     google_auth_failed: "Google sign-in failed. Please try again.",
     google_email_unverified: "Your Google email isn't verified.",
 }
+
+// Copy for the brand panel on the left (desktop only), per mode.
+const PANEL_CONTENT: Record<'login' | 'register', {
+    badge: string
+    title: string
+    subtitle: string
+    points: { icon: LucideIcon; title: string; text: string }[]
+}> = {
+    login: {
+        badge: 'Personalized student portal',
+        title: 'Welcome back',
+        subtitle: 'Your saved universities, scholarships, and applications are waiting.',
+        points: [
+            { icon: Heart, title: 'Your favorites', text: 'Universities and scholarships you saved, in one place.' },
+            { icon: ClipboardList, title: 'Application tracker', text: 'Keep every application and deadline on track.' },
+            { icon: Bot, title: 'AI assistant', text: 'Pick up your conversation where you left off.' },
+        ],
+    },
+    register: {
+        badge: 'Universities · Scholarships · AI tools',
+        title: 'Start your journey abroad',
+        subtitle: 'Create an account to get personalized matches and AI help with every application.',
+        points: [
+            { icon: GraduationCap, title: '1,500+ universities', text: 'Filter by country, budget, and requirements.' },
+            { icon: Award, title: '120+ scholarships', text: 'Fully funded and partial awards with deadlines.' },
+            { icon: TrendingUp, title: 'Personalized odds', text: 'See your estimated chances for each program.' },
+        ],
+    },
+}
+
+const inputClass =
+    'h-12 w-full rounded-[10px] border border-slate-200 bg-white pl-11 pr-4 text-[15px] text-ink placeholder:text-slate-400 shadow-sm transition-colors hover:border-slate-300 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10'
 
 function GoogleIcon() {
     return (
@@ -21,29 +73,152 @@ function GoogleIcon() {
     )
 }
 
-function GoogleButton() {
+function GoogleButton({ label }: { label: string }) {
     return (
         <a
             href="/api/auth/google"
-            className="w-full flex items-center justify-center gap-2 border-2 border-gray-200 rounded-lg py-2.5 font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex h-12 w-full items-center justify-center gap-2.5 rounded-[10px] border border-slate-200 bg-white text-[15px] font-semibold text-ink shadow-sm transition-colors hover:border-slate-300 hover:bg-slate-50"
         >
             <GoogleIcon />
-            Continue with Google
+            {label}
         </a>
     )
 }
 
 function OrDivider() {
     return (
-        <div className="w-full flex items-center gap-3 text-xs text-gray-400">
-            <span className="flex-1 h-px bg-gray-200" />
-            or
-            <span className="flex-1 h-px bg-gray-200" />
+        <div className="flex w-full items-center gap-3 text-xs font-medium uppercase tracking-wider text-slate-400">
+            <span className="h-px flex-1 bg-slate-200" />
+            or with email
+            <span className="h-px flex-1 bg-slate-200" />
         </div>
     )
 }
 
+function ErrorMessage({ message }: { message: string }) {
+    return (
+        <div role="alert" className="rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {message}
+        </div>
+    )
+}
+
+function Field({
+    id,
+    label,
+    icon: Icon,
+    children,
+}: {
+    id: string
+    label: string
+    icon: LucideIcon
+    children: React.ReactNode
+}) {
+    return (
+        <div className="flex flex-col gap-1.5">
+            <label htmlFor={id} className="text-sm font-medium text-ink">
+                {label}
+            </label>
+            <div className="relative">
+                <Icon aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-400" />
+                {children}
+            </div>
+        </div>
+    )
+}
+
+function PasswordInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+    const [visible, setVisible] = useState(false)
+
+    return (
+        <>
+            <input {...props} type={visible ? 'text' : 'password'} className={`${inputClass} pr-12`} />
+            <button
+                type="button"
+                onClick={() => setVisible((v) => !v)}
+                aria-label={visible ? 'Hide password' : 'Show password'}
+                aria-pressed={visible}
+                className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            >
+                {visible ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
+            </button>
+        </>
+    )
+}
+
+function SubmitButton({ loading, label, loadingLabel }: { loading: boolean; label: string; loadingLabel: string }) {
+    return (
+        <button
+            type="submit"
+            disabled={loading}
+            className="group mt-1 flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-brand text-[15px] font-semibold text-white shadow-[0_8px_20px_rgba(0,88,189,0.25)] transition-all hover:bg-[#004a9f] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+            {loading ? (
+                <>
+                    <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                    {loadingLabel}
+                </>
+            ) : (
+                <>
+                    {label}
+                    <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </>
+            )}
+        </button>
+    )
+}
+
+function BrandPanel({ mode }: { mode: 'login' | 'register' }) {
+    const content = PANEL_CONTENT[mode]
+
+    return (
+        <aside className="relative hidden overflow-hidden bg-gradient-to-br from-brand via-[#0a4aa6] to-ink text-white lg:flex lg:flex-col lg:justify-between lg:p-12 xl:p-16">
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 opacity-20 [background-image:radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]"
+            />
+            <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-1/3 h-80 w-80 rounded-full bg-sky-400/25 blur-[100px]" />
+
+            <Link href="/" className="relative inline-flex w-fit rounded-2xl bg-white px-4 py-3 shadow-lg shadow-black/10">
+                <Image src="/images/logo.png" alt="ScholarizePath" width={240} height={48} className="h-9 w-auto object-contain" priority />
+            </Link>
+
+            <motion.div
+                key={mode}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="relative my-12 max-w-md"
+            >
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-blue-50">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                    {content.badge}
+                </span>
+                <h2 className="mt-5 font-display text-4xl font-bold leading-tight tracking-tight xl:text-5xl">{content.title}</h2>
+                <p className="mt-4 text-lg leading-relaxed text-blue-100/85">{content.subtitle}</p>
+
+                <ul className="mt-10 space-y-3">
+                    {content.points.map(({ icon: Icon, title, text }) => (
+                        <li key={title} className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.07] p-4 backdrop-blur-sm">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15">
+                                <Icon aria-hidden="true" className="h-5 w-5" />
+                            </span>
+                            <span>
+                                <span className="block font-display font-semibold">{title}</span>
+                                <span className="mt-0.5 block text-sm leading-snug text-blue-100/75">{text}</span>
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            </motion.div>
+
+            <p className="relative text-sm text-blue-100/60">&copy; {new Date().getFullYear()} ScholarizePath</p>
+        </aside>
+    )
+}
+
 export default function LoginForm() {
+    // true = the Register panel is showing (legacy name from the sliding-panel UI).
     const [isLogin, setLogin] = useState(false)
     const [isVerifying, setIsVerifying] = useState(false)
 
@@ -62,6 +237,8 @@ export default function LoginForm() {
 
     const router = useRouter()
     const searchParams = useSearchParams()
+
+    const mode = isLogin ? 'register' : 'login'
 
     useEffect(() => {
         if (searchParams.get("mode") === "register") {
@@ -195,217 +372,186 @@ export default function LoginForm() {
     }
 
     return (
-        <div className="relative flex items-center justify-center min-h-screen bg-navy overflow-hidden p-4 sm:p-6">
-            <div className="relative z-10 w-full max-w-sm sm:max-w-md md:max-w-[900px] h-[580px] md:h-[550px] overflow-hidden rounded-3xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col md:flex-row">
+        <div className="grid min-h-screen grid-cols-1 bg-[#f7f9fc] font-body text-ink lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+            <BrandPanel mode={mode} />
 
-
-                <div
-                    className={`absolute md:relative left-0 top-0 w-full md:w-1/2 h-full flex flex-col justify-center items-center px-6 transition-all duration-700 ease-in-out ${isLogin
-                        ? "-translate-y-full opacity-0 pointer-events-none md:translate-y-0 md:-translate-x-full"
-                        : "translate-y-0 opacity-100 md:translate-x-0"
-                        } pb-14 md:pb-0`}
-                >
-                    <div className="w-full max-w-[280px] sm:max-w-[320px] flex flex-col items-center">
-                        <h1 className="text-3xl md:text-4xl font-bold mb-4 text-navy">Sign In</h1>
-
-                        {error && !isLogin && (
-                            <div className="w-full bg-red-50 text-red-500 text-xs text-center py-2 px-3 rounded-md mb-3 border border-red-200">
-                                {error}
-                            </div>
-                        )}
-
-                        <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
-                            <label htmlFor="login-email" className="sr-only">Email</label>
-                            <input
-                                type="email"
-                                id="login-email"
-                                name="email"
-                                placeholder="Email"
-                                autoComplete="username"
-                                value={loginEmail}
-                                onChange={(e) => setLoginEmail(e.target.value)}
-                                className="w-full bg-transparent border-b-2 border-gray-300 outline-none py-2 px-1 text-gray-800 focus:border-navy transition-colors"
-                            />
-                            <label htmlFor="login-password" className="sr-only">Password</label>
-                            <input
-                                type="password"
-                                id="login-password"
-                                name="password"
-                                placeholder="Password"
-                                autoComplete="current-password"
-                                value={loginPassword}
-                                onChange={(e) => setLoginPassword(e.target.value)}
-                                className="w-full bg-transparent border-b-2 border-gray-300 outline-none py-2 px-1 text-gray-800 focus:border-navy transition-colors"
-                            />
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full mt-2 bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-900 transition-colors duration-300 cursor-pointer disabled:opacity-50"
-                            >
-                                {loading ? "Signing In..." : "Sign In"}
-                            </button>
-                        </form>
-                        <div className="w-full flex flex-col gap-3 mt-4">
-                            <OrDivider />
-                            <GoogleButton />
-                        </div>
-                    </div>
+            <div className="flex min-w-0 flex-col px-4 py-5 sm:px-8 sm:py-8 lg:px-12">
+                <div className="flex items-center justify-between gap-4">
+                    <Link
+                        href="/"
+                        className="inline-flex h-10 items-center gap-2 rounded-[10px] px-2 -mx-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-ink"
+                    >
+                        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+                        Back to home
+                    </Link>
+                    <Link href="/" className="lg:hidden">
+                        <Image src="/images/logo.png" alt="ScholarizePath" width={240} height={48} className="h-7 w-auto object-contain sm:h-8" priority />
+                    </Link>
                 </div>
 
-                <div
-                    className={`absolute md:relative right-0 top-0 w-full md:w-1/2 h-full flex flex-col justify-center items-center px-6 transition-all duration-700 ease-in-out ${isLogin
-                        ? "translate-y-0 opacity-100 md:translate-x-0"
-                        : "translate-y-full opacity-0 pointer-events-none md:translate-y-0 md:translate-x-full"
-                        } pt-14 md:pt-0`}
-                >
-                    <div className="w-full max-w-[280px] sm:max-w-[320px] flex flex-col items-center">
-                        {isVerifying ? (
+                <div className="flex flex-1 items-center justify-center py-8 sm:py-12">
+                    <motion.div
+                        key={isVerifying ? 'verify' : mode}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                        className="w-full max-w-[440px] rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_10px_30px_rgba(10,26,63,0.06)] sm:p-9"
+                    >
+                        {mode === 'register' && isVerifying ? (
                             <>
-                                <h1 className="text-2xl md:text-3xl font-bold mb-2 text-navy text-center">Verify Email</h1>
-                                <p className="text-xs text-gray-500 text-center mb-4">
-                                    We sent a 6-digit code to <span className="font-semibold text-gray-700">{registerEmail}</span>
+                                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-brand">
+                                    <MailCheck aria-hidden="true" className="h-6 w-6" />
+                                </span>
+                                <h1 className="mt-5 font-display text-2xl font-bold tracking-tight sm:text-[1.75rem]">Check your email</h1>
+                                <p className="mt-2 text-[15px] leading-relaxed text-slate-500">
+                                    We sent a 6-digit code to <span className="font-semibold text-ink break-words">{registerEmail}</span>
                                 </p>
 
-                                {error && (
-                                    <div className="w-full bg-red-50 text-red-500 text-xs text-center py-1.5 px-3 rounded-md mb-2 border border-red-200">
-                                        {error}
+                                <form onSubmit={handleVerifyCode} className="mt-7 flex flex-col gap-4">
+                                    {error && <ErrorMessage message={error} />}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label htmlFor="verification-code" className="text-sm font-medium text-ink">Verification code</label>
+                                        <input
+                                            type="text"
+                                            id="verification-code"
+                                            name="one-time-code"
+                                            inputMode="numeric"
+                                            autoComplete="one-time-code"
+                                            maxLength={6}
+                                            placeholder="123456"
+                                            value={verificationCode}
+                                            onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ""))}
+                                            className="h-14 w-full rounded-[10px] border border-slate-200 bg-white text-center font-display text-2xl font-bold tracking-[0.5em] text-ink placeholder:text-slate-300 shadow-sm transition-colors focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10"
+                                        />
                                     </div>
-                                )}
-
-                                <form onSubmit={handleVerifyCode} className="w-full flex flex-col gap-4">
-                                    <label htmlFor="verification-code" className="sr-only">Verification code</label>
-                                    <input
-                                        type="text"
-                                        id="verification-code"
-                                        name="one-time-code"
-                                        inputMode="numeric"
-                                        autoComplete="one-time-code"
-                                        maxLength={6}
-                                        placeholder="123456"
-                                        value={verificationCode}
-                                        onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ""))}
-                                        className="w-full text-center tracking-[10px] text-2xl font-bold bg-gray-50 border-2 border-gray-300 rounded-lg outline-none py-2 text-gray-800 focus:border-blue-500 transition-colors"
-                                    />
-                                    <button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-900 transition-colors duration-300 cursor-pointer disabled:opacity-50"
-                                    >
-                                        {loading ? "Verifying..." : "Verify & Continue"}
-                                    </button>
+                                    <SubmitButton loading={loading} label="Verify & continue" loadingLabel="Verifying..." />
                                     <button
                                         type="button"
                                         onClick={() => setIsVerifying(false)}
-                                        className="text-xs text-gray-400 hover:text-gray-600 transition-colors text-center w-full"
+                                        className="mx-auto inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-slate-500 transition-colors hover:text-ink"
                                     >
+                                        <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />
                                         Back to registration
                                     </button>
                                 </form>
                             </>
+                        ) : mode === 'register' ? (
+                            <>
+                                <h1 className="font-display text-2xl font-bold tracking-tight sm:text-[1.75rem]">Create your account</h1>
+                                <p className="mt-2 text-[15px] text-slate-500">
+                                    Already have an account?{' '}
+                                    <button type="button" onClick={() => handleToggleMode(false)} className="font-semibold text-brand hover:underline">
+                                        Sign in
+                                    </button>
+                                </p>
+
+                                <div className="mt-7 flex flex-col gap-5">
+                                    <GoogleButton label="Sign up with Google" />
+                                    <OrDivider />
+                                </div>
+
+                                <form onSubmit={handleRegister} className="mt-5 flex flex-col gap-4">
+                                    {error && <ErrorMessage message={error} />}
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <Field id="register-first-name" label="First name" icon={User}>
+                                            <input
+                                                type="text"
+                                                id="register-first-name"
+                                                name="given-name"
+                                                autoComplete="given-name"
+                                                placeholder="Alex"
+                                                value={firstName}
+                                                onChange={(e) => setFirstName(e.target.value)}
+                                                className={inputClass}
+                                            />
+                                        </Field>
+                                        <Field id="register-last-name" label="Last name" icon={User}>
+                                            <input
+                                                type="text"
+                                                id="register-last-name"
+                                                name="family-name"
+                                                autoComplete="family-name"
+                                                placeholder="Chen"
+                                                value={lastName}
+                                                onChange={(e) => setLastName(e.target.value)}
+                                                className={inputClass}
+                                            />
+                                        </Field>
+                                    </div>
+                                    <Field id="register-email" label="Email" icon={Mail}>
+                                        <input
+                                            type="email"
+                                            id="register-email"
+                                            name="email"
+                                            autoComplete="email"
+                                            placeholder="name@example.com"
+                                            value={registerEmail}
+                                            onChange={(e) => setRegisterEmail(e.target.value)}
+                                            className={inputClass}
+                                        />
+                                    </Field>
+                                    <div className="flex flex-col gap-1.5">
+                                        <Field id="register-password" label="Password" icon={Lock}>
+                                            <PasswordInput
+                                                id="register-password"
+                                                name="new-password"
+                                                autoComplete="new-password"
+                                                placeholder="At least 8 characters"
+                                                aria-describedby="register-password-hint"
+                                                value={registerPassword}
+                                                onChange={(e) => setRegisterPassword(e.target.value)}
+                                            />
+                                        </Field>
+                                        <p id="register-password-hint" className="text-xs text-slate-500">Use at least 8 characters.</p>
+                                    </div>
+                                    <SubmitButton loading={loading} label="Create account" loadingLabel="Sending code..." />
+                                </form>
+                            </>
                         ) : (
                             <>
-                                <h1 className="text-3xl md:text-4xl font-bold mb-3 text-navy">Register</h1>
-
-                                {error && isLogin && (
-                                    <div className="w-full bg-red-50 text-red-500 text-xs text-center py-1.5 px-3 rounded-md mb-2 border border-red-200">
-                                        {error}
-                                    </div>
-                                )}
-
-                                <form onSubmit={handleRegister} className="w-full flex flex-col gap-3">
-                                    <label htmlFor="register-first-name" className="sr-only">First Name</label>
-                                    <input
-                                        type="text"
-                                        id="register-first-name"
-                                        name="given-name"
-                                        autoComplete="given-name"
-                                        placeholder="First Name"
-                                        value={firstName}
-                                        onChange={(e) => setFirstName(e.target.value)}
-                                        className="w-full bg-transparent border-b-2 border-gray-300 outline-none py-1.5 px-1 text-gray-800 focus:border-navy transition-colors"
-                                    />
-                                    <label htmlFor="register-last-name" className="sr-only">Last Name</label>
-                                    <input
-                                        type="text"
-                                        id="register-last-name"
-                                        name="family-name"
-                                        autoComplete="family-name"
-                                        placeholder="Last Name"
-                                        value={lastName}
-                                        onChange={(e) => setLastName(e.target.value)}
-                                        className="w-full bg-transparent border-b-2 border-gray-300 outline-none py-1.5 px-1 text-gray-800 focus:border-navy transition-colors"
-                                    />
-                                    <label htmlFor="register-email" className="sr-only">Email</label>
-                                    <input
-                                        type="email"
-                                        id="register-email"
-                                        name="email"
-                                        autoComplete="email"
-                                        placeholder="Email"
-                                        value={registerEmail}
-                                        onChange={(e) => setRegisterEmail(e.target.value)}
-                                        className="w-full bg-transparent border-b-2 border-gray-300 outline-none py-1.5 px-1 text-gray-800 focus:border-navy transition-colors"
-                                    />
-                                    <label htmlFor="register-password" className="sr-only">Password</label>
-                                    <input
-                                        type="password"
-                                        id="register-password"
-                                        name="new-password"
-                                        autoComplete="new-password"
-                                        placeholder="Password (min. 8 characters)"
-                                        value={registerPassword}
-                                        onChange={(e) => setRegisterPassword(e.target.value)}
-                                        className="w-full bg-transparent border-b-2 border-gray-300 outline-none py-1.5 px-1 text-gray-800 focus:border-navy transition-colors"
-                                    />
-                                    <button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="w-full mt-1 bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-900 transition-colors duration-300 cursor-pointer disabled:opacity-50"
-                                    >
-                                        {loading ? "Sending Code..." : "Sign Up"}
+                                <h1 className="font-display text-2xl font-bold tracking-tight sm:text-[1.75rem]">Sign in to your account</h1>
+                                <p className="mt-2 text-[15px] text-slate-500">
+                                    New here?{' '}
+                                    <button type="button" onClick={() => handleToggleMode(true)} className="font-semibold text-brand hover:underline">
+                                        Create an account
                                     </button>
-                                </form>
-                                <div className="w-full flex flex-col gap-2 mt-3">
+                                </p>
+
+                                <div className="mt-7 flex flex-col gap-5">
+                                    <GoogleButton label="Continue with Google" />
                                     <OrDivider />
-                                    <GoogleButton />
                                 </div>
+
+                                <form onSubmit={handleLogin} className="mt-5 flex flex-col gap-4">
+                                    {error && <ErrorMessage message={error} />}
+                                    <Field id="login-email" label="Email" icon={Mail}>
+                                        <input
+                                            type="email"
+                                            id="login-email"
+                                            name="email"
+                                            placeholder="name@example.com"
+                                            autoComplete="username"
+                                            value={loginEmail}
+                                            onChange={(e) => setLoginEmail(e.target.value)}
+                                            className={inputClass}
+                                        />
+                                    </Field>
+                                    <Field id="login-password" label="Password" icon={Lock}>
+                                        <PasswordInput
+                                            id="login-password"
+                                            name="password"
+                                            placeholder="Enter your password"
+                                            autoComplete="current-password"
+                                            value={loginPassword}
+                                            onChange={(e) => setLoginPassword(e.target.value)}
+                                        />
+                                    </Field>
+                                    <SubmitButton loading={loading} label="Sign In" loadingLabel="Signing in..." />
+                                </form>
                             </>
                         )}
-                    </div>
+                    </motion.div>
                 </div>
-
-                <div
-                    className={`absolute z-20 bg-blue-500 transition-all duration-700 ease-in-out ${isLogin
-                        ? "top-0 left-0 w-full h-14 rounded-b-2xl md:h-full md:w-1/2 md:rounded-none md:translate-x-0"
-                        : "top-[calc(100%-3.5rem)] left-0 w-full h-14 rounded-t-2xl md:top-0 md:h-full md:w-1/2 md:rounded-none md:translate-x-full"
-                        }`}
-                >
-                    <div className={`hidden md:flex absolute inset-0 flex-col items-center justify-center text-white transition-all duration-500 ${isLogin ? "opacity-0 translate-x-10 pointer-events-none" : "opacity-100 translate-x-0"}`}>
-                        <h2 className="text-4xl font-bold">Hello, Friend!</h2>
-                        <p className="mt-4 text-center px-10">Don't have an account?</p>
-                        <button type="button" onClick={() => handleToggleMode(true)} className="mt-8 px-8 py-3 rounded-full border-2 border-white hover:bg-white hover:text-blue-500 transition cursor-pointer font-semibold">
-                            Register
-                        </button>
-                    </div>
-
-                    <div className={`hidden md:flex absolute inset-0 flex-col items-center justify-center text-white transition-all duration-500 ${isLogin ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10 pointer-events-none"}`}>
-                        <h2 className="text-4xl font-bold">Welcome Back!</h2>
-                        <p className="mt-4 text-center px-10">Already have an account?</p>
-                        <button type="button" onClick={() => handleToggleMode(false)} className="mt-8 px-8 py-3 rounded-full border-2 border-white hover:bg-white hover:text-blue-500 transition cursor-pointer font-semibold">
-                            Sign In
-                        </button>
-                    </div>
-
-                    <div className="flex md:hidden h-full items-center justify-between px-6 text-white">
-                        <span className="text-xs font-medium opacity-90">
-                            {isLogin ? "Already have an account?" : "Don't have an account?"}
-                        </span>
-                        <button type="button" onClick={() => handleToggleMode(!isLogin)} className="px-4 py-1 rounded-full border border-white text-xs font-semibold active:scale-95 transition-transform">
-                            {isLogin ? "Sign In" : "Register"}
-                        </button>
-                    </div>
-                </div>
-
             </div>
         </div>
     )

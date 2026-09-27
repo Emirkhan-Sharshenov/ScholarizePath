@@ -1,0 +1,1306 @@
+[
+  {
+    "universities": [],
+    "requiredDocuments": [],
+    "numberOfAwards": 4000,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "fulbright-foreign-student-program",
+    "scholarshipName": "Fulbright Foreign Student Program",
+    "country": "United States",
+    "description": "U.S. government exchange programme that brings graduate students, young professionals and artists from abroad to study and conduct research in the United States. Applications are run by the Fulbright Commission or U.S. Embassy in each participating country, so eligibility, benefits and deadlines differ by country — check your country's Fulbright page.",
+    "fieldOfStudy": "All fields",
+    "studyLevel": [
+      "Master's",
+      "PhD"
+    ],
+    "award": {
+      "type": null,
+      "tuition": null,
+      "stipend": null,
+      "travel": null,
+      "insurance": null,
+      "arrivalAllowance": null,
+      "estimatedValue": null
+    },
+    "deadlines": [],
+    "requirements": {
+      "education": {
+        "minimumDegree": null
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "Non-U.S. citizens from participating countries (160+ countries)"
+      },
+      "age": {
+        "max": null,
+        "description": null
+      },
+      "other": [
+        "Eligibility and selection procedures vary by country"
+      ]
+    },
+    "provider": {
+      "name": "U.S. Department of State — Fulbright Commissions / U.S. Embassies",
+      "type": "Government"
+    },
+    "fundingOrganization": "U.S. Department of State",
+    "officialWebsite": "https://foreign.fulbrightonline.org/",
+    "applicationLink": "https://foreign.fulbrightonline.org/about/foreign-fulbright",
+    "applicationProcess": [
+      "Find your country's Fulbright Commission or U.S. Embassy page",
+      "Apply there by your country's deadline",
+      "Placement is arranged by IIE or by applying directly to U.S. universities, depending on the country"
+    ],
+    "duration": "Varies by country and award",
+    "intake": null,
+    "tags": [
+      "Government",
+      "Master's",
+      "PhD"
+    ],
+    "status": "Check official website",
+    "isOpen": false,
+    "verified": false,
+    "searchKeywords": [
+      "fulbright foreign student program",
+      "government",
+      "master's",
+      "phd",
+      "united states"
+    ],
+    "sources": [
+      "https://foreign.fulbrightonline.org/about/foreign-fulbright"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [
+      "Stanford University"
+    ],
+    "requiredDocuments": [],
+    "numberOfAwards": null,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "knight-hennessy-scholars-stanford",
+    "scholarshipName": "Knight-Hennessy Scholars",
+    "country": "United States",
+    "description": "Graduate scholarship at Stanford University providing up to three years of funding for students in any Stanford graduate degree programme (JD, MA, MBA, MD, MFA, MS, DMA, PhD, and joint/dual degrees).",
+    "fieldOfStudy": "All Stanford graduate programmes",
+    "studyLevel": [
+      "Master's",
+      "PhD"
+    ],
+    "award": {
+      "type": null,
+      "tuition": null,
+      "stipend": null,
+      "travel": null,
+      "insurance": null,
+      "arrivalAllowance": null,
+      "estimatedValue": null
+    },
+    "deadlines": [],
+    "requirements": {
+      "education": {
+        "minimumDegree": "Bachelor's"
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "Open to all nationalities"
+      },
+      "age": {
+        "max": null,
+        "description": null
+      },
+      "other": []
+    },
+    "provider": {
+      "name": "Stanford University",
+      "type": "University"
+    },
+    "fundingOrganization": "Stanford University",
+    "officialWebsite": "https://knight-hennessy.stanford.edu/",
+    "applicationLink": "https://knight-hennessy.stanford.edu/admission",
+    "applicationProcess": [
+      "Apply to Knight-Hennessy Scholars",
+      "Apply separately to your Stanford graduate programme"
+    ],
+    "duration": "Up to 3 years of funding",
+    "intake": null,
+    "tags": [
+      "Merit-Based",
+      "Master's",
+      "PhD",
+      "Leadership"
+    ],
+    "status": "Check official website",
+    "isOpen": false,
+    "verified": false,
+    "searchKeywords": [
+      "knight-hennessy scholars",
+      "leadership",
+      "master's",
+      "merit-based",
+      "phd",
+      "united states"
+    ],
+    "sources": [
+      "https://knight-hennessy.stanford.edu/program"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [],
+    "requiredDocuments": [],
+    "numberOfAwards": null,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "nl-scholarship-netherlands",
+    "scholarshipName": "NL Scholarship (formerly Holland Scholarship)",
+    "country": "Netherlands",
+    "description": "One-time €5,000 award in the first year of a bachelor's or master's programme at a participating Dutch research university or university of applied sciences, for students from outside the EEA. It is not a full-tuition scholarship. Each institution runs its own application and deadline.",
+    "fieldOfStudy": "Programmes at participating institutions",
+    "studyLevel": [
+      "Bachelor's",
+      "Master's"
+    ],
+    "award": {
+      "type": "Partial Funding",
+      "tuition": false,
+      "stipend": false,
+      "travel": false,
+      "insurance": false,
+      "arrivalAllowance": null,
+      "estimatedValue": {
+        "currency": "EUR",
+        "min": 5000,
+        "max": 5000
+      }
+    },
+    "deadlines": [],
+    "requirements": {
+      "education": {
+        "minimumDegree": null
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "Non-EEA nationals"
+      },
+      "age": {
+        "max": null,
+        "description": null
+      },
+      "other": [
+        "No previous degree from a Dutch educational institution",
+        "Additional criteria set by each institution"
+      ]
+    },
+    "provider": {
+      "name": "Dutch Ministry of Education, Culture and Science and participating Dutch institutions",
+      "type": "Government"
+    },
+    "fundingOrganization": "Dutch Ministry of Education, Culture and Science",
+    "officialWebsite": "https://www.studyinnl.org/finances/nl-scholarship",
+    "applicationLink": "https://www.studyinnl.org/finances/nl-scholarship",
+    "applicationProcess": [
+      "Apply for admission to a participating Dutch institution",
+      "Apply for the NL Scholarship through that institution before its deadline"
+    ],
+    "duration": "One-time award (first year)",
+    "intake": "2026-2027 round opened 1 November 2025",
+    "tags": [
+      "Government",
+      "Bachelor's",
+      "Master's",
+      "Partial Funding"
+    ],
+    "status": "Check official website",
+    "isOpen": false,
+    "verified": false,
+    "searchKeywords": [
+      "bachelor's",
+      "government",
+      "master's",
+      "netherlands",
+      "nl scholarship (formerly holland scholarship)",
+      "partial funding"
+    ],
+    "sources": [
+      "https://www.studyinnl.org/finances/nl-scholarship"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [],
+    "requiredDocuments": [],
+    "numberOfAwards": null,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "eiffel-excellence-scholarship",
+    "scholarshipName": "Eiffel Excellence Scholarship Programme",
+    "country": "France",
+    "description": "French Ministry for Europe and Foreign Affairs scholarship for international master's and PhD students in priority fields. Students cannot apply directly: the French institution applies on the candidate's behalf. The 2026 campaign ran from 1 October 2025 to 8 January 2026; dates for the next campaign had not been published at the time of checking.",
+    "fieldOfStudy": "Priority fields set by the programme",
+    "studyLevel": [
+      "Master's",
+      "PhD"
+    ],
+    "award": {
+      "type": null,
+      "tuition": null,
+      "stipend": null,
+      "travel": null,
+      "insurance": null,
+      "arrivalAllowance": null,
+      "estimatedValue": null
+    },
+    "deadlines": [],
+    "requirements": {
+      "education": {
+        "minimumDegree": null
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "International (non-French) students"
+      },
+      "age": {
+        "max": 35,
+        "description": "Up to 29 at master's level, up to 35 at PhD level"
+      },
+      "other": []
+    },
+    "provider": {
+      "name": "French Ministry for Europe and Foreign Affairs (Campus France)",
+      "type": "Government"
+    },
+    "fundingOrganization": "French Ministry for Europe and Foreign Affairs",
+    "officialWebsite": "https://www.campusfrance.org/en/eiffel-scholarship-program-of-excellence",
+    "applicationLink": "https://www.campusfrance.org/en/eiffel-scholarship-program-of-excellence",
+    "applicationProcess": [
+      "Apply for admission to a French higher education institution",
+      "The institution submits the Eiffel application for you"
+    ],
+    "duration": null,
+    "intake": null,
+    "tags": [
+      "Government",
+      "Master's",
+      "PhD",
+      "Merit-Based"
+    ],
+    "status": "Check official website",
+    "isOpen": false,
+    "verified": false,
+    "searchKeywords": [
+      "eiffel excellence scholarship programme",
+      "france",
+      "government",
+      "master's",
+      "merit-based",
+      "phd"
+    ],
+    "sources": [
+      "https://www.campusfrance.org/en/eiffel-scholarship-program-of-excellence"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [],
+    "requiredDocuments": [],
+    "numberOfAwards": null,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "si-scholarship-global-professionals",
+    "scholarshipName": "Swedish Institute Scholarships for Global Professionals (SISGP)",
+    "country": "Sweden",
+    "description": "Swedish Institute scholarship for full-time master's studies in Sweden for professionals with work and leadership experience, in STEM, innovation and entrepreneurship, public health and governance. For 2026/2027 the SI application ran 9–25 February 2026 and master's applications had to be made on UniversityAdmissions.se by 15 January 2026; check SI for the next round.",
+    "fieldOfStudy": "STEM, innovation and entrepreneurship, public health, governance",
+    "studyLevel": [
+      "Master's"
+    ],
+    "award": {
+      "type": null,
+      "tuition": null,
+      "stipend": null,
+      "travel": null,
+      "insurance": null,
+      "arrivalAllowance": null,
+      "estimatedValue": null
+    },
+    "deadlines": [],
+    "requirements": {
+      "education": {
+        "minimumDegree": null
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": true,
+        "hours": null,
+        "years": null,
+        "description": "Work and leadership experience required"
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "Citizens of SI-eligible countries"
+      },
+      "age": {
+        "max": null,
+        "description": null
+      },
+      "other": []
+    },
+    "provider": {
+      "name": "Swedish Institute",
+      "type": "Government"
+    },
+    "fundingOrganization": "Swedish Institute",
+    "officialWebsite": "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+    "applicationLink": "https://apply-scholarships.si.se/",
+    "applicationProcess": [
+      "Apply for master's programmes on UniversityAdmissions.se",
+      "Apply for the SI scholarship in the SI portal"
+    ],
+    "duration": "Duration of the master's programme",
+    "intake": null,
+    "tags": [
+      "Government",
+      "Master's",
+      "STEM",
+      "Leadership"
+    ],
+    "status": "Check official website",
+    "isOpen": false,
+    "verified": false,
+    "searchKeywords": [
+      "government",
+      "leadership",
+      "master's",
+      "stem",
+      "sweden",
+      "swedish institute scholarships for global professionals (sisgp)"
+    ],
+    "sources": [
+      "https://apply-scholarships.si.se/news/new/6-important-dates-si-scholarships-calls-application-academic-year-20262027",
+      "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [],
+    "requiredDocuments": [],
+    "numberOfAwards": null,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "stipendium-hungaricum",
+    "scholarshipName": "Stipendium Hungaricum Scholarship",
+    "country": "Hungary",
+    "description": "Hungarian Government scholarship for students from 100+ partner countries. Covers full tuition, a monthly stipend (HUF 43,700 for bachelor's/master's/non-degree; HUF 140,000 then HUF 180,000 for doctoral studies), a free dormitory place or HUF 40,000/month towards housing, and medical insurance.",
+    "fieldOfStudy": "All fields offered by participating Hungarian universities",
+    "studyLevel": [
+      "Bachelor's",
+      "Master's",
+      "PhD",
+      "Non-degree Exchange"
+    ],
+    "award": {
+      "type": "Fully Funded",
+      "tuition": true,
+      "stipend": true,
+      "travel": null,
+      "insurance": true,
+      "arrivalAllowance": null,
+      "estimatedValue": null
+    },
+    "deadlines": [],
+    "requirements": {
+      "education": {
+        "minimumDegree": null
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "Citizens of Stipendium Hungaricum partner countries (100+)"
+      },
+      "age": {
+        "max": null,
+        "description": null
+      },
+      "other": []
+    },
+    "provider": {
+      "name": "Tempus Public Foundation — Government of Hungary",
+      "type": "Government"
+    },
+    "fundingOrganization": "Government of Hungary",
+    "officialWebsite": "https://stipendiumhungaricum.hu/",
+    "applicationLink": "https://stipendiumhungaricum.hu/apply/",
+    "applicationProcess": [
+      "Apply online to Stipendium Hungaricum",
+      "Get nominated by your country's sending partner",
+      "Admission by the Hungarian university"
+    ],
+    "duration": "Duration of the study programme",
+    "intake": null,
+    "tags": [
+      "Government",
+      "Fully Funded",
+      "Bachelor's",
+      "Master's",
+      "PhD"
+    ],
+    "status": "Check official website",
+    "isOpen": false,
+    "verified": false,
+    "searchKeywords": [
+      "bachelor's",
+      "fully funded",
+      "government",
+      "hungary",
+      "master's",
+      "phd",
+      "stipendium hungaricum scholarship"
+    ],
+    "sources": [
+      "https://stipendiumhungaricum.hu/about/"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [],
+    "requiredDocuments": [],
+    "numberOfAwards": null,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "swiss-government-excellence-scholarship",
+    "scholarshipName": "Swiss Government Excellence Scholarships (Research)",
+    "country": "Switzerland",
+    "description": "Swiss Confederation scholarships for postgraduate and early-career researchers with a master's degree, from 183 countries. CHF 2,450 per month. Applications go through the Swiss embassy in the applicant's country; applications for 2027–2028 open from 20 August 2026, with country-specific deadlines.",
+    "fieldOfStudy": "All fields",
+    "studyLevel": [
+      "PhD",
+      "Postdoctoral",
+      "Non-degree Research"
+    ],
+    "award": {
+      "type": null,
+      "tuition": null,
+      "stipend": true,
+      "travel": null,
+      "insurance": null,
+      "arrivalAllowance": null,
+      "estimatedValue": null
+    },
+    "deadlines": [
+      {
+        "name": "Application Opens",
+        "date": "2026-08-20"
+      }
+    ],
+    "requirements": {
+      "education": {
+        "minimumDegree": "Master's"
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "Citizens of 183 eligible countries"
+      },
+      "age": {
+        "max": 35,
+        "description": null
+      },
+      "other": []
+    },
+    "provider": {
+      "name": "State Secretariat for Education, Research and Innovation (SERI)",
+      "type": "Government"
+    },
+    "fundingOrganization": "Swiss Confederation",
+    "officialWebsite": "https://www.sbfi.admin.ch/sbfi/en/home/education/scholarships-and-grants/swiss-government-excellence-scholarships.html",
+    "applicationLink": "https://www.sbfi.admin.ch/sbfi/en/home/education/scholarships-and-grants/swiss-government-excellence-scholarships.html",
+    "applicationProcess": [
+      "Check your country's deadline on the SERI page",
+      "Submit the application to the Swiss embassy in your country"
+    ],
+    "duration": null,
+    "intake": "2027-2028",
+    "tags": [
+      "Government",
+      "Research",
+      "PhD",
+      "Postdoctoral"
+    ],
+    "status": "Open",
+    "isOpen": true,
+    "verified": false,
+    "searchKeywords": [
+      "government",
+      "phd",
+      "postdoctoral",
+      "research",
+      "swiss government excellence scholarships (research)",
+      "switzerland"
+    ],
+    "sources": [
+      "https://www.sbfi.admin.ch/sbfi/en/home/education/scholarships-and-grants/swiss-government-excellence-scholarships.html"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [
+      "ETH Zurich"
+    ],
+    "requiredDocuments": [],
+    "numberOfAwards": 60,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "eth-excellence-scholarship-esop",
+    "scholarshipName": "ETH Zurich Excellence Scholarship & Opportunity Programme (ESOP)",
+    "country": "Switzerland",
+    "description": "Master's scholarship at ETH Zurich covering living and study costs (CHF 13,500 per semester from autumn 2027) plus a tuition fee waiver for the regular length of the programme (3–4 semesters). About 60 awards a year for students in the top 10% of their bachelor's programme. Apply 1–30 November 2026 together with the master's application.",
+    "fieldOfStudy": "ETH Zurich master's programmes (MAS excluded)",
+    "studyLevel": [
+      "Master's"
+    ],
+    "award": {
+      "type": "Fully Funded",
+      "tuition": true,
+      "stipend": true,
+      "travel": null,
+      "insurance": null,
+      "arrivalAllowance": null,
+      "estimatedValue": {
+        "currency": "CHF",
+        "min": 40500,
+        "max": 54000
+      }
+    },
+    "deadlines": [
+      {
+        "name": "Application Opens",
+        "date": "2026-11-01"
+      },
+      {
+        "name": "Application Deadline",
+        "date": "2026-11-30"
+      }
+    ],
+    "requirements": {
+      "education": {
+        "minimumDegree": "Bachelor's"
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": "Top 10% of bachelor's programme (grade A)"
+      },
+      "nationality": {
+        "eligibleCountries": null
+      },
+      "age": {
+        "max": null,
+        "description": null
+      },
+      "other": [
+        "Not already enrolled in or holding an ETH master's degree",
+        "Must be reachable for interviews in February"
+      ]
+    },
+    "provider": {
+      "name": "ETH Zurich",
+      "type": "University"
+    },
+    "fundingOrganization": "ETH Zurich",
+    "officialWebsite": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+    "applicationLink": "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html",
+    "applicationProcess": [
+      "Apply for the master's programme in eApply",
+      "Submit the ESOP application in the same portal (1–30 November)",
+      "Decisions by end of March"
+    ],
+    "duration": "Regular duration of the master's (3–4 semesters)",
+    "intake": "Autumn 2027",
+    "tags": [
+      "Merit-Based",
+      "Master's",
+      "Fully Funded"
+    ],
+    "status": "Open",
+    "isOpen": true,
+    "verified": false,
+    "searchKeywords": [
+      "eth zurich excellence scholarship & opportunity programme (esop)",
+      "fully funded",
+      "master's",
+      "merit-based",
+      "switzerland"
+    ],
+    "sources": [
+      "https://ethz.ch/students/en/studies/financial/scholarships/excellencescholarship.html"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [],
+    "requiredDocuments": [],
+    "numberOfAwards": 60,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "government-of-ireland-international-education-scholarship",
+    "scholarshipName": "Government of Ireland International Education Scholarship (GOI-IES)",
+    "country": "Ireland",
+    "description": "60 scholarships a year for a master's, postgraduate diploma or PhD year at an Irish higher education institution: a €10,000 stipend plus a full fee waiver for one year. For students domiciled outside the EU/EEA, Switzerland and the UK. The 2026 round closed on 12 March 2026.",
+    "fieldOfStudy": "All fields at eligible Irish institutions",
+    "studyLevel": [
+      "Master's",
+      "PhD"
+    ],
+    "award": {
+      "type": "Fully Funded",
+      "tuition": true,
+      "stipend": true,
+      "travel": null,
+      "insurance": null,
+      "arrivalAllowance": null,
+      "estimatedValue": {
+        "currency": "EUR",
+        "min": 10000,
+        "max": 10000
+      }
+    },
+    "deadlines": [],
+    "requirements": {
+      "education": {
+        "minimumDegree": null
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "Domiciled outside the EU/EEA, Switzerland and the UK; Russian and Belarusian nationals not eligible"
+      },
+      "age": {
+        "max": null,
+        "description": null
+      },
+      "other": [
+        "Must hold an offer from an eligible Irish institution"
+      ]
+    },
+    "provider": {
+      "name": "Higher Education Authority (Ireland)",
+      "type": "Government"
+    },
+    "fundingOrganization": "Government of Ireland",
+    "officialWebsite": "https://hea.ie/policy/internationalisation/goi-ies/",
+    "applicationLink": "https://hea.ie/policy/internationalisation/goi-ies/",
+    "applicationProcess": [
+      "Get admitted to a master's, postgraduate diploma or PhD at an eligible Irish institution",
+      "Apply on the GOI-IES portal with proof of admission"
+    ],
+    "duration": "One year",
+    "intake": null,
+    "tags": [
+      "Government",
+      "Master's",
+      "PhD",
+      "Fully Funded"
+    ],
+    "status": "Check official website",
+    "isOpen": false,
+    "verified": false,
+    "searchKeywords": [
+      "fully funded",
+      "government",
+      "government of ireland international education scholarship (goi-ies)",
+      "ireland",
+      "master's",
+      "phd"
+    ],
+    "sources": [
+      "https://hea.ie/policy/internationalisation/goi-ies/"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [
+      "The University of Hong Kong",
+      "The Chinese University of Hong Kong",
+      "The Hong Kong University of Science and Technology",
+      "The Hong Kong Polytechnic University",
+      "City University of Hong Kong",
+      "Hong Kong Baptist University",
+      "Lingnan University",
+      "The Education University of Hong Kong"
+    ],
+    "requiredDocuments": [],
+    "numberOfAwards": 400,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "hong-kong-phd-fellowship-scheme",
+    "scholarshipName": "Hong Kong PhD Fellowship Scheme (HKPFS)",
+    "country": "Hong Kong",
+    "description": "Research Grants Council fellowship for new full-time PhD students at eight Hong Kong universities: an annual stipend of HK$344,400 plus HK$14,400 a year for conference and research travel, for up to three years. 400 fellowships for 2027/28, open to all nationalities.",
+    "fieldOfStudy": "All research fields",
+    "studyLevel": [
+      "PhD"
+    ],
+    "award": {
+      "type": "Fully Funded",
+      "tuition": null,
+      "stipend": true,
+      "travel": true,
+      "insurance": null,
+      "arrivalAllowance": null,
+      "estimatedValue": {
+        "currency": "HKD",
+        "min": 344400,
+        "max": 344400
+      }
+    },
+    "deadlines": [],
+    "requirements": {
+      "education": {
+        "minimumDegree": "Bachelor's"
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "Open to all nationalities"
+      },
+      "age": {
+        "max": null,
+        "description": null
+      },
+      "other": [
+        "Academic excellence, research ability, communication and leadership skills"
+      ]
+    },
+    "provider": {
+      "name": "Research Grants Council of Hong Kong",
+      "type": "Government"
+    },
+    "fundingOrganization": "Research Grants Council of Hong Kong",
+    "officialWebsite": "https://cerg1.ugc.edu.hk/hkpfs/index.html",
+    "applicationLink": "https://cerg1.ugc.edu.hk/hkpfs/index.html",
+    "applicationProcess": [
+      "Register on the HKPFS portal",
+      "Apply for a PhD at a participating university"
+    ],
+    "duration": "Up to 3 years",
+    "intake": "2027/28",
+    "tags": [
+      "Government",
+      "PhD",
+      "Research",
+      "Fully Funded"
+    ],
+    "status": "Check official website",
+    "isOpen": false,
+    "verified": false,
+    "searchKeywords": [
+      "fully funded",
+      "government",
+      "hong kong",
+      "hong kong phd fellowship scheme (hkpfs)",
+      "phd",
+      "research"
+    ],
+    "sources": [
+      "https://cerg1.ugc.edu.hk/hkpfs/index.html"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [],
+    "requiredDocuments": [],
+    "numberOfAwards": null,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "manaaki-new-zealand-scholarships",
+    "scholarshipName": "Manaaki New Zealand Scholarships",
+    "country": "New Zealand",
+    "description": "New Zealand Government scholarships for people from partner countries for undergraduate and postgraduate study and short-term training. Application windows differ by country — check the Manaaki site for your country.",
+    "fieldOfStudy": "Priority fields set per partner country",
+    "studyLevel": [
+      "Bachelor's",
+      "Master's",
+      "PhD",
+      "Short Course"
+    ],
+    "award": {
+      "type": null,
+      "tuition": null,
+      "stipend": null,
+      "travel": null,
+      "insurance": null,
+      "arrivalAllowance": null,
+      "estimatedValue": null
+    },
+    "deadlines": [],
+    "requirements": {
+      "education": {
+        "minimumDegree": null
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "Citizens of New Zealand's partner countries"
+      },
+      "age": {
+        "max": null,
+        "description": null
+      },
+      "other": []
+    },
+    "provider": {
+      "name": "New Zealand Government",
+      "type": "Government"
+    },
+    "fundingOrganization": "New Zealand Government",
+    "officialWebsite": "https://www.nzscholarships.govt.nz/",
+    "applicationLink": "https://www.nzscholarships.govt.nz/",
+    "applicationProcess": [
+      "Check eligibility and dates for your country",
+      "Apply online during your country's window"
+    ],
+    "duration": "Duration of the programme",
+    "intake": null,
+    "tags": [
+      "Government",
+      "Bachelor's",
+      "Master's",
+      "Development"
+    ],
+    "status": "Check official website",
+    "isOpen": false,
+    "verified": false,
+    "searchKeywords": [
+      "bachelor's",
+      "development",
+      "government",
+      "manaaki new zealand scholarships",
+      "master's",
+      "new zealand"
+    ],
+    "sources": [
+      "https://www.nzscholarships.govt.nz/"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [],
+    "requiredDocuments": [],
+    "numberOfAwards": null,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "mexican-government-excellence-scholarship",
+    "scholarshipName": "Mexican Government Excellence Scholarships for Foreigners (AMEXCID)",
+    "country": "Mexico",
+    "description": "Scholarships from Mexico's Ministry of Foreign Affairs (AMEXCID) for foreigners from 170+ countries to study postgraduate programmes registered in Mexico's National Postgraduate System at 90 participating institutions. Conditions and dates are published in each year's call (convocatoria).",
+    "fieldOfStudy": "Postgraduate programmes at 90 participating Mexican institutions",
+    "studyLevel": [
+      "Master's",
+      "PhD"
+    ],
+    "award": {
+      "type": null,
+      "tuition": null,
+      "stipend": null,
+      "travel": null,
+      "insurance": null,
+      "arrivalAllowance": null,
+      "estimatedValue": null
+    },
+    "deadlines": [],
+    "requirements": {
+      "education": {
+        "minimumDegree": null
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "Citizens of 170+ eligible countries (see the call's list)"
+      },
+      "age": {
+        "max": null,
+        "description": null
+      },
+      "other": []
+    },
+    "provider": {
+      "name": "Mexican Agency for International Development Cooperation (AMEXCID)",
+      "type": "Government"
+    },
+    "fundingOrganization": "Government of Mexico",
+    "officialWebsite": "https://www.gob.mx/amexcid/acciones-y-programas/becas-para-extranjeros-29785",
+    "applicationLink": "https://www.gob.mx/amexcid/acciones-y-programas/becas-para-extranjeros-29785",
+    "applicationProcess": [
+      "Read the current call and eligible-country list",
+      "Get admitted to a participating Mexican programme",
+      "Apply as described in the call (contact: infobecas@sre.gob.mx)"
+    ],
+    "duration": "Duration of the programme",
+    "intake": null,
+    "tags": [
+      "Government",
+      "Master's",
+      "PhD"
+    ],
+    "status": "Check official website",
+    "isOpen": false,
+    "verified": false,
+    "searchKeywords": [
+      "government",
+      "master's",
+      "mexican government excellence scholarships for foreigners (amexcid)",
+      "mexico",
+      "phd"
+    ],
+    "sources": [
+      "https://www.gob.mx/amexcid/acciones-y-programas/becas-para-extranjeros-29785"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [],
+    "requiredDocuments": [],
+    "numberOfAwards": null,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "taiwanicdf-higher-education-scholarship",
+    "scholarshipName": "TaiwanICDF International Higher Education Scholarship",
+    "country": "Taiwan",
+    "description": "Full scholarships from the Taiwan International Cooperation and Development Fund for students from partner countries to study at Taiwanese universities. Applications for the 2027 intake are open from 1 December 2026 to 15 March 2027.",
+    "fieldOfStudy": "Programmes at TaiwanICDF partner universities",
+    "studyLevel": [
+      "Bachelor's",
+      "Master's",
+      "PhD"
+    ],
+    "award": {
+      "type": "Fully Funded",
+      "tuition": null,
+      "stipend": null,
+      "travel": null,
+      "insurance": null,
+      "arrivalAllowance": null,
+      "estimatedValue": null
+    },
+    "deadlines": [
+      {
+        "name": "Application Opens",
+        "date": "2026-12-01"
+      },
+      {
+        "name": "Application Deadline",
+        "date": "2027-03-15"
+      }
+    ],
+    "requirements": {
+      "education": {
+        "minimumDegree": null
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "Citizens of countries on the TaiwanICDF eligible-country list"
+      },
+      "age": {
+        "max": null,
+        "description": null
+      },
+      "other": []
+    },
+    "provider": {
+      "name": "Taiwan International Cooperation and Development Fund (TaiwanICDF)",
+      "type": "Government"
+    },
+    "fundingOrganization": "TaiwanICDF",
+    "officialWebsite": "https://www.icdf.org.tw/",
+    "applicationLink": "https://web.icdf.org.tw/ICDF_TSP/WelcomeStart.aspx",
+    "applicationProcess": [
+      "Check the eligible-country list and programme list",
+      "Apply in the TaiwanICDF online system"
+    ],
+    "duration": "Duration of the programme",
+    "intake": "2027",
+    "tags": [
+      "Government",
+      "Fully Funded",
+      "Bachelor's",
+      "Master's",
+      "PhD"
+    ],
+    "status": "Open",
+    "isOpen": true,
+    "verified": false,
+    "searchKeywords": [
+      "bachelor's",
+      "fully funded",
+      "government",
+      "master's",
+      "phd",
+      "taiwan",
+      "taiwanicdf international higher education scholarship"
+    ],
+    "sources": [
+      "https://icdf.org.tw/wSite/ct?ctNode=31562&mp=1&xItem=12505",
+      "https://web.icdf.org.tw/ICDF_TSP/WelcomeStart.aspx"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  },
+  {
+    "universities": [],
+    "requiredDocuments": [],
+    "numberOfAwards": null,
+    "acceptanceRate": null,
+    "logo": null,
+    "banner": null,
+    "gallery": [],
+    "_id": "ernst-mach-grant-worldwide",
+    "scholarshipName": "Ernst Mach Grant — Worldwide (OeAD)",
+    "country": "Austria",
+    "description": "Austrian research grant for young researchers of all disciplines from any country except Austria, for research stays of 1 to 9 months at Austrian institutions. Age limit 35. Deadline: 1 December.",
+    "fieldOfStudy": "All fields",
+    "studyLevel": [
+      "Non-degree Research"
+    ],
+    "award": {
+      "type": null,
+      "tuition": null,
+      "stipend": true,
+      "travel": null,
+      "insurance": null,
+      "arrivalAllowance": null,
+      "estimatedValue": null
+    },
+    "deadlines": [
+      {
+        "name": "Application Deadline",
+        "date": "2026-12-01"
+      }
+    ],
+    "requirements": {
+      "education": {
+        "minimumDegree": null
+      },
+      "language": {
+        "test": null,
+        "minimumScore": null
+      },
+      "experience": {
+        "required": false,
+        "hours": null,
+        "years": null
+      },
+      "gpa": {
+        "minimum": null,
+        "description": null
+      },
+      "nationality": {
+        "eligibleCountries": "All nationalities except Austrian"
+      },
+      "age": {
+        "max": 35,
+        "description": null
+      },
+      "other": []
+    },
+    "provider": {
+      "name": "OeAD — Agency for Education and Internationalisation",
+      "type": "Government"
+    },
+    "fundingOrganization": "Austrian Federal Ministry of Education, Science and Research",
+    "officialWebsite": "https://oead.at/en/to-austria/grants-and-scholarships/ernst-mach-grant",
+    "applicationLink": "https://oead.at/en/to-austria/grants-and-scholarships/ernst-mach-grant",
+    "applicationProcess": [
+      "Arrange a host at an Austrian institution",
+      "Apply via the OeAD grants database by 1 December"
+    ],
+    "duration": "1–9 months",
+    "intake": null,
+    "tags": [
+      "Government",
+      "Research"
+    ],
+    "status": "Open",
+    "isOpen": true,
+    "verified": false,
+    "searchKeywords": [
+      "austria",
+      "ernst mach grant — worldwide (oead)",
+      "government",
+      "research"
+    ],
+    "sources": [
+      "https://oead.at/en/to-austria/grants-and-scholarships/ernst-mach-grant"
+    ],
+    "sourcesCheckedAt": "2026-09-24"
+  }
+]

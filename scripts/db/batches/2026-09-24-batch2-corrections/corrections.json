@@ -1,0 +1,115 @@
+[
+  {
+    "collection": "universities",
+    "_id": "mit-usa",
+    "set": {
+      "tuition.bachelor": 66720,
+      "tuition.master": 66720,
+      "tuition.phd": 66720
+    },
+    "reason": "Tuition was stored as $0 (bachelor/PhD) and $58,000 (master). MIT's published 2026-27 tuition is $66,720 for undergraduates and $66,720 for most graduate programmes (families under $200k typically pay no tuition through aid, but the tuition itself is not $0).",
+    "source": [
+      "https://sfs.mit.edu/cost-of-attendance-class-of-2030/",
+      "https://sfs.mit.edu/graduate-students/cost-of-attendance/grad-cost-of-attendance/"
+    ]
+  },
+  {
+    "collection": "scholarships",
+    "_id": "heinrich-boll-foundation-scholarship",
+    "set": {
+      "deadlines": [
+        {
+          "name": "Application Opens",
+          "date": "2027-01-15"
+        },
+        {
+          "name": "Application Deadline",
+          "date": "2027-03-01"
+        }
+      ],
+      "status": "Open",
+      "isOpen": true,
+      "officialWebsite": "https://www.boell.de/en/scholarships",
+      "applicationLink": "https://www.boell.de/en/application"
+    },
+    "reason": "Deadline was the text '2026-09-01 (approximate)' (already passed, not a valid date) and the official link /en/studienwerk returns 404. Next window per boell.de: 15 January – 1 March 2027 (deadlines are 1 March and 1 September each year).",
+    "source": [
+      "https://www.boell.de/en/application",
+      "https://www.boell.de/en/scholarships"
+    ]
+  },
+  {
+    "collection": "scholarships",
+    "_id": "commonwealth-shared-scholarship-uk",
+    "set": {
+      "deadlines": [],
+      "status": "Closed",
+      "isOpen": false,
+      "intake": null
+    },
+    "reason": "Only deadline (2025-12-09) has passed; the official page states applications for 2026/27 are closed and no 2027/28 dates are published yet.",
+    "source": [
+      "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-shared-scholarships/"
+    ]
+  },
+  {
+    "collection": "universities",
+    "_id": "williams-usa",
+    "set": {
+      "ranking.national": null,
+      "ranking.liberalArtsColleges": 1
+    },
+    "reason": "ranking.national held a US News Liberal Arts Colleges position, which is a separate list from national universities (it collided with MIT #1, Stanford #2, Caltech #4, Duke/Brown #13). Moved to ranking.liberalArtsColleges; the number itself was not re-verified.",
+    "source": [
+      "https://www.usnews.com/best-colleges/rankings/national-liberal-arts-colleges"
+    ]
+  },
+  {
+    "collection": "universities",
+    "_id": "amherst-usa",
+    "set": {
+      "ranking.national": null,
+      "ranking.liberalArtsColleges": 2
+    },
+    "reason": "ranking.national held a US News Liberal Arts Colleges position, which is a separate list from national universities (it collided with MIT #1, Stanford #2, Caltech #4, Duke/Brown #13). Moved to ranking.liberalArtsColleges; the number itself was not re-verified.",
+    "source": [
+      "https://www.usnews.com/best-colleges/rankings/national-liberal-arts-colleges"
+    ]
+  },
+  {
+    "collection": "universities",
+    "_id": "pomona-usa",
+    "set": {
+      "ranking.national": null,
+      "ranking.liberalArtsColleges": 4
+    },
+    "reason": "ranking.national held a US News Liberal Arts Colleges position, which is a separate list from national universities (it collided with MIT #1, Stanford #2, Caltech #4, Duke/Brown #13). Moved to ranking.liberalArtsColleges; the number itself was not re-verified.",
+    "source": [
+      "https://www.usnews.com/best-colleges/rankings/national-liberal-arts-colleges"
+    ]
+  },
+  {
+    "collection": "universities",
+    "_id": "swarthmore-usa",
+    "set": {
+      "ranking.national": null,
+      "ranking.liberalArtsColleges": 4
+    },
+    "reason": "ranking.national held a US News Liberal Arts Colleges position, which is a separate list from national universities (it collided with MIT #1, Stanford #2, Caltech #4, Duke/Brown #13). Moved to ranking.liberalArtsColleges; the number itself was not re-verified.",
+    "source": [
+      "https://www.usnews.com/best-colleges/rankings/national-liberal-arts-colleges"
+    ]
+  },
+  {
+    "collection": "universities",
+    "_id": "wellesley-usa",
+    "set": {
+      "ranking.national": null,
+      "ranking.liberalArtsColleges": 13
+    },
+    "reason": "ranking.national held a US News Liberal Arts Colleges position, which is a separate list from national universities (it collided with MIT #1, Stanford #2, Caltech #4, Duke/Brown #13). Moved to ranking.liberalArtsColleges; the number itself was not re-verified.",
+    "source": [
+      "https://www.usnews.com/best-colleges/rankings/national-liberal-arts-colleges"
+    ]
+  }
+]

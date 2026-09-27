@@ -1,0 +1,698 @@
+[
+  {
+    "collection": "universities",
+    "_id": "pku-china",
+    "set": {
+      "website": "https://www.pku.edu.cn/"
+    },
+    "source": "https://www.pku.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "tsinghua-china",
+    "set": {
+      "website": "https://www.tsinghua.edu.cn/"
+    },
+    "source": "https://www.tsinghua.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "fudan-china",
+    "set": {
+      "website": "https://www.fudan.edu.cn/"
+    },
+    "source": "https://www.fudan.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "sjtu-china",
+    "set": {
+      "website": "https://www.sjtu.edu.cn/"
+    },
+    "source": "https://www.sjtu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "zju-china",
+    "set": {
+      "website": "https://www.zju.edu.cn/"
+    },
+    "source": "https://www.zju.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "nju-china",
+    "set": {
+      "website": "https://www.nju.edu.cn/"
+    },
+    "source": "https://www.nju.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "ustc-china",
+    "set": {
+      "website": "https://www.ustc.edu.cn/"
+    },
+    "source": "https://www.ustc.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "hit-china",
+    "set": {
+      "website": "https://www.hit.edu.cn/"
+    },
+    "source": "https://www.hit.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "xjtu-china",
+    "set": {
+      "website": "https://www.xjtu.edu.cn/"
+    },
+    "source": "https://www.xjtu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "whu-china",
+    "set": {
+      "website": "https://www.whu.edu.cn/"
+    },
+    "source": "https://www.whu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "sysu-china",
+    "set": {
+      "website": "https://www.sysu.edu.cn/"
+    },
+    "source": "https://www.sysu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "ruc-china",
+    "set": {
+      "website": "https://www.ruc.edu.cn/"
+    },
+    "source": "https://www.ruc.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "bnu-china",
+    "set": {
+      "website": "https://www.bnu.edu.cn/"
+    },
+    "source": "https://www.bnu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "tongji-china",
+    "set": {
+      "website": "https://www.tongji.edu.cn/"
+    },
+    "source": "https://www.tongji.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "seu-china",
+    "set": {
+      "website": "https://www.seu.edu.cn/"
+    },
+    "source": "https://www.seu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "scu-china",
+    "set": {
+      "website": "https://www.scu.edu.cn/"
+    },
+    "source": "https://www.scu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "csu-china",
+    "set": {
+      "website": "https://www.csu.edu.cn/"
+    },
+    "source": "https://www.csu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "hust-china",
+    "set": {
+      "website": "https://www.hust.edu.cn/"
+    },
+    "source": "https://www.hust.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "scut-china",
+    "set": {
+      "website": "https://www.scut.edu.cn/"
+    },
+    "source": "https://www.scut.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "buaa-china",
+    "set": {
+      "website": "https://www.buaa.edu.cn/"
+    },
+    "source": "https://www.buaa.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "bit-china",
+    "set": {
+      "website": "https://www.bit.edu.cn/"
+    },
+    "source": "https://www.bit.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "dlut-china",
+    "set": {
+      "website": "https://www.dlut.edu.cn/"
+    },
+    "source": "https://www.dlut.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "tju-china",
+    "set": {
+      "website": "https://www.tju.edu.cn/"
+    },
+    "source": "https://www.tju.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "nankai-china",
+    "set": {
+      "website": "https://www.nankai.edu.cn/"
+    },
+    "source": "https://www.nankai.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "xmu-china",
+    "set": {
+      "website": "https://www.xmu.edu.cn/"
+    },
+    "source": "https://www.xmu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "sdu-china",
+    "set": {
+      "website": "https://www.sdu.edu.cn/"
+    },
+    "source": "https://www.sdu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "lzu-china",
+    "set": {
+      "website": "https://www.lzu.edu.cn/"
+    },
+    "source": "Official domain lzu.edu.cn listed on https://en.wikipedia.org (site not reachable from verification host), checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "cqu-china",
+    "set": {
+      "website": "https://www.cqu.edu.cn/"
+    },
+    "source": "https://www.cqu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "nwpu-china",
+    "set": {
+      "website": "https://www.nwpu.edu.cn/"
+    },
+    "source": "https://www.nwpu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "ecnu-china",
+    "set": {
+      "website": "https://www.ecnu.edu.cn/"
+    },
+    "source": "https://www.ecnu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "jlu-china",
+    "set": {
+      "website": "https://www.jlu.edu.cn/"
+    },
+    "source": "https://www.jlu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "neu-cn-china",
+    "set": {
+      "website": "https://www.neu.edu.cn/"
+    },
+    "source": "https://www.neu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "cau-china",
+    "set": {
+      "website": "https://www.cau.edu.cn/"
+    },
+    "source": "https://www.cau.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "hnu-china",
+    "set": {
+      "website": "https://www.hnu.edu.cn/"
+    },
+    "source": "https://www.hnu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "ouc-china",
+    "set": {
+      "website": "https://www.ouc.edu.cn/"
+    },
+    "source": "https://www.ouc.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "ccnu-china",
+    "set": {
+      "website": "https://www.ccnu.edu.cn/"
+    },
+    "source": "Official domain ccnu.edu.cn listed on https://en.wikipedia.org (site not reachable from verification host), checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "swjtu-china",
+    "set": {
+      "website": "https://www.swjtu.edu.cn/"
+    },
+    "source": "Official domain swjtu.edu.cn listed on https://en.wikipedia.org (site not reachable from verification host), checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "upc-china",
+    "set": {
+      "website": "https://www.upc.edu.cn/"
+    },
+    "source": "https://www.upc.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "cumt-china",
+    "set": {
+      "website": "https://www.cumt.edu.cn/"
+    },
+    "source": "https://www.cumt.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "nenu-china",
+    "set": {
+      "website": "https://www.nenu.edu.cn/"
+    },
+    "source": "https://www.nenu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "hebut-china",
+    "set": {
+      "website": "https://www.hebut.edu.cn/"
+    },
+    "source": "https://www.hebut.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "ynu-cn-china",
+    "set": {
+      "website": "https://www.ynu.edu.cn/"
+    },
+    "source": "https://www.ynu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "gxu-china",
+    "set": {
+      "website": "https://www.gxu.edu.cn/"
+    },
+    "source": "https://www.gxu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "xju-china",
+    "set": {
+      "website": "https://www.xju.edu.cn/"
+    },
+    "source": "https://www.xju.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "imu-china",
+    "set": {
+      "website": "https://www.imu.edu.cn/"
+    },
+    "source": "https://www.imu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "ncu-cn-china",
+    "set": {
+      "website": "https://www.ncu.edu.cn/"
+    },
+    "source": "https://www.ncu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "zzu-china",
+    "set": {
+      "website": "https://www.zzu.edu.cn/"
+    },
+    "source": "https://www.zzu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "hainanu-china",
+    "set": {
+      "website": "https://www.hainanu.edu.cn/"
+    },
+    "source": "https://www.hainanu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "ahu-china",
+    "set": {
+      "website": "https://www.ahu.edu.cn/"
+    },
+    "source": "https://www.ahu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "sxu-china",
+    "set": {
+      "website": "https://www.sxu.edu.cn/"
+    },
+    "source": "https://www.sxu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "snnu-china",
+    "set": {
+      "website": "https://www.snnu.edu.cn/"
+    },
+    "source": "https://www.snnu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "swu-cn-china",
+    "set": {
+      "website": "https://www.swu.edu.cn/"
+    },
+    "source": "https://www.swu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "scnu-china",
+    "set": {
+      "website": "https://www.scnu.edu.cn/"
+    },
+    "source": "https://www.scnu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "fzu-china",
+    "set": {
+      "website": "https://www.fzu.edu.cn/"
+    },
+    "source": "https://www.fzu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "gzu-china",
+    "set": {
+      "website": "https://www.gzu.edu.cn/"
+    },
+    "source": "https://www.gzu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "gzhu-china",
+    "set": {
+      "website": "https://www.gzhu.edu.cn/"
+    },
+    "source": "https://www.gzhu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "suda-china",
+    "set": {
+      "website": "https://www.suda.edu.cn/"
+    },
+    "source": "https://www.suda.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "nuaa-china",
+    "set": {
+      "website": "https://www.nuaa.edu.cn/"
+    },
+    "source": "https://www.nuaa.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "njust-china",
+    "set": {
+      "website": "https://www.njust.edu.cn/"
+    },
+    "source": "Official domain njust.edu.cn listed on https://en.wikipedia.org (site not reachable from verification host), checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "cpu-china",
+    "set": {
+      "website": "https://www.cpu.edu.cn/"
+    },
+    "source": "https://www.cpu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "jiangnan-china",
+    "set": {
+      "website": "https://www.jiangnan.edu.cn/"
+    },
+    "source": "https://www.jiangnan.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "cug-china",
+    "set": {
+      "website": "https://www.cug.edu.cn/"
+    },
+    "source": "https://www.cug.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "nwafu-china",
+    "set": {
+      "website": "https://www.nwafu.edu.cn/"
+    },
+    "source": "https://www.nwafu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "shu-cn-china",
+    "set": {
+      "website": "https://www.shu.edu.cn/"
+    },
+    "source": "Official domain shu.edu.cn listed on https://en.wikipedia.org (site not reachable from verification host), checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "ecust-china",
+    "set": {
+      "website": "https://www.ecust.edu.cn/"
+    },
+    "source": "https://www.ecust.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "dhu-china",
+    "set": {
+      "website": "https://www.dhu.edu.cn/"
+    },
+    "source": "https://www.dhu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "uestc-china",
+    "set": {
+      "website": "https://www.uestc.edu.cn/"
+    },
+    "source": "https://www.uestc.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "buct-china",
+    "set": {
+      "website": "https://www.buct.edu.cn/"
+    },
+    "source": "https://www.buct.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "bupt-china",
+    "set": {
+      "website": "https://www.bupt.edu.cn/"
+    },
+    "source": "Official domain bupt.edu.cn listed on https://en.wikipedia.org (site not reachable from verification host), checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "bfsu-china",
+    "set": {
+      "website": "https://www.bfsu.edu.cn/"
+    },
+    "source": "https://www.bfsu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "uibe-china",
+    "set": {
+      "website": "https://www.uibe.edu.cn/"
+    },
+    "source": "https://www.uibe.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "cufe-china",
+    "set": {
+      "website": "https://www.cufe.edu.cn/"
+    },
+    "source": "https://www.cufe.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "sufe-china",
+    "set": {
+      "website": "https://www.sufe.edu.cn/"
+    },
+    "source": "https://www.sufe.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "swufe-china",
+    "set": {
+      "website": "https://www.swufe.edu.cn/"
+    },
+    "source": "https://www.swufe.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "zuel-china",
+    "set": {
+      "website": "https://www.zuel.edu.cn/"
+    },
+    "source": "Official domain zuel.edu.cn listed on https://en.wikipedia.org (site not reachable from verification host), checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "cupl-china",
+    "set": {
+      "website": "https://www.cupl.edu.cn/"
+    },
+    "source": "https://www.cupl.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "cuc-china",
+    "set": {
+      "website": "https://www.cuc.edu.cn/"
+    },
+    "source": "https://www.cuc.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "pumc-china",
+    "set": {
+      "website": "https://www.pumc.edu.cn/"
+    },
+    "source": "https://www.pumc.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "cmu-cn-china",
+    "set": {
+      "website": "https://www.ccmu.edu.cn/"
+    },
+    "source": "https://www.ccmu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "smu-cn-china",
+    "set": {
+      "website": "https://www.smu.edu.cn/"
+    },
+    "source": "https://www.smu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "hrbeu-china",
+    "set": {
+      "website": "https://www.hrbeu.edu.cn/"
+    },
+    "source": "https://www.hrbeu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "bjtu-china",
+    "set": {
+      "website": "https://www.bjtu.edu.cn/"
+    },
+    "source": "https://www.bjtu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "dmu-china",
+    "set": {
+      "website": "https://www.dlmu.edu.cn/"
+    },
+    "source": "https://www.dlmu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "jnu-cn-china",
+    "set": {
+      "website": "https://www.jnu.edu.cn/"
+    },
+    "source": "https://www.jnu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "szu-cn-china",
+    "set": {
+      "website": "https://www.szu.edu.cn/"
+    },
+    "source": "https://www.szu.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "sustech-china",
+    "set": {
+      "website": "https://www.sustech.edu.cn/"
+    },
+    "source": "https://www.sustech.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  },
+  {
+    "collection": "universities",
+    "_id": "shanghaitech-china",
+    "set": {
+      "website": "https://www.shanghaitech.edu.cn/"
+    },
+    "source": "https://www.shanghaitech.edu.cn/ responded 200 with the university's name in the page title, checked 2026-09-24"
+  }
+]
