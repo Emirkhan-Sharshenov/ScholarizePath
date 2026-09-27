@@ -67,12 +67,12 @@ export default function UserGrowthChart() {
     }, [range]);
 
     return (
-        <div className="rounded-2xl border border-slate-100/80 bg-white p-5 shadow-sm">
+        <section className="h-full rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_4px_12px_rgba(10,26,63,0.04)] sm:p-6">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900">User Growth</h3>
+                    <h2 className="font-display text-lg font-bold text-ink">User growth</h2>
                     <div className="mt-1 flex items-center gap-1.5">
-                        <span className="text-xl font-bold tracking-tight text-slate-900">
+                        <span className="font-display text-2xl font-bold tracking-tight text-ink">
                             {loading ? "—" : totalInRange}
                         </span>
                         <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-emerald-600">
@@ -82,13 +82,13 @@ export default function UserGrowthChart() {
                     </div>
                 </div>
 
-                <div className="inline-flex rounded-lg bg-slate-100 p-0.5">
+                <div role="radiogroup" aria-label="Date range" className="inline-flex rounded-xl bg-slate-100 p-1">
                     {RANGES.map((r) => (
                         <button
                             key={r.value}
                             onClick={() => setRange(r.value)}
-                            className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${range === r.value
-                                    ? "bg-white text-blue-600 shadow-sm"
+                            role="radio" aria-checked={range === r.value} className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${range === r.value
+                                    ? "bg-white text-brand shadow-sm"
                                     : "text-slate-500 hover:text-slate-800"
                                 }`}
                         >
@@ -112,8 +112,8 @@ export default function UserGrowthChart() {
                     <AreaChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                         <defs>
                             <linearGradient id="userGrowthGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#2563eb" stopOpacity={0.25} />
-                                <stop offset="100%" stopColor="#2563eb" stopOpacity={0} />
+                                <stop offset="0%" stopColor="#0058bd" stopOpacity={0.25} />
+                                <stop offset="100%" stopColor="#0058bd" stopOpacity={0} />
                             </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -137,13 +137,13 @@ export default function UserGrowthChart() {
                         <Area
                             type="monotone"
                             dataKey="count"
-                            stroke="#2563eb"
+                            stroke="#0058bd"
                             strokeWidth={2}
                             fill="url(#userGrowthGradient)"
                         />
                     </AreaChart>
                 </ResponsiveContainer>
             )}
-        </div>
+        </section>
     );
 }

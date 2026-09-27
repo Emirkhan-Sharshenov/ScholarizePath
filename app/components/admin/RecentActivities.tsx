@@ -39,9 +39,9 @@ export default function RecentActivities() {
     }, []);
 
     return (
-        <div className="rounded-2xl border border-slate-100/80 bg-white p-5 shadow-sm">
+        <section className="h-full rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_4px_12px_rgba(10,26,63,0.04)] sm:p-6">
             <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-sm font-bold text-slate-900">Recent Activities</h3>
+                <h2 className="font-display text-lg font-bold text-ink">Recent activity</h2>
                 <Clock className="h-4 w-4 text-slate-300" />
             </div>
 
@@ -75,13 +75,13 @@ export default function RecentActivities() {
                                     <Icon className="h-4 w-4" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <p className="truncate text-xs font-semibold text-slate-900">
+                                    <p className="truncate text-sm font-semibold text-ink">
                                         {item.action}
                                         <span className="font-normal text-slate-500"> · {item.name}</span>
                                     </p>
-                                    <p className="text-[11px] text-slate-400">{item.detail}</p>
+                                    <p className="truncate text-xs text-slate-500">{item.detail}</p>
                                 </div>
-                                <span className="shrink-0 whitespace-nowrap text-[11px] font-medium text-slate-400">
+                                <span className="shrink-0 whitespace-nowrap text-xs text-slate-400">
                                     {timeAgo(item.time)}
                                 </span>
                             </div>
@@ -89,6 +89,6 @@ export default function RecentActivities() {
                     })}
                 </div>
             )}
-        </div>
+        </section>
     );
 }

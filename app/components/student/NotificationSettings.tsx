@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { BellRing } from 'lucide-react';
 
 interface NotificationSettingsProps {
     deadlineReminders: boolean;
@@ -35,34 +36,33 @@ export function NotificationSettings({ deadlineReminders }: NotificationSettings
     };
 
     return (
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Notifications</h3>
+        <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_4px_12px_rgba(10,26,63,0.04)] sm:p-6">
+            <h3 className="mb-5 flex items-center gap-3 font-display text-lg font-semibold text-ink">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-brand">
+                    <BellRing aria-hidden="true" className="h-5 w-5" />
+                </span>
+                Notifications
+            </h3>
 
-            <div className="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-slate-50">
+            <div className="flex items-start justify-between gap-4">
                 <div>
-                    <span className="font-semibold text-gray-800 block">Deadline email reminders</span>
-                    <span className="text-xs text-gray-400">
+                    <p id="deadline-reminders-label" className="font-semibold text-ink">Deadline email reminders</p>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-500">
                         Get an email 7 days and 1 day before deadlines of your favorited scholarships and universities.
-                    </span>
+                    </p>
                 </div>
-
                 <button
                     type="button"
                     role="switch"
                     aria-checked={enabled}
-                    disabled={saving}
+                    aria-labelledby="deadline-reminders-label"
                     onClick={handleToggle}
-                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 ${
-                        enabled ? 'bg-blue-600' : 'bg-gray-300'
-                    }`}
+                    disabled={saving}
+                    className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors disabled:opacity-60 ${enabled ? 'bg-brand' : 'bg-slate-300'}`}
                 >
-                    <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            enabled ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                    />
+                    <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
                 </button>
             </div>
-        </div>
+        </section>
     );
 }

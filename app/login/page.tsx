@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function AuthPage() {
     return (
-        <main className="relative min-h-screen bg-navy overflow-hidden">
+        <main className="relative min-h-screen bg-[#f7f9fc]">
             <ErrorBoundary>
                 <Suspense fallback={null}>
                     <LoginForm />

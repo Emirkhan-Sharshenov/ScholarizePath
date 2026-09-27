@@ -8,6 +8,7 @@ import { X, ArrowRight, type LucideIcon } from 'lucide-react';
 
 export interface FeatureDetail {
     icon: LucideIcon | null;
+    iconTone?: string;
     badgeText: string;
     title: string;
     description: string;
@@ -65,7 +66,7 @@ export default function FeatureDetailModal({ feature, onClose }: FeatureDetailMo
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.96, y: 10 }}
                         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl"
+                        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto overflow-x-hidden rounded-3xl bg-white shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div
@@ -84,7 +85,7 @@ export default function FeatureDetailModal({ feature, onClose }: FeatureDetailMo
 
                         <div className="relative p-6 sm:p-8">
                             <div className="flex items-center gap-4 mb-5">
-                                <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/30">
+                                <div className={`w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-2xl bg-gradient-to-br text-white flex items-center justify-center shadow-lg ${feature.iconTone ?? 'from-blue-500 to-blue-700 shadow-blue-600/30'}`}>
                                     {Icon && <Icon aria-hidden="true" className="w-6 h-6 sm:w-7 sm:h-7 stroke-[1.75]" />}
                                 </div>
                                 <div>

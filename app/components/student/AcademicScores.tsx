@@ -1,88 +1,108 @@
 'use client';
 
+import { GraduationCap } from 'lucide-react';
+
 interface AcademicScoresProps {
-    gpa: number;
-    sat: number;
-    englishTest: { type: string; score: number };
+    gpa?: number | null;
+    sat?: number | null;
+    englishTest?: { type?: string | null; score?: number | null } | null;
     isEditing: boolean;
-    onChange: (path: string, value: any) => void;
+    onChange: (path: string, value: unknown) => void;
+    onEdit: () => void;
 }
 
-export function AcademicScores({
-    gpa,
-    sat,
-    englishTest,
-    isEditing,
-    onChange,
-}: AcademicScoresProps) {
+const hasScore = (v?: number | null) => typeof v === 'number' && v > 0;
+const toNumberOrNull = (v: string) => (v === '' ? null : Number(v));
+
+const tileInput =
+    'mt-1 h-11 w-full rounded-[10px] border border-slate-200 bg-white px-3 text-lg font-semibold text-ink focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10';
+
+function Tile({ label, children }: { label: string; children: React.ReactNode }) {
     return (
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Academic Scores</h3>
+        <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+            {children}
+        </div>
+    );
+}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* GPA */}
-                <div className="bg-slate-50 border border-gray-100 rounded-xl p-4">
-                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">GPA</span>
-                    <div className="mt-2">
-                        {isEditing ? (
-                            <input
-                                type="number"
-                                step="0.1"
-                                value={isNaN(gpa) ? '' : gpa}
-                                onChange={(e) => onChange('profile.gpa', parseFloat(e.target.value) || 0)}
-                                className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-base font-bold text-gray-800"
-                            />
-                        ) : (
-                            <span className="text-xl font-bold text-gray-800">{gpa} / 4.0</span>
-                        )}
-                    </div>
-                </div>
+function NotAdded({ onEdit }: { onEdit: () => void }) {
+    return (
+        <p className="mt-1.5 text-sm text-slate-500">
+            Not added{' '}
+            <button type="button" onClick={onEdit} className="font-semibold text-brand hover:underline">Add +</button>
+        </p>
+    );
+}
 
-                {/* English Test */}
-                <div className="bg-slate-50 border border-gray-100 rounded-xl p-4">
-                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                        {englishTest?.type || 'English Test'}
-                    </span>
-                    <div className="mt-2">
+export function AcademicScores({ gpa, sat, englishTest, isEditing, onChange, onEdit }: AcademicScoresProps) {
+    const testType = (englishTest?.type || 'IELTS').toUpperCase();
+
+    return (
+        <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_4px_12px_rgba(10,26,63,0.04)] sm:p-6">
+            <h3 className="mb-5 flex items-center gap-3 font-display text-lg font-semibold text-ink">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-brand">
+                    <GraduationCap aria-hidden="true" className="h-5 w-5" />
+                </span>
+                Academic scores
+            </h3>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Tile label="GPA">
+                    {isEditing ? (
+                        <input type="number" step="0.01" min={0} max={4} aria-label="GPA" value={gpa ?? ''} onChange={(e) => onChange('profile.gpa', toNumberOrNull(e.target.value))} className={tileInput} />
+                    ) : hasScore(gpa) ? (
+                        <p className="mt-1.5 font-display text-3xl font-bold text-ink">{gpa}<span className="ml-1 text-sm font-medium text-slate-400">/ 4.0</span></p>
+                    ) : <NotAdded onEdit={onEdit} />}
+                </Tile>
+
+                <Tile label="SAT">
+                    {isEditing ? (
+                        <input type="number" min={400} max={1600} aria-label="SAT score" value={sat ?? ''} onChange={(e) => onChange('profile.sat', toNumberOrNull(e.target.value))} className={tileInput} />
+                    ) : hasScore(sat) ? (
+                        <p className="mt-1.5 font-display text-3xl font-bold text-ink">{sat}<span className="ml-1 text-sm font-medium text-slate-400">/ 1600</span></p>
+                    ) : <NotAdded onEdit={onEdit} />}
+                </Tile>
+
+                <div className="sm:col-span-2">
+                    <Tile label="English test">
                         {isEditing ? (
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={englishTest?.type || ''}
-                                    onChange={(e) => onChange('profile.englishTest.type', e.target.value)}
-                                    className="w-1/2 bg-white border border-gray-300 rounded px-2 py-1 text-sm font-bold text-gray-800"
-                                />
+                            <div className="mt-1 grid grid-cols-[auto_1fr] gap-3">
+                                <div role="radiogroup" aria-label="English test" className="grid h-11 grid-cols-2 rounded-[10px] bg-white p-1 ring-1 ring-slate-200">
+                                    {['IELTS', 'TOEFL'].map((t) => (
+                                        <button
+                                            key={t}
+                                            type="button"
+                                            role="radio"
+                                            aria-checked={testType === t}
+                                            onClick={() => onChange('profile.englishTest.type', t)}
+                                            className={`rounded-lg px-3 text-xs font-semibold transition-colors ${testType === t ? 'bg-brand text-white' : 'text-slate-500 hover:text-ink'}`}
+                                        >
+                                            {t}
+                                        </button>
+                                    ))}
+                                </div>
                                 <input
                                     type="number"
-                                    step="0.5"
-                                    value={isNaN(englishTest?.score) ? '' : englishTest?.score}
-                                    onChange={(e) => onChange('profile.englishTest.score', parseFloat(e.target.value) || 0)}
-                                    className="w-1/2 bg-white border border-gray-300 rounded px-2 py-1 text-sm font-bold text-gray-800"
+                                    step={testType === 'IELTS' ? '0.5' : '1'}
+                                    min={0}
+                                    max={testType === 'IELTS' ? 9 : 120}
+                                    aria-label="English test score"
+                                    value={englishTest?.score ?? ''}
+                                    onChange={(e) => onChange('profile.englishTest.score', toNumberOrNull(e.target.value))}
+                                    className={tileInput.replace('mt-1 ', '')}
                                 />
                             </div>
-                        ) : (
-                            <span className="text-xl font-bold text-gray-800">{englishTest?.score} Overall</span>
-                        )}
-                    </div>
-                </div>
-
-                {/* SAT */}
-                <div className="bg-slate-50 border border-gray-100 rounded-xl p-4">
-                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">SAT</span>
-                    <div className="mt-2">
-                        {isEditing ? (
-                            <input
-                                type="number"
-                                value={isNaN(sat) ? '' : sat}
-                                onChange={(e) => onChange('profile.sat', parseInt(e.target.value, 10) || 0)}
-                                className="w-full bg-white border border-gray-300 rounded px-2 py-1 text-base font-bold text-gray-800"
-                            />
-                        ) : (
-                            <span className="text-xl font-bold text-gray-800">{sat}</span>
-                        )}
-                    </div>
+                        ) : hasScore(englishTest?.score) ? (
+                            <p className="mt-1.5 font-display text-3xl font-bold text-ink">
+                                <span className="mr-2 text-base font-semibold text-slate-500">{testType}</span>
+                                {englishTest?.score}
+                                <span className="ml-1 text-sm font-medium text-slate-400">/ {testType === 'IELTS' ? '9.0' : '120'}</span>
+                            </p>
+                        ) : <NotAdded onEdit={onEdit} />}
+                    </Tile>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }

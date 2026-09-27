@@ -46,15 +46,16 @@ export default function MobileFilterDrawer({ open, onClose, title, children }: M
             onClick={onClose}
         >
             <div
-                className="max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl"
+                className="max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-white px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-3 font-body shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
+                <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-slate-300" />
                 <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
-                    <h3 className="text-sm font-bold text-slate-900">{title}</h3>
+                    <h3 className="font-display text-lg font-semibold text-ink">{title}</h3>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-lg p-1 text-slate-400 hover:bg-slate-100"
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
                         aria-label="Close filters"
                     >
                         <X className="h-5 w-5" />
