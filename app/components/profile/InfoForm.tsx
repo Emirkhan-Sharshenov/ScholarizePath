@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, ArrowLeft, ArrowRight, Check, ChevronDown, Loader2 } from 'lucide-react';
 import { COUNTRY_LIST } from './countryList';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 type EnglishTest = 'ielts' | 'toefl';
 
@@ -170,7 +170,7 @@ export default function AdditionalInfoForm() {
         <div className="flex min-h-screen flex-col bg-[#f7f9fc] font-body text-ink">
             <header className="border-b border-slate-200/70 bg-white">
                 <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-                    <Image src="/images/logo.png" alt="ScholarizePath" width={240} height={48} className="h-8 w-auto object-contain sm:h-9" priority />
+                    <BrandLogo className="text-[16px] sm:text-[18px]" taglineClassName="max-[399px]:hidden" />
                     <div className="w-40 sm:w-64">
                         <div className="mb-1.5 flex justify-between text-xs font-medium">
                             <span className="hidden text-slate-500 sm:inline">Profile setup</span>
