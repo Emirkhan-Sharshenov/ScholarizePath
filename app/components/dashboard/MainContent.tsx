@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight, LayoutGrid, Loader2, LogOut, X } from "lucide-react";
+import BrandLogo from "@/components/brand/BrandLogo";
 import { useSidebar } from "./SidebarContext";
 import {
     NAV_ITEMS,
@@ -136,7 +136,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
         <div className="flex min-h-screen w-full min-w-0 flex-1 flex-col">
             <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-slate-200/70 bg-white/85 px-4 font-body backdrop-blur-md md:hidden">
                 <Link href="/dashboard" className="flex shrink-0 items-center" aria-label="ScholarizePath home">
-                    <Image src="/images/logo-icon.png" alt="" width={498} height={386} className="h-7 w-auto object-contain" />
+                    <BrandLogo variant="mark" decorative className="text-[30px]" />
                 </Link>
                 <span className="min-w-0 flex-1 truncate font-display text-base font-semibold text-ink">
                     {currentItem?.label ?? "ScholarizePath"}
