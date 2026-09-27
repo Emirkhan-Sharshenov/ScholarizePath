@@ -1,6 +1,6 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { AlertTriangle, BarChart3, Building2, Bug, Compass, GraduationCap, Home, LayoutGrid, RotateCw, Scale, Sparkles } from 'lucide-react';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 // Standalone 404 / error screens: just the logo on top, one centred card.
 
@@ -9,7 +9,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         <div className="flex min-h-screen flex-col bg-[#f7f9fc] font-body">
             <header className="flex h-16 items-center justify-between border-b border-slate-200/70 bg-white/80 px-4 sm:px-6">
                 <Link href="/" aria-label="ScholarizePath home">
-                    <Image src="/images/logo.png" alt="ScholarizePath" width={240} height={48} className="h-8 w-auto object-contain sm:h-9" priority />
+                    <BrandLogo decorative className="text-[16px] sm:text-[18px]" taglineClassName="max-[399px]:hidden" />
                 </Link>
                 <Link href="/dashboard" className="text-sm font-medium text-slate-500 hover:text-brand">Dashboard</Link>
             </header>

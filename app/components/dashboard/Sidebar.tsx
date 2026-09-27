@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Loader2, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import BrandLogo from "@/components/brand/BrandLogo";
 import { useSidebar } from "./SidebarContext";
 import {
   NAV_ITEMS,
@@ -58,14 +58,7 @@ export default function Sidebar() {
       <div className="flex h-[72px] shrink-0 items-center justify-between px-3">
         <Link href="/dashboard" className="flex min-w-0 items-center" title="ScholarizePath">
           <span className="flex h-11 w-14 shrink-0 items-center justify-center">
-            <Image
-              src="/images/logo-icon.png"
-              alt="ScholarizePath"
-              width={498}
-              height={386}
-              priority
-              className="h-8 w-auto object-contain"
-            />
+            <BrandLogo variant="mark" decorative className="text-[34px]" />
           </span>
           <span className={`whitespace-nowrap font-display text-lg font-bold tracking-tight text-ink transition-opacity duration-150 ${collapsed ? "pointer-events-none opacity-0" : "opacity-100"}`}>
             ScholarizePath

@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import React from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
+import BrandLogo from '@/components/brand/BrandLogo'
 import {
     ArrowLeft,
     ArrowRight,
@@ -180,7 +180,7 @@ function BrandPanel({ mode }: { mode: 'login' | 'register' }) {
             <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-1/3 h-80 w-80 rounded-full bg-sky-400/25 blur-[100px]" />
 
             <Link href="/" className="relative inline-flex w-fit rounded-2xl bg-white px-4 py-3 shadow-lg shadow-black/10">
-                <Image src="/images/logo.png" alt="ScholarizePath" width={240} height={48} className="h-9 w-auto object-contain" priority />
+                <BrandLogo className="text-[19px]" />
             </Link>
 
             <motion.div
@@ -385,7 +385,7 @@ export default function LoginForm() {
                         Back to home
                     </Link>
                     <Link href="/" className="lg:hidden">
-                        <Image src="/images/logo.png" alt="ScholarizePath" width={240} height={48} className="h-7 w-auto object-contain sm:h-8" priority />
+                        <BrandLogo className="text-[15px] sm:text-[17px]" taglineClassName="max-[399px]:hidden" />
                     </Link>
                 </div>
 
