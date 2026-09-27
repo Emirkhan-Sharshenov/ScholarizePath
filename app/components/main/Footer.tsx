@@ -1,6 +1,6 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { Mail, HeartHandshake } from 'lucide-react';
+import BrandLogo from '@/components/brand/BrandLogo';
 
 
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -33,13 +33,7 @@ export default function Footer() {
             <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-[2fr_1fr_1fr] lg:px-8">
                 <div className="max-w-sm">
                     <Link href="/" className="inline-flex">
-                        <Image
-                            src="/images/logo.png"
-                            alt="ScholarizePath Logo"
-                            width={240}
-                            height={48}
-                            className="h-9 w-auto object-contain"
-                        />
+                        <BrandLogo animated={false} className="text-[19px]" />
                     </Link>
                     <p className="mt-4 text-sm leading-relaxed text-slate-500">
                         Helping students find universities and scholarships worldwide — with
