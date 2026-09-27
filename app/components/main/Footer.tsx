@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Mail, HeartHandshake } from 'lucide-react';
 
@@ -20,43 +21,86 @@ function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
     );
 }
 
+const exploreLinks = [
+    { href: '/top', label: 'Rankings' },
+    { href: '/login', label: 'Sign In' },
+    { href: '/login?mode=register', label: 'Create account' },
+];
+
 export default function Footer() {
     return (
-        <footer className="bg-white border-t border-gray-100 py-8 sm:py-10 px-4 sm:px-6">
-            <div className="max-w-6xl mx-auto flex flex-col items-center gap-4 text-center">
-                <h2 className="text-sm font-semibold text-slate-900 tracking-wide uppercase">
-                    Contact
-                </h2>
-
-                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
-                    <a
-                        href="https://instagram.com/emirit_kg"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-blue-600 transition-colors"
-                    >
-                        <InstagramIcon aria-hidden="true" className="w-4 h-4" />
-                        @emirit_kg
-                    </a>
-
-                    <a
-                        href="mailto:sgoo0931@gmail.com"
-                        className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-blue-600 transition-colors"
-                    >
-                        <Mail aria-hidden="true" className="w-4 h-4" />
-                        sgoo0931@gmail.com
-                    </a>
-
-                    <Link
-                        href="/support"
-                        className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-amber-600 transition-colors"
-                    >
-                        <HeartHandshake aria-hidden="true" className="w-4 h-4" />
-                        Support us
+        <footer className="border-t border-slate-200 bg-white font-body">
+            <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-[2fr_1fr_1fr] lg:px-8">
+                <div className="max-w-sm">
+                    <Link href="/" className="inline-flex">
+                        <Image
+                            src="/images/logo.png"
+                            alt="ScholarizePath Logo"
+                            width={240}
+                            height={48}
+                            className="h-9 w-auto object-contain"
+                        />
                     </Link>
+                    <p className="mt-4 text-sm leading-relaxed text-slate-500">
+                        Helping students find universities and scholarships worldwide — with
+                        data-driven matching and AI support at every step.
+                    </p>
                 </div>
 
-                <p className="text-xs text-slate-400 mt-2">
+                <div>
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-ink">Explore</h2>
+                    <ul className="mt-4 space-y-3">
+                        {exploreLinks.map((link) => (
+                            <li key={link.href}>
+                                <Link
+                                    href={link.href}
+                                    className="text-sm text-slate-600 transition-colors hover:text-brand"
+                                >
+                                    {link.label}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-ink">Contact</h2>
+                    <ul className="mt-4 space-y-3">
+                        <li>
+                            <a
+                                href="https://instagram.com/emirit_kg"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 text-sm text-slate-600 transition-colors hover:text-brand"
+                            >
+                                <InstagramIcon aria-hidden="true" className="h-4 w-4" />
+                                @emirit_kg
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="mailto:sgoo0931@gmail.com"
+                                className="inline-flex items-center gap-2 break-all text-sm text-slate-600 transition-colors hover:text-brand"
+                            >
+                                <Mail aria-hidden="true" className="h-4 w-4 shrink-0" />
+                                sgoo0931@gmail.com
+                            </a>
+                        </li>
+                        <li>
+                            <Link
+                                href="/support"
+                                className="inline-flex items-center gap-2 text-sm text-slate-600 transition-colors hover:text-amber-600"
+                            >
+                                <HeartHandshake aria-hidden="true" className="h-4 w-4" />
+                                Support us
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div className="border-t border-slate-100">
+                <p className="mx-auto max-w-7xl px-4 py-5 text-xs text-slate-400 sm:px-6 lg:px-8">
                     &copy; {new Date().getFullYear()} ScholarizePath. All rights reserved.
                 </p>
             </div>

@@ -1,0 +1,234 @@
+[
+ {
+  "collection": "universities",
+  "_id": "mit-usa",
+  "set": {
+   "acceptanceRate": 4.6,
+   "students.total": 11816,
+   "students.international": 3437,
+   "livingCostUSD.min": 22194,
+   "livingCostUSD.max": 22194,
+   "admissionRequirements.gpa.min": null,
+   "admissionRequirements.ielts.min": null,
+   "admissionRequirements.toefl.min": null,
+   "admissionRequirements.sat.min": 1520,
+   "admissionRequirements.sat.max": 1580
+  },
+  "reason": "Class of 2029 admit rate 4.6%; Oct 2025 enrollment 11,816 incl. 3,437 international; 2026-27 housing $14,090 + food $8,104; SAT middle 50% 1520-1580 (math 780-800 + EBRW 740-780); MIT publishes no minimum GPA/IELTS figure.",
+  "source": [
+   "https://mitadmissions.org/apply/process/stats/",
+   "https://facts.mit.edu/enrollment-statistics/",
+   "http://sfs.mit.edu/cost-of-attendance-class-of-2030/"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "harvard-usa",
+  "set": {
+   "acceptanceRate": 4.2,
+   "students.total": 24317,
+   "students.international": 6749,
+   "tuition.bachelor": 59320,
+   "tuition.master": null,
+   "tuition.phd": null,
+   "livingCostUSD.min": null,
+   "livingCostUSD.max": null,
+   "admissionRequirements.gpa.min": null,
+   "admissionRequirements.ielts.min": null,
+   "admissionRequirements.toefl.min": null,
+   "admissionRequirements.sat.min": null,
+   "admissionRequirements.sat.max": null
+  },
+  "reason": "Class of 2029: 2,003 admitted of 47,893 (4.2%); Fall 2025 enrollment 24,317 incl. 6,749 international; College tuition $59,320. Unverified fields cleared.",
+  "source": [
+   "https://news.harvard.edu/gazette/story/2025/10/class-of-2029-yield-tops-83-with-international-students-at-90/",
+   "https://oira.harvard.edu/factbook/fact-book-enrollment/",
+   "https://oira.harvard.edu/files/2026/01/col_tuition_Fact-Book-2025-26.pdf"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "caltech-usa",
+  "set": {
+   "acceptanceRate": null,
+   "students.total": 2369,
+   "students.international": 803,
+   "tuition.bachelor": null,
+   "tuition.master": null,
+   "tuition.phd": null,
+   "livingCostUSD.min": null,
+   "livingCostUSD.max": null,
+   "admissionRequirements.gpa.min": null,
+   "admissionRequirements.ielts.min": null,
+   "admissionRequirements.toefl.min": null,
+   "admissionRequirements.sat.min": null,
+   "admissionRequirements.sat.max": null
+  },
+  "reason": "Fall 2025-26 enrollment 971 UG + 1,398 grad = 2,369; international 154 + 649 = 803. Admit rate/tuition not confirmed from an official page in this pass — cleared.",
+  "source": [
+   "https://registrar.caltech.edu/records/enrollment-statistics"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "stanford-usa",
+  "set": {
+   "acceptanceRate": null,
+   "students.total": null,
+   "students.international": null,
+   "tuition.bachelor": null,
+   "tuition.master": null,
+   "tuition.phd": null,
+   "livingCostUSD.min": null,
+   "livingCostUSD.max": null,
+   "admissionRequirements.gpa.min": null,
+   "admissionRequirements.ielts.min": null,
+   "admissionRequirements.toefl.min": null,
+   "admissionRequirements.sat.min": null,
+   "admissionRequirements.sat.max": null
+  },
+  "reason": "Official pages give only 'over 17,000 degree-seeking students' and no admit rate in text form; previous figures could not be confirmed — cleared.",
+  "source": [
+   "https://irds.stanford.edu/data-findings/enrollment",
+   "https://facts.stanford.edu/academics/undergraduate-education/class-2029-profile"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "oxford-uk",
+  "set": {
+   "acceptanceRate": 14,
+   "students.total": 26215,
+   "students.international": 11272,
+   "tuition.bachelor": null,
+   "tuition.master": null,
+   "tuition.phd": null,
+   "livingCostUSD.min": null,
+   "livingCostUSD.max": null,
+   "admissionRequirements.gpa.min": null,
+   "admissionRequirements.ielts.min": null,
+   "admissionRequirements.toefl.min": null
+  },
+  "reason": "12,460 undergraduates + 13,755 postgraduates = 26,215; 43% international (≈11,272); over 23,000 applicants for ~3,300 places ≈ 14%. International fees vary by course — cleared.",
+  "source": [
+   "https://www.ox.ac.uk/about/facts-and-figures",
+   "https://www.ox.ac.uk/about/facts-and-figures/admissions-statistics/undergraduate-students"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "cambridge-uk",
+  "set": {
+   "acceptanceRate": 21.7,
+   "students.total": 24927,
+   "students.international": null,
+   "tuition.bachelor": null,
+   "tuition.master": null,
+   "tuition.phd": null,
+   "livingCostUSD.min": null,
+   "livingCostUSD.max": null,
+   "admissionRequirements.gpa.min": null,
+   "admissionRequirements.ielts.min": null,
+   "admissionRequirements.toefl.min": null
+  },
+  "reason": "2025-26 total students 24,927; 22,513 applicants for around 4,890 places in 2025 (≈21.7%). Other fields not confirmed — cleared.",
+  "source": [
+   "https://www.cam.ac.uk/about-the-university/cambridge-at-a-glance"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "imperial-college-london-uk",
+  "set": {
+   "acceptanceRate": null,
+   "students.total": 23248,
+   "students.international": 14181,
+   "tuition.bachelor": null,
+   "tuition.master": null,
+   "tuition.phd": null,
+   "livingCostUSD.min": null,
+   "livingCostUSD.max": null,
+   "admissionRequirements.gpa.min": null,
+   "admissionRequirements.ielts.min": null,
+   "admissionRequirements.toefl.min": null
+  },
+  "reason": "23,248 students in 2024-25; international students 61% (≈14,181). Other fields not confirmed — cleared.",
+  "source": [
+   "https://www.imperial.ac.uk/about/introducing-imperial/facts-and-figures/",
+   "https://www.imperial.ac.uk/study/international-students/"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "ucl-uk",
+  "set": {
+   "acceptanceRate": null,
+   "students.total": 51000,
+   "students.international": null,
+   "tuition.bachelor": null,
+   "tuition.master": null,
+   "tuition.phd": null,
+   "livingCostUSD.min": null,
+   "livingCostUSD.max": null,
+   "admissionRequirements.gpa.min": null,
+   "admissionRequirements.ielts.min": null,
+   "admissionRequirements.toefl.min": null
+  },
+  "reason": "UCL states 'more than 51,000 students'. Other fields not confirmed — cleared.",
+  "source": [
+   "https://www.ucl.ac.uk/about/"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "nus-singapore",
+  "set": {
+   "acceptanceRate": null,
+   "students.total": 51568,
+   "students.international": null,
+   "tuition.bachelor": null,
+   "tuition.master": null,
+   "tuition.phd": null,
+   "livingCostUSD.min": null,
+   "livingCostUSD.max": null,
+   "admissionRequirements.gpa.min": null,
+   "admissionRequirements.ielts.min": null,
+   "admissionRequirements.toefl.min": null
+  },
+  "reason": "2024/25 enrolment 31,476 undergraduates + 20,092 graduate = 51,568. Other fields not confirmed — cleared.",
+  "source": [
+   "https://www.nus.edu.sg/registrar/docs/info/student-statistics/enrolment-statistics/undergraduate-studies/ug-enrol-20242025.pdf",
+   "https://www.nus.edu.sg/registrar/docs/info/student-statistics/enrolment-statistics/graduate-studies/gd-enrol-20242025.pdf"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "ethz-switzerland",
+  "set": {
+   "acceptanceRate": null,
+   "students.total": 26942,
+   "students.international": null,
+   "tuition.bachelor": 5323,
+   "tuition.master": 5323,
+   "tuition.phd": null,
+   "tuition.original": {
+    "amount": 4380,
+    "currency": "CHF",
+    "per": "year (2 × CHF 2,190 per semester, foreign-qualified students from autumn 2025)",
+    "usdRate": 1.2152,
+    "rateDate": "2026-09-23",
+    "rateSource": "ECB reference rates"
+   },
+   "livingCostUSD.min": null,
+   "livingCostUSD.max": null,
+   "admissionRequirements.gpa.min": null,
+   "admissionRequirements.ielts.min": null,
+   "admissionRequirements.toefl.min": null
+  },
+  "reason": "Tuition for students with a foreign entrance qualification CHF 2,190/semester from autumn 2025 (was stored as $10,800); 26,942 students. ETH publishes no acceptance rate — cleared.",
+  "source": [
+   "https://ethz.ch/students/en/studies/financial/tuition-fees.html",
+   "https://ethz.ch/en/news-and-events/eth-news/news/2025/09/entries-stabilising-at-a-high-level.html"
+  ]
+ }
+]

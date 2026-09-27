@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import { SlidersHorizontal } from 'lucide-react';
+import { ChipGroup, FilterSection, SelectField, inputClass } from '@/components/common/listUi';
+import { flagFor } from '@/components/profile/countryList';
 
 export interface FilterState {
     search: string;
@@ -25,30 +27,37 @@ export const initialFilters: FilterState = {
     degreeLevel: 'All Degree Levels',
 };
 
+// Must match the country names stored in the database exactly.
 const COUNTRIES = [
-    "United Kingdom",
-    "Canada",
-    "South Korea",
-    "Italy",
-    "Germany",
-    "Japan",
-    "Singapore",
-    "Netherlands",
-    "Turkey",
-    "Malaysia",
-    "United Arab Emirates",
-    "Switzerland",
-    "Finland",
-    "Sweden",
+    "Argentina",
     "Australia",
-    "United States of America",
-    "China",
-    "Russia",
-    "France",
-    "Spain",
     "Brazil",
+    "Canada",
+    "Chile",
+    "China",
+    "Egypt",
+    "Finland",
+    "France",
+    "Germany",
     "India",
-    "Nigeria"
+    "Italy",
+    "Japan",
+    "Malaysia",
+    "Mexico",
+    "Netherlands",
+    "New Zealand",
+    "Nigeria",
+    "Russia",
+    "Singapore",
+    "South Africa",
+    "South Korea",
+    "Spain",
+    "Sweden",
+    "Switzerland",
+    "Turkey",
+    "United Arab Emirates",
+    "United Kingdom",
+    "United States"
 ];
 
 const PROGRAMS = [
@@ -104,175 +113,81 @@ export default function FilterUniversities({
         setFilters((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleApply = () => {
-        if (onApply) onApply();
-    };
-
     const handleReset = () => {
         setFilters(initialFilters);
         if (onReset) onReset();
     };
 
     return (
-        <div className={isMobileModal ? 'w-full font-sans' : 'w-full rounded-2xl border border-gray-100 bg-white p-5 font-sans shadow-xs'}>
+        <div className={isMobileModal ? 'w-full font-body' : 'w-full rounded-3xl border border-slate-200/80 bg-white p-5 font-body shadow-[0_4px_12px_rgba(10,26,63,0.04)]'}>
             {!isMobileModal && (
-                <h2 className="mb-5 text-lg font-bold text-slate-900">Filter Universities</h2>
+                <div className="mb-5 flex items-center justify-between">
+                    <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-ink">
+                        <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-brand" /> Filters
+                    </h2>
+                    <button type="button" onClick={handleReset} className="text-sm font-semibold text-brand hover:underline">
+                        Clear
+                    </button>
+                </div>
             )}
 
-            <div className="space-y-4">
-                {/* Search (hidden in the mobile drawer — the sticky bar above it already has one) */}
-                {!isMobileModal && (
-                    <div>
-                        <label className="mb-1.5 block text-xs font-bold text-slate-800">
-                            Search
-                        </label>
-                        <input
-                            type="text"
-                            name="search"
-                            value={filters.search}
-                            onChange={handleChange}
-                            placeholder="Search universities..."
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                        />
+            <div className="space-y-5">
+                <FilterSection label="Country">
+                    <SelectField name="country" value={filters.country} onChange={handleChange} ariaLabel="Country">
+                        <option value="All Countries">All countries</option>
+                        {COUNTRIES.map((c) => (
+                            <option key={c} value={c}>
+                                {flagFor(c)} {c}
+                            </option>
+                        ))}
+                    </SelectField>
+                </FilterSection>
+
+                <FilterSection label="World ranking" hint="e.g. 1–100">
+                    <div className="grid grid-cols-2 gap-2">
+                        <input type="number" name="minRanking" aria-label="Minimum ranking" value={filters.minRanking} onChange={handleChange} placeholder="Min" className={inputClass} />
+                        <input type="number" name="maxRanking" aria-label="Maximum ranking" value={filters.maxRanking} onChange={handleChange} placeholder="Max" className={inputClass} />
+                    </div>
+                </FilterSection>
+
+                <FilterSection label="Tuition per year (USD)">
+                    <div className="grid grid-cols-2 gap-2">
+                        <input type="number" name="minTuition" aria-label="Minimum tuition" value={filters.minTuition} onChange={handleChange} placeholder="Min $" className={inputClass} />
+                        <input type="number" name="maxTuition" aria-label="Maximum tuition" value={filters.maxTuition} onChange={handleChange} placeholder="Max $" className={inputClass} />
+                    </div>
+                </FilterSection>
+
+                <FilterSection label="Program">
+                    <SelectField name="programs" value={filters.programs} onChange={handleChange} ariaLabel="Program">
+                        <option value="All Programs">All programs</option>
+                        {PROGRAMS.map((prog) => (
+                            <option key={prog} value={prog}>
+                                {prog}
+                            </option>
+                        ))}
+                    </SelectField>
+                </FilterSection>
+
+                <FilterSection label="Degree level">
+                    <ChipGroup
+                        ariaLabel="Degree level"
+                        options={['Bachelor', 'Master', 'PhD']}
+                        value={filters.degreeLevel}
+                        emptyValue="All Degree Levels"
+                        onChange={(v) => setFilters((prev) => ({ ...prev, degreeLevel: v }))}
+                    />
+                </FilterSection>
+
+                {isMobileModal && (
+                    <div className="flex items-center gap-3 pt-2">
+                        <button type="button" onClick={handleReset} className="h-12 rounded-[10px] px-5 text-sm font-semibold text-slate-600 hover:bg-slate-100">
+                            Reset
+                        </button>
+                        <button type="button" onClick={onApply} className="h-12 flex-1 rounded-[10px] bg-brand text-sm font-semibold text-white shadow-sm hover:bg-[#004a9f]">
+                            Show results
+                        </button>
                     </div>
                 )}
-
-                {/* Country */}
-                <div>
-                    <label className="mb-1.5 block text-xs font-bold text-slate-800">
-                        Country
-                    </label>
-                    <div className="relative">
-                        <select
-                            name="country"
-                            value={filters.country}
-                            onChange={handleChange}
-                            className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                        >
-                            <option value="All Countries">All Countries</option>
-                            {COUNTRIES.map((c) => (
-                                <option key={c} value={c}>
-                                    {c}
-                                </option>
-                            ))}
-                        </select>
-                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
-                    </div>
-                </div>
-
-                {/* Ranking */}
-                <div>
-                    <label className="mb-1.5 block text-xs font-bold text-slate-800">
-                        Ranking Range
-                    </label>
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="number"
-                            name="minRanking"
-                            value={filters.minRanking}
-                            onChange={handleChange}
-                            placeholder="Min"
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                        />
-                        <span className="text-xs text-slate-400">-</span>
-                        <input
-                            type="number"
-                            name="maxRanking"
-                            value={filters.maxRanking}
-                            onChange={handleChange}
-                            placeholder="Max"
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                        />
-                    </div>
-                </div>
-
-                {/* Tuition Fee */}
-                <div>
-                    <label className="mb-1.5 block text-xs font-bold text-slate-800">
-                        Tuition Fee (USD)
-                    </label>
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="number"
-                            name="minTuition"
-                            value={filters.minTuition}
-                            onChange={handleChange}
-                            placeholder="Min"
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                        />
-                        <span className="text-xs text-slate-400">-</span>
-                        <input
-                            type="number"
-                            name="maxTuition"
-                            value={filters.maxTuition}
-                            onChange={handleChange}
-                            placeholder="Max"
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                        />
-                    </div>
-                </div>
-
-                {/* Programs */}
-                <div>
-                    <label className="mb-1.5 block text-xs font-bold text-slate-800">
-                        Programs
-                    </label>
-                    <div className="relative">
-                        <select
-                            name="programs"
-                            value={filters.programs}
-                            onChange={handleChange}
-                            className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                        >
-                            <option value="All Programs">All Programs</option>
-                            {PROGRAMS.map((prog) => (
-                                <option key={prog} value={prog}>
-                                    {prog}
-                                </option>
-                            ))}
-                        </select>
-                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
-                    </div>
-                </div>
-
-                {/* Degree Level */}
-                <div>
-                    <label className="mb-1.5 block text-xs font-bold text-slate-800">
-                        Degree Level
-                    </label>
-                    <div className="relative">
-                        <select
-                            name="degreeLevel"
-                            value={filters.degreeLevel}
-                            onChange={handleChange}
-                            className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                        >
-                            <option value="All Degree Levels">All Degree Levels</option>
-                            <option value="Bachelor">Bachelor</option>
-                            <option value="Master">Master</option>
-                            <option value="PhD">PhD</option>
-                        </select>
-                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
-                    </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center justify-between gap-3 pt-3">
-                    <button
-                        type="button"
-                        onClick={handleApply}
-                        className="flex-1 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-blue-700 active:scale-[0.98]"
-                    >
-                        Apply Filters
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleReset}
-                        className="rounded-xl px-4 py-2.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 hover:text-blue-700"
-                    >
-                        Reset
-                    </button>
-                </div>
             </div>
         </div>
     );

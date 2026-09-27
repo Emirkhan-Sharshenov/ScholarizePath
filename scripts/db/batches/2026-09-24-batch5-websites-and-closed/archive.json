@@ -1,0 +1,18 @@
+[
+ {
+  "collection": "universities",
+  "_id": "ihtti-switzerland",
+  "reason": "IHTTI School of Hotel Management merged into Swiss Hotel Management School in 2021 and no longer exists as a separate institution.",
+  "source": [
+   "https://en.wikipedia.org/wiki/International_Hotel_and_Tourism_Training_Institute"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "al-falah-uni-uae",
+  "reason": "Al Falah University (Dubai) is inactive: placed on probation by the UAE Commission for Academic Accreditation in October 2021 and its accreditation and licence were revoked around October 2022.",
+  "source": [
+   "https://en.wikipedia.org/wiki/Al_Falah_University,_Dubai"
+  ]
+ }
+]

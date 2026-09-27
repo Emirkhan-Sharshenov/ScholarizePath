@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, Building2, Award, Loader2, Heart } from 'lucide-react';
+import { Award, Building2, Check, Heart, Loader2, Search, X } from 'lucide-react';
+import { useIsClient } from '@/components/common/detailUi';
 
 export interface AvailableFavorite {
     itemType: 'university' | 'scholarship';
@@ -20,36 +22,30 @@ interface AddApplicationModalProps {
     onAdd: (favorite: AvailableFavorite, deadline: string) => Promise<void>;
 }
 
-export default function AddApplicationModal({
-    open,
-    onClose,
-    favorites,
-    loadingFavorites,
-    onAdd,
-}: AddApplicationModalProps) {
+export default function AddApplicationModal({ open, onClose, favorites, loadingFavorites, onAdd }: AddApplicationModalProps) {
     const [selected, setSelected] = useState<string | null>(null);
     const [deadline, setDeadline] = useState('');
+    const [query, setQuery] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const isClient = useIsClient();
 
     useEffect(() => {
         if (!open) return;
-
         const previousOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
-        };
-        document.addEventListener('keydown', handleKeyDown);
-
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+        document.addEventListener('keydown', onKey);
         return () => {
             document.body.style.overflow = previousOverflow;
-            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('keydown', onKey);
         };
     }, [open, onClose]);
 
-    if (typeof document === 'undefined') return null;
+    if (!isClient) return null;
 
     const selectedFavorite = favorites.find((f) => `${f.itemType}:${f.itemId}` === selected) ?? null;
+    const q = query.trim().toLowerCase();
+    const visible = q ? favorites.filter((f) => f.itemName.toLowerCase().includes(q)) : favorites;
 
     const handleSubmit = async () => {
         if (!selectedFavorite || submitting) return;
@@ -70,107 +66,117 @@ export default function AddApplicationModal({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label="Add application to tracker"
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
+                    transition={{ duration: 0.15 }}
+                    className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 font-body backdrop-blur-[2px] sm:items-center sm:p-4"
                     onClick={onClose}
                 >
                     <motion.div
-                        key="add-app-panel"
-                        initial={{ opacity: 0, scale: 0.95, y: 12 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.96, y: 8 }}
-                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="relative flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="add-application-title"
+                        initial={{ y: 24, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 24, opacity: 0 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
                         onClick={(e) => e.stopPropagation()}
+                        className="flex max-h-[90vh] w-full flex-col rounded-t-3xl bg-white shadow-2xl sm:max-w-lg sm:rounded-3xl"
                     >
-                        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 shrink-0">
-                            <h3 className="text-sm font-bold text-slate-900">Track a new application</h3>
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                aria-label="Close"
-                                className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-                            >
-                                <X className="h-4 w-4" />
+                        <div className="flex items-start justify-between gap-3 px-5 pb-3 pt-5 sm:px-6">
+                            <div>
+                                <h2 id="add-application-title" className="font-display text-lg font-bold text-ink">Add application</h2>
+                                <p className="mt-0.5 text-sm text-slate-500">Pick one of your saved universities or scholarships.</p>
+                            </div>
+                            <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-ink">
+                                <X aria-hidden="true" className="h-4 w-4" />
                             </button>
                         </div>
 
-                        <div className="overflow-y-auto px-5 py-4 flex-1">
+                        <div className="flex-1 overflow-y-auto px-5 pb-4 sm:px-6">
                             {loadingFavorites ? (
-                                <div className="flex items-center justify-center py-10 text-slate-400">
-                                    <Loader2 className="h-5 w-5 animate-spin" />
-                                </div>
+                                <div className="flex justify-center py-12"><Loader2 aria-label="Loading saved items" className="h-6 w-6 animate-spin text-brand" /></div>
                             ) : favorites.length === 0 ? (
-                                <div className="flex flex-col items-center gap-2 py-8 text-center">
-                                    <Heart className="h-6 w-6 text-slate-300" />
-                                    <p className="text-sm text-slate-500">
-                                        All your favorites are already being tracked, or you haven&apos;t saved any yet.
-                                    </p>
+                                <div className="flex flex-col items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-5 py-10 text-center">
+                                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-500"><Heart aria-hidden="true" className="h-5 w-5" /></span>
+                                    <p className="mt-3 text-sm text-slate-600">Save universities or scholarships first — the tracker uses your saved items. Items you already track aren&apos;t listed.</p>
+                                    <Link href="/universities" onClick={onClose} className="mt-4 text-sm font-semibold text-brand hover:underline">Browse universities</Link>
                                 </div>
                             ) : (
-                                <div className="space-y-2">
-                                    {favorites.map((fav) => {
-                                        const key = `${fav.itemType}:${fav.itemId}`;
-                                        const Icon = fav.itemType === 'university' ? Building2 : Award;
-                                        const isSelected = selected === key;
-                                        return (
-                                            <button
-                                                key={key}
-                                                type="button"
-                                                onClick={() => setSelected(key)}
-                                                className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${isSelected
-                                                        ? 'border-blue-500 bg-blue-50'
-                                                        : 'border-slate-100 hover:bg-slate-50'
-                                                    }`}
-                                            >
-                                                <Icon className={`h-4 w-4 shrink-0 ${isSelected ? 'text-brand' : 'text-slate-400'}`} />
-                                                <div className="min-w-0">
-                                                    <div className="truncate text-sm font-semibold text-slate-800">
-                                                        {fav.itemName}
-                                                    </div>
-                                                    {fav.itemSubtitle && (
-                                                        <div className="truncate text-xs text-slate-400">{fav.itemSubtitle}</div>
-                                                    )}
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            )}
+                                <>
+                                    {favorites.length > 5 && (
+                                        <label className="relative mb-3 block">
+                                            <span className="sr-only">Search your saved items</span>
+                                            <Search aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                            <input
+                                                type="search"
+                                                value={query}
+                                                onChange={(e) => setQuery(e.target.value)}
+                                                placeholder="Search your saved items"
+                                                className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-ink placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10"
+                                            />
+                                        </label>
+                                    )}
+                                    <ul role="radiogroup" aria-label="Saved items" className="space-y-2">
+                                        {visible.map((f) => {
+                                            const key = `${f.itemType}:${f.itemId}`;
+                                            const isSelected = selected === key;
+                                            const Icon = f.itemType === 'university' ? Building2 : Award;
+                                            return (
+                                                <li key={key}>
+                                                    <button
+                                                        type="button"
+                                                        role="radio"
+                                                        aria-checked={isSelected}
+                                                        onClick={() => setSelected(key)}
+                                                        className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-colors ${isSelected ? 'border-brand bg-blue-50/60 ring-2 ring-brand/15' : 'border-slate-200 hover:border-slate-300'}`}
+                                                    >
+                                                        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${f.itemType === 'university' ? 'bg-blue-50 text-brand' : 'bg-violet-50 text-violet-600'}`}>
+                                                            <Icon aria-hidden="true" className="h-5 w-5" />
+                                                        </span>
+                                                        <span className="min-w-0 flex-1">
+                                                            <span className="block truncate text-sm font-semibold text-ink">{f.itemName}</span>
+                                                            {f.itemSubtitle && <span className="block truncate text-xs text-slate-500">{f.itemSubtitle}</span>}
+                                                        </span>
+                                                        <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${isSelected ? 'border-brand bg-brand text-white' : 'border-slate-300'}`}>
+                                                            {isSelected && <Check aria-hidden="true" className="h-3 w-3" />}
+                                                        </span>
+                                                    </button>
+                                                </li>
+                                            );
+                                        })}
+                                        {visible.length === 0 && <li className="py-6 text-center text-sm text-slate-500">Nothing matches “{query}”.</li>}
+                                    </ul>
 
-                            {selectedFavorite && (
-                                <div className="mt-4">
-                                    <label className="mb-1.5 block text-xs font-semibold text-slate-500">
-                                        Deadline (optional)
-                                    </label>
-                                    <input
-                                        type="date"
-                                        value={deadline}
-                                        onChange={(e) => setDeadline(e.target.value)}
-                                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
-                                </div>
+                                    <div className="mt-5">
+                                        <label htmlFor="add-deadline" className="mb-2 block text-sm font-semibold text-ink">
+                                            Deadline <span className="font-normal text-slate-400">(optional)</span>
+                                        </label>
+                                        <input
+                                            id="add-deadline"
+                                            type="date"
+                                            value={deadline}
+                                            onChange={(e) => setDeadline(e.target.value)}
+                                            className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-ink focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10"
+                                        />
+                                    </div>
+                                </>
                             )}
                         </div>
 
-                        <div className="border-t border-slate-100 px-5 py-4 shrink-0">
+                        <div className="flex justify-end gap-3 border-t border-slate-100 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:px-6 sm:pb-4">
+                            <button type="button" onClick={onClose} className="h-11 rounded-xl px-4 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
                             <button
                                 type="button"
-                                disabled={!selectedFavorite || submitting}
                                 onClick={handleSubmit}
-                                className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+                                disabled={!selectedFavorite || submitting}
+                                className="inline-flex h-11 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#004a9f] disabled:cursor-not-allowed disabled:bg-slate-300"
                             >
-                                {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                                Start tracking
+                                {submitting && <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />} Add to tracker
                             </button>
                         </div>
                     </motion.div>
                 </motion.div>
             )}
         </AnimatePresence>,
-        document.body
+        document.body,
     );
 }

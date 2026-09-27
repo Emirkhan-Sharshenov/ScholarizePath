@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import { SlidersHorizontal } from 'lucide-react';
+import { ChipGroup, FilterSection, SelectField, inputClass } from '@/components/common/listUi';
+import { flagFor } from '@/components/profile/countryList';
 
 export interface FilterState {
   search: string;
@@ -21,21 +23,34 @@ export const initialFilters: FilterState = {
   maxDeadline: '',
 };
 
+// Must match the country names stored in the database exactly.
 const COUNTRIES = [
-  "United States of America",
-  "United Kingdom",
+  "Australia",
+  "Austria",
+  "Canada",
   "China",
-  "South Korea",
+  "Czech Republic",
+  "France",
   "Germany",
-  "Japan",
+  "Hong Kong",
+  "Hungary",
+  "Ireland",
   "Italy",
-  "United Arab Emirates",
-  "Turkey",
+  "Japan",
+  "Mexico",
+  "Netherlands",
+  "New Zealand",
+  "Qatar",
   "Russia",
   "Saudi Arabia",
-  "Qatar",
-  "Australia",
-  "Czech Republic"
+  "South Korea",
+  "Sweden",
+  "Switzerland",
+  "Taiwan",
+  "Turkey",
+  "United Arab Emirates",
+  "United Kingdom",
+  "United States"
 ];
 
 const STUDY_LEVELS = [
@@ -78,132 +93,64 @@ export default function ScholarshipsFilter({
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleApply = () => {
-    if (onApply) onApply();
-  };
-
   const handleReset = () => {
     setFilters(initialFilters);
     if (onReset) onReset();
   };
 
   return (
-    <div className={isMobileModal ? 'w-full font-sans' : 'w-full max-w-xs rounded-2xl border border-gray-100 bg-white p-5 font-sans shadow-sm'}>
+    <div className={isMobileModal ? 'w-full font-body' : 'w-full rounded-3xl border border-slate-200/80 bg-white p-5 font-body shadow-[0_4px_12px_rgba(10,26,63,0.04)]'}>
       {!isMobileModal && (
-        <h2 className="mb-5 text-lg font-bold text-slate-900">Filter Scholarships</h2>
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-ink">
+            <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-brand" /> Filters
+          </h2>
+          <button type="button" onClick={handleReset} className="text-sm font-semibold text-brand hover:underline">
+            Clear
+          </button>
+        </div>
       )}
 
-      <div className="space-y-4">
-        {/* Search Input (Hidden in mobile drawer to avoid duplicate input) */}
-        {!isMobileModal && (
-          <div>
-            <label className="mb-1.5 block text-xs font-bold text-slate-800">
-              Search
-            </label>
-            <input
-              type="text"
-              name="search"
-              value={filters.search}
-              onChange={handleChange}
-              placeholder="Search by name, provider..."
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-            />
+      <div className="space-y-5">
+        <FilterSection label="Country">
+          <SelectField name="country" value={filters.country} onChange={handleChange} ariaLabel="Country">
+            <option value="All Countries">All countries</option>
+            {COUNTRIES.map((c) => (
+              <option key={c} value={c}>
+                {flagFor(c)} {c}
+              </option>
+            ))}
+          </SelectField>
+        </FilterSection>
+
+        <FilterSection label="Study level">
+          <ChipGroup
+            ariaLabel="Study level"
+            options={STUDY_LEVELS}
+            value={filters.studyLevel}
+            emptyValue="All Study Levels"
+            onChange={(v) => setFilters((prev) => ({ ...prev, studyLevel: v }))}
+          />
+        </FilterSection>
+
+        <FilterSection label="Minimum amount" hint="in the scholarship's currency">
+          <input type="number" name="minAmount" aria-label="Minimum amount" value={filters.minAmount} onChange={handleChange} placeholder="e.g. 5000" className={inputClass} />
+        </FilterSection>
+
+        <FilterSection label="Deadline before">
+          <input type="date" name="maxDeadline" aria-label="Deadline before" value={filters.maxDeadline} onChange={handleChange} className={`${inputClass} cursor-pointer`} />
+        </FilterSection>
+
+        {isMobileModal && (
+          <div className="flex items-center gap-3 pt-2">
+            <button type="button" onClick={handleReset} className="h-12 rounded-[10px] px-5 text-sm font-semibold text-slate-600 hover:bg-slate-100">
+              Reset
+            </button>
+            <button type="button" onClick={onApply} className="h-12 flex-1 rounded-[10px] bg-brand text-sm font-semibold text-white shadow-sm hover:bg-[#004a9f]">
+              Show results
+            </button>
           </div>
         )}
-
-        {/* Country */}
-        <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-800">
-            Country
-          </label>
-          <div className="relative">
-            <select
-              name="country"
-              value={filters.country}
-              onChange={handleChange}
-              className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-            >
-              <option value="All Countries">All Countries</option>
-              {COUNTRIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
-          </div>
-        </div>
-
-        {/* Study Level */}
-        <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-800">
-            Study Level
-          </label>
-          <div className="relative">
-            <select
-              name="studyLevel"
-              value={filters.studyLevel}
-              onChange={handleChange}
-              className="w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-            >
-              <option value="All Study Levels">All Study Levels</option>
-              {STUDY_LEVELS.map((level) => (
-                <option key={level} value={level}>
-                  {level}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
-          </div>
-        </div>
-
-
-        {/* Min Amount */}
-        <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-800">
-            Min Award Amount ($)
-          </label>
-          <input
-            type="number"
-            name="minAmount"
-            value={filters.minAmount}
-            onChange={handleChange}
-            placeholder="e.g. 5000"
-            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-          />
-        </div>
-
-        {/* Deadline Before */}
-        <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-800">
-            Deadline Before
-          </label>
-          <input
-            type="date"
-            name="maxDeadline"
-            value={filters.maxDeadline}
-            onChange={handleChange}
-            className="w-full cursor-pointer rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-slate-700 outline-none transition focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-          />
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between gap-3 pt-3">
-          <button
-            type="button"
-            onClick={handleApply}
-            className="flex-1 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.98]"
-          >
-            Apply Filters
-          </button>
-          <button
-            type="button"
-            onClick={handleReset}
-            className="rounded-xl px-4 py-2.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 hover:text-blue-700"
-          >
-            Reset
-          </button>
-        </div>
       </div>
     </div>
   );

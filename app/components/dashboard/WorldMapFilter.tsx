@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { REGIONS_DATA } from "./WorldMap";
+import { REGIONS_DATA } from "./mapData";
 
 interface WorldMapFilterProps {
     selectedRegionId: string | null;
@@ -9,58 +9,60 @@ interface WorldMapFilterProps {
     onHoverRegion?: (regionId: string | null) => void;
 }
 
+// Region chips above the map: "All" plus one per region. Scrolls sideways on
+// phones instead of wrapping onto several lines.
 export default function WorldMapFilter({
     selectedRegionId,
     onSelectRegion,
     onHoverRegion,
 }: WorldMapFilterProps) {
-    const handleToggle = (id: string) => {
-        onSelectRegion(selectedRegionId === id ? null : id);
-    };
+    const chipBase =
+        "flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-3.5 text-sm font-medium transition-colors";
 
     return (
-        <div className="w-full h-full rounded-2xl sm:rounded-3xl border border-slate-100 bg-white p-4 md:p-5 shadow-sm flex flex-col justify-center">
-            <div className="mb-3 md:mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Region Filter
-            </div>
+        <div
+            role="group"
+            aria-label="Filter by region"
+            className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+            <button
+                type="button"
+                onClick={() => onSelectRegion(null)}
+                aria-pressed={selectedRegionId === null}
+                className={`${chipBase} ${selectedRegionId === null
+                    ? "border-ink bg-ink text-white"
+                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-ink"
+                    }`}
+            >
+                All
+            </button>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-col gap-2 md:space-y-2 md:gap-0">
-                {REGIONS_DATA.map((region) => {
-                    const isSelected = selectedRegionId === region.id;
+            {REGIONS_DATA.map((region) => {
+                const isSelected = selectedRegionId === region.id;
 
-                    return (
-                        <button
-                            key={region.id}
-                            type="button"
-                            onClick={() => handleToggle(region.id)}
-                            onMouseEnter={() => onHoverRegion?.(region.id)}
-                            onMouseLeave={() => onHoverRegion?.(null)}
-                            onFocus={() => onHoverRegion?.(region.id)}
-                            onBlur={() => onHoverRegion?.(null)}
-                            className={`flex w-full items-center gap-2 md:gap-3 rounded-xl px-3 py-2.5 text-left text-xs md:text-sm font-medium transition-all duration-200 ${isSelected
-                                    ? "bg-slate-900 text-white shadow-md"
-                                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                                }`}
-                        >
-                            <span
-                                className={`h-2.5 w-2.5 md:h-3 md:w-3 shrink-0 rounded-full ${region.color} ${isSelected ? "ring-2 ring-white" : ""
-                                    }`}
-                            />
-                            <span className="truncate">{region.label}</span>
-                        </button>
-                    );
-                })}
-            </div>
-
-            {selectedRegionId && (
-                <button
-                    type="button"
-                    onClick={() => onSelectRegion(null)}
-                    className="mt-3 md:mt-4 w-full rounded-xl border border-slate-200 py-2 text-xs font-medium text-slate-500 transition hover:bg-slate-50 hover:text-slate-800"
-                >
-                    Reset Selection
-                </button>
-            )}
+                return (
+                    <button
+                        key={region.id}
+                        type="button"
+                        onClick={() => onSelectRegion(isSelected ? null : region.id)}
+                        onMouseEnter={() => onHoverRegion?.(region.id)}
+                        onMouseLeave={() => onHoverRegion?.(null)}
+                        onFocus={() => onHoverRegion?.(region.id)}
+                        onBlur={() => onHoverRegion?.(null)}
+                        aria-pressed={isSelected}
+                        className={`${chipBase} ${isSelected
+                            ? "border-brand bg-brand text-white shadow-[0_4px_12px_rgba(0,88,189,0.25)]"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-ink"
+                            }`}
+                    >
+                        <span
+                            aria-hidden="true"
+                            className={`h-2 w-2 shrink-0 rounded-full ${isSelected ? "bg-white" : region.color}`}
+                        />
+                        {region.label}
+                    </button>
+                );
+            })}
         </div>
     );
 }

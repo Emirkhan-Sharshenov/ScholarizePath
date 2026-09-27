@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/mongodb";
 import Universities from "@/models/Universities";
 import Scholarship from "@/models/Scholarship";
 import type { UniversityCardData, ScholarshipCardData } from "./types";
+import { formatAmount } from "@/lib/scholarshipDisplay";
 
 
 export const aiTools = [
@@ -244,12 +245,14 @@ export async function searchUniversities(
         .map((u: any) => ({
             id: String(u._id),
             name: String(u.name),
-            location: [u.location?.city, u.location?.country].filter(Boolean).join(", ") || "Location TBD",
-            rankBadge: u.ranking?.national
-                ? `#${u.ranking.national} in ${u.location?.country ?? ""}`
-                : u.ranking?.global
-                    ? `#${u.ranking.global} Global`
-                    : "Ranked",
+            location: [u.location?.city, u.location?.country].filter(Boolean).join(", "),
+            country: u.location?.country ?? "",
+            // World rank first; a national rank is labelled as such. Unranked → "".
+            rankBadge: u.ranking?.global
+                ? `World #${u.ranking.global}`
+                : u.ranking?.national
+                    ? `National #${u.ranking.national}`
+                    : "",
         }));
 }
 
@@ -313,15 +316,18 @@ export async function searchScholarships(
             const val = s.award?.estimatedValue;
             const min = toNumber(val?.min);
             const max = toNumber(val?.max);
-            const amount =
-                val && min !== undefined && max !== undefined
-                    ? `${val.currency ?? ""} ${min.toLocaleString()}–${max.toLocaleString()}`.trim()
-                    : s.award?.type ?? "Amount varies";
+            const top = max ?? min;
+            const amount = top === undefined || top <= 0
+                ? ""
+                : min !== undefined && max !== undefined && min !== max
+                    ? `${formatAmount(min, val?.currency)} – ${formatAmount(max, val?.currency)}`
+                    : formatAmount(top, val?.currency);
             return {
                 id: String(s._id),
                 title: String(s.scholarshipName),
                 amount,
                 level: Array.isArray(s.studyLevel) ? s.studyLevel.join(", ") : s.studyLevel ?? "",
+                country: s.country ?? "",
             };
         });
 }

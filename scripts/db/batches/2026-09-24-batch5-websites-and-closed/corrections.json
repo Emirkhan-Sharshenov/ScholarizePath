@@ -1,0 +1,208 @@
+[
+ {
+  "collection": "universities",
+  "_id": "berjaya-uc-malaysia",
+  "set": {
+   "website": "http://www.berjaya.edu.my/university/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "http://www.berjaya.edu.my/university/",
+   "Page title 'BERJAYA University College – Inspiring Lives. Widening Horizons'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "first-city-uc-malaysia",
+  "set": {
+   "website": "https://firstcity.edu.my/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://firstcity.edu.my/",
+   "Page title 'First City University College Malaysia'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "amity-sg-singapore",
+  "set": {
+   "website": "https://www.amitysingapore.sg/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://www.amitysingapore.sg/",
+   "Page title 'A Private Education Institution in Singapore | Amity'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "erc-institute-singapore",
+  "set": {
+   "website": "https://erci.edu.sg/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://erci.edu.sg/",
+   "Page title 'ERC Institute'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "nim-sg-singapore",
+  "set": {
+   "website": "https://nanyang.edu.sg/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://nanyang.edu.sg/",
+   "Page title 'Home - Nanyang'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "johannelund-sweden",
+  "set": {
+   "website": "https://www.johannelund.nu/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://www.johannelund.nu/",
+   "Page title 'Hem - Johannelunds teologiska högskola'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "him-switzerland",
+  "set": {
+   "website": "https://www.him-business-school.com/en/",
+   "name": "HIM Business School (formerly Hotel Institute Montreux)"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site. Name updated to the institution's current name shown on its official site.",
+  "source": [
+   "https://www.him-business-school.com/en/",
+   "Page title 'HIM Business School: Bachelor of Business Administration in Switzerland'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "manipal-dubai-uae",
+  "set": {
+   "website": "https://www.manipaldubai.com/",
+   "name": "Manipal University Dubai (formerly Manipal Academy of Higher Education Dubai)"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site. Name updated to the institution's current name shown on its official site.",
+  "source": [
+   "https://www.manipaldubai.com/",
+   "Page title 'Manipal University Dubai | CAA-Licensed International University in UAE'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "symbiosis-dubai-uae",
+  "set": {
+   "website": "https://siu-dubai.ac.ae/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://siu-dubai.ac.ae/",
+   "Page title 'Symbiosis International University, Dubai'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "ums-dubai-uae",
+  "set": {
+   "website": "https://ums-edu.com/en/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://ums-edu.com/en/",
+   "Page title 'University Of Modern Sciences'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "wesley-uni-nigeria",
+  "set": {
+   "website": "https://www.wesleyuni.edu.ng/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://www.wesleyuni.edu.ng/",
+   "Page title 'Wesley University, Ondo.'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "baze-uni-nigeria",
+  "set": {
+   "website": "https://www.bazeuniversity.edu.ng/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://www.bazeuniversity.edu.ng/",
+   "Official website listed on https://en.wikipedia.org/wiki/Baze_University (site behind Cloudflare)"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "ue-canarias-spain",
+  "set": {
+   "website": "https://universidadeuropea.com/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://universidadeuropea.com/",
+   "Page title 'Universidad Europea - Universidad Privada' (campus subdomain no longer exists)"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "ue-valencia-spain",
+  "set": {
+   "website": "https://universidadeuropea.com/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://universidadeuropea.com/",
+   "Page title 'Universidad Europea - Universidad Privada' (campus subdomain no longer exists)"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "kgu-kaluga-russia",
+  "set": {
+   "website": "https://tksu.ru/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://tksu.ru/",
+   "Page title 'КГУ им. К.Э. Циолковского'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "univ-corse-france",
+  "set": {
+   "website": "https://www.universita.corsica/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://www.universita.corsica/",
+   "Page title 'Università di Corsica Pasquale Paoli - Accueil'"
+  ]
+ },
+ {
+  "collection": "universities",
+  "_id": "nefu-russia",
+  "set": {
+   "website": "https://s-vfu.ru/"
+  },
+  "reason": "Stored website domain does not exist (NXDOMAIN via 8.8.8.8, 2026-09-24). Replaced with the verified official site.",
+  "source": [
+   "https://s-vfu.ru/",
+   "Official website listed on https://en.wikipedia.org/wiki/North-Eastern_Federal_University (www subdomain does not exist)"
+  ]
+ }
+]

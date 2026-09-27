@@ -1,26 +1,163 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
-import FilterUniversities, { FilterState } from './FilterUniversities';
-import MobileFilterDrawer from '../common/MobileFilterDrawer';
 import Link from 'next/link';
+import { ArrowRight, BadgeCheck, MapPin, Search, SlidersHorizontal, Trophy, Wallet } from 'lucide-react';
+import FilterUniversities, { FilterState, initialFilters } from './FilterUniversities';
+import MobileFilterDrawer from '../common/MobileFilterDrawer';
+import {
+    ActiveFilterChips,
+    CardSkeleton,
+    EmptyState,
+    FavoriteButton,
+    Pagination,
+    SelectField,
+    useFavoriteIds,
+    type ActiveFilter,
+} from '../common/listUi';
+import { flagFor } from '../profile/countryList';
+import { monogram } from '../common/detailUi';
+import { formatCheckedAt, getVerification } from '@/lib/verification';
 
 interface UniversitiesListUIProps {
     filters: FilterState;
     setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
 }
 
+interface UniversityRow {
+    _id: string;
+    name: string;
+    location?: { city?: string; country?: string } | string;
+    ranking?: number | string | { global?: number | string | null; qs?: number | null; world?: number | null; national?: number | null };
+    tuition?: number | string | { bachelor?: number | null; master?: number | null; phd?: number | null };
+    description?: string;
+    programs?: string[];
+    institutionType?: string;
+    verification?: unknown;
+}
+
+const SORT_OPTIONS = [
+    ['Ranking: High to Low', 'Ranking: best first'],
+    ['Ranking: Low to High', 'Ranking: lowest first'],
+    ['Tuition: Low to High', 'Tuition: low to high'],
+    ['Tuition: High to Low', 'Tuition: high to low'],
+] as const;
+
+const ITEMS_PER_PAGE = 5;
+
+function getLocation(uni: UniversityRow): { city: string; country: string } {
+    if (typeof uni.location === 'string') return { city: uni.location, country: '' };
+    return { city: uni.location?.city ?? '', country: uni.location?.country ?? '' };
+}
+
+// World rank first; a national rank is labelled as such rather than passed off as global.
+function getRank(uni: UniversityRow): { label: string; value: string } | null {
+    if (typeof uni.ranking === 'number' || (typeof uni.ranking === 'string' && uni.ranking !== 'N/A')) return { label: 'World rank', value: `#${uni.ranking}` };
+    const r = typeof uni.ranking === 'object' && uni.ranking ? uni.ranking : undefined;
+    const world = r?.global ?? r?.qs ?? r?.world;
+    if (world && world !== 'N/A') return { label: 'World rank', value: `#${world}` };
+    if (r?.national) return { label: 'National rank', value: `#${r.national}` };
+    return null;
+}
+
+function getTuition(uni: UniversityRow): string | null {
+    if (typeof uni.tuition === 'number') return uni.tuition === 0 ? 'Free' : `$${uni.tuition.toLocaleString('en-US')}/yr`;
+    if (typeof uni.tuition === 'string') return uni.tuition;
+    const val = uni.tuition?.bachelor ?? uni.tuition?.master ?? uni.tuition?.phd;
+    if (val === 0) return 'Free';
+    return val != null ? `$${val.toLocaleString('en-US')}/yr` : null;
+}
+
+function UniversityCard({ uni, favorite, onToggleFavorite, favoritesReady }: {
+    uni: UniversityRow;
+    favorite: boolean;
+    onToggleFavorite: () => void;
+    favoritesReady: boolean;
+}) {
+    const { city, country } = getLocation(uni);
+    const rank = getRank(uni);
+    const tuition = getTuition(uni);
+    const verification = getVerification(uni);
+    const programs = (uni.programs ?? []).slice(0, 3);
+
+    return (
+        <article className="group relative rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_4px_12px_rgba(10,26,63,0.04)] transition-all hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-[0_10px_24px_rgba(10,26,63,0.08)] sm:p-6">
+            <div className="flex gap-4">
+                <span className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-50 font-display text-base font-bold text-brand sm:flex">
+                    {monogram(uni.name)}
+                </span>
+
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                            <h3 className="font-display text-lg font-semibold leading-snug text-ink">
+                                <Link href={`/universities/${uni._id}`} className="after:absolute after:inset-0 focus:outline-none">
+                                    {uni.name}
+                                </Link>
+                            </h3>
+                            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                {verification.isVerified && (
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                                        <BadgeCheck aria-hidden="true" className="h-3.5 w-3.5" /> Verified · {formatCheckedAt(verification.checkedAt)}
+                                    </span>
+                                )}
+                                {uni.institutionType && uni.institutionType !== 'University' && (
+                                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">{uni.institutionType}</span>
+                                )}
+                            </div>
+                        </div>
+                        {/* Above the card-wide link so it stays clickable */}
+                        <div className="relative z-10">
+                            <FavoriteButton active={favorite} onClick={onToggleFavorite} disabled={!favoritesReady} />
+                        </div>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+                        {(city || country) && (
+                            <span className="inline-flex items-center gap-1.5 text-slate-600">
+                                <MapPin aria-hidden="true" className="h-4 w-4 text-slate-400" />
+                                {[city, country].filter(Boolean).join(', ')} {flagFor(country)}
+                            </span>
+                        )}
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${rank ? 'bg-blue-50 text-brand' : 'bg-slate-100 text-slate-500'}`}>
+                            <Trophy aria-hidden="true" className="h-3.5 w-3.5" />
+                            {rank ? `${rank.label} ${rank.value}` : 'Not ranked'}
+                        </span>
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${tuition ? 'bg-slate-100 text-ink' : 'bg-slate-100 text-slate-500'}`}>
+                            <Wallet aria-hidden="true" className="h-3.5 w-3.5" />
+                            {tuition ? `Tuition ${tuition}` : 'Tuition: No data'}
+                        </span>
+                    </div>
+
+                    {uni.description && (
+                        <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-slate-500">{uni.description}</p>
+                    )}
+
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex min-w-0 flex-wrap gap-1.5">
+                            {programs.map((p) => (
+                                <span key={p} className="rounded-md border border-slate-200 px-2 py-0.5 text-xs text-slate-600">{p}</span>
+                            ))}
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand">
+                            View details <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </article>
+    );
+}
+
 export default function ListUniversities({ filters, setFilters }: UniversitiesListUIProps) {
-    const [universities, setUniversities] = useState<any[]>([]);
+    const [universities, setUniversities] = useState<UniversityRow[]>([]);
     const [loading, setLoading] = useState(true);
     const [sortBy, setSortBy] = useState('Ranking: High to Low');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-    const itemsPerPage = 5;
+    const favorites = useFavoriteIds('university');
 
     const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
 
@@ -48,7 +185,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
         try {
             const params = new URLSearchParams({
                 page: String(currentPage),
-                limit: String(itemsPerPage),
+                limit: String(ITEMS_PER_PAGE),
                 sortBy,
             });
 
@@ -93,62 +230,71 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
         fetchUniversities();
     }, [fetchUniversities]);
 
-    const formatLocation = (uni: any): string => {
-        if (typeof uni.location === 'string') return uni.location;
-        const city = uni.location?.city || '';
-        const country = uni.location?.country || '';
-        const parts = [city, country].filter(Boolean);
-        return parts.length > 0 ? parts.join(', ') : 'N/A';
-    };
+    const update = (patch: Partial<FilterState>) => setFilters((prev) => ({ ...prev, ...patch }));
 
-    const getRanking = (uni: any): string => {
-        if (typeof uni.ranking === 'number' || typeof uni.ranking === 'string') return `#${uni.ranking}`;
-        const rank = uni.ranking?.global ?? uni.ranking?.qs ?? uni.ranking?.world ?? uni.ranking?.national;
-        return rank !== undefined && rank !== null ? `#${rank}` : 'N/A';
-    };
+    const active: ActiveFilter[] = [];
+    if (filters.country !== initialFilters.country) active.push({ key: 'country', label: `${flagFor(filters.country)} ${filters.country}`, onRemove: () => update({ country: initialFilters.country }) });
+    if (filters.minRanking || filters.maxRanking) active.push({ key: 'rank', label: `Rank ${filters.minRanking || '1'}–${filters.maxRanking || '…'}`, onRemove: () => update({ minRanking: '', maxRanking: '' }) });
+    if (filters.minTuition || filters.maxTuition) active.push({ key: 'tuition', label: `Tuition $${filters.minTuition || '0'}–${filters.maxTuition ? `$${filters.maxTuition}` : '…'}`, onRemove: () => update({ minTuition: '', maxTuition: '' }) });
+    if (filters.programs !== initialFilters.programs) active.push({ key: 'programs', label: filters.programs, onRemove: () => update({ programs: initialFilters.programs }) });
+    if (filters.degreeLevel !== initialFilters.degreeLevel) active.push({ key: 'degree', label: filters.degreeLevel, onRemove: () => update({ degreeLevel: initialFilters.degreeLevel }) });
+    const clearAll = () => setFilters(initialFilters);
 
-    const getTuition = (uni: any): string => {
-        if (typeof uni.tuition === 'number') return `$${uni.tuition.toLocaleString('en-US')}`;
-        if (typeof uni.tuition === 'string') return uni.tuition;
-        const val = uni.tuition?.bachelor ?? uni.tuition?.master ?? uni.tuition?.phd;
-        if (val !== undefined && val !== null) return `$${val.toLocaleString('en-US')}`;
-        return 'N/A';
-    };
-
-    const showingStart = totalCount === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
-    const showingEnd = Math.min(currentPage * itemsPerPage, totalCount);
+    const showingStart = totalCount === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+    const showingEnd = Math.min(currentPage * ITEMS_PER_PAGE, totalCount);
 
     return (
-        <div className="w-full font-sans">
-            {/* MOBILE SEARCH BAR & FILTERS BUTTON */}
-            <div className="mb-5 flex items-center gap-2.5 lg:hidden">
-                <div className="relative flex-1">
-                    <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                        type="text"
-                        value={filters.search}
-                        onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
-                        placeholder="Search by name, country, city..."
-                        className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-xs text-slate-800 outline-none shadow-2xs focus:border-blue-600"
-                    />
+        <div className="w-full space-y-4 font-body">
+            {/* Search + sort (+ Filters button on mobile) */}
+            <div className="rounded-3xl border border-slate-200/80 bg-white p-3 shadow-[0_4px_12px_rgba(10,26,63,0.04)] sm:p-4">
+                <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                        <Search aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <input
+                            type="search"
+                            value={filters.search}
+                            onChange={(e) => update({ search: e.target.value })}
+                            placeholder="Search by name, country, city…"
+                            aria-label="Search universities"
+                            className="h-11 w-full rounded-[10px] border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-ink placeholder:text-slate-400 focus:border-brand focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand/10"
+                        />
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setIsMobileFilterOpen(true)}
+                        className="relative inline-flex h-11 shrink-0 items-center gap-2 rounded-[10px] bg-brand px-4 text-sm font-semibold text-white lg:hidden"
+                    >
+                        <SlidersHorizontal aria-hidden="true" className="h-4 w-4" /> Filters
+                        {active.length > 0 && (
+                            <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400 px-1 text-[11px] font-bold text-ink">{active.length}</span>
+                        )}
+                    </button>
                 </div>
 
-                <button
-                    type="button"
-                    onClick={() => setIsMobileFilterOpen(true)}
-                    className="flex shrink-0 items-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-xs font-semibold text-white shadow-2xs active:scale-95"
-                >
-                    <SlidersHorizontal className="h-4 w-4" />
-                    Filters
-                </button>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-sm text-slate-500">
+                        {loading ? 'Loading…' : totalCount === 0 ? 'No universities found' : (
+                            <>Showing <span className="font-semibold text-ink">{showingStart}–{showingEnd}</span> of <span className="font-semibold text-ink">{totalCount.toLocaleString('en-US')}</span> universities</>
+                        )}
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-slate-500">Sort by</span>
+                        <div className="w-52">
+                            <SelectField name="sortBy" value={sortBy} onChange={(e) => setSortBy(e.target.value)} ariaLabel="Sort universities">
+                                {SORT_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                            </SelectField>
+                        </div>
+                    </div>
+                </div>
+
+                {active.length > 0 && (
+                    <div className="mt-3 border-t border-slate-100 pt-3">
+                        <ActiveFilterChips filters={active} onClearAll={clearAll} />
+                    </div>
+                )}
             </div>
 
-            {/* MOBILE DRAWER */}
-            <MobileFilterDrawer
-                open={isMobileFilterOpen}
-                onClose={() => setIsMobileFilterOpen(false)}
-                title="Filter Universities"
-            >
+            <MobileFilterDrawer open={isMobileFilterOpen} onClose={() => setIsMobileFilterOpen(false)} title="Filter universities">
                 <FilterUniversities
                     filters={filters}
                     setFilters={setFilters}
@@ -158,220 +304,29 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                 />
             </MobileFilterDrawer>
 
-            {/* DESKTOP TABLE VIEW */}
-            <div className="hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-xs lg:block lg:p-8">
-                <div className="flex flex-col items-start justify-between gap-4 pb-6 sm:flex-row sm:items-center">
-                    <p className="text-xs font-medium text-slate-500">
-                        Showing <span className="font-semibold text-slate-800">{showingStart}</span> to{' '}
-                        <span className="font-semibold text-slate-800">{showingEnd}</span> of{' '}
-                        <span className="font-semibold text-slate-800">{totalCount}</span> universities
-                    </p>
-
-                    <div className="flex items-center gap-2">
-                        <span className="whitespace-nowrap text-xs font-semibold text-slate-700">Sort by</span>
-                        <div className="relative">
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
-                                className="cursor-pointer appearance-none rounded-xl border border-gray-200/80 bg-slate-50 py-2 pl-3 pr-8 text-xs font-semibold text-slate-800 outline-none transition focus:border-blue-600 focus:bg-white"
-                            >
-                                <option value="Ranking: High to Low">Ranking: High to Low (#1 to #100)</option>
-                                <option value="Ranking: Low to High">Ranking: Low to High (#100 to #1)</option>
-                                <option value="Tuition: Low to High">Tuition: Low to High</option>
-                                <option value="Tuition: High to Low">Tuition: High to Low</option>
-                            </select>
-                            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className={`my-2 w-full transition-opacity ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-                    <table className="w-full table-fixed border-collapse text-left">
-                        <thead>
-                            <tr className="border-b border-gray-100 text-xs font-semibold text-slate-500">
-                                <th className="w-[30%] pb-4 font-semibold">University Name</th>
-                                <th className="w-[18%] pb-4 font-semibold">Location</th>
-                                <th className="w-[12%] pb-4 font-semibold">Ranking</th>
-                                <th className="w-[18%] pb-4 font-semibold">Tuition Fee (USD)</th>
-                                <th className="w-[22%] pb-4 font-semibold">Description</th>
-                                <th className="w-[14%] pb-4 text-right font-semibold">Action</th>
-                            </tr>
-                        </thead>
-
-                        <tbody className="divide-y divide-gray-100/80 text-xs">
-                            {universities.length === 0 && !loading ? (
-                                <tr>
-                                    <td colSpan={6} className="py-12 text-center text-slate-400">
-                                        No universities match the selected filters.
-                                    </td>
-                                </tr>
-                            ) : (
-                                universities.map((uni: any) => (
-                                    <tr key={uni._id} className="h-[104px] transition-colors hover:bg-slate-50/40">
-                                        <td className="break-words py-5 pr-3 align-top">
-                                            <div className="line-clamp-2 break-words text-sm font-bold text-slate-900">
-                                                {uni.name}
-                                            </div>
-                                        </td>
-                                        <td className="break-words py-5 pr-3 align-top text-xs font-normal text-slate-600">
-                                            <div className="line-clamp-2 break-words">
-                                                {formatLocation(uni)}
-                                            </div>
-                                        </td>
-                                        <td className="break-words py-5 pr-3 align-top text-xs font-bold text-slate-900">
-                                            {getRanking(uni)}
-                                        </td>
-                                        <td className="break-words py-5 pr-3 align-top text-xs font-bold text-slate-900">
-                                            {getTuition(uni)}
-                                        </td>
-                                        <td className="break-words py-5 pr-3 align-top">
-                                            <p className="line-clamp-2 overflow-hidden break-words text-xs font-normal leading-relaxed text-slate-500">
-                                                {uni.description || 'No description provided.'}
-                                            </p>
-                                        </td>
-                                        <td className="whitespace-nowrap py-5 text-right align-top">
-                                            <Link
-                                                href={`/universities/${uni._id}`}
-                                                className="rounded-lg bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-blue-700"
-                                            >
-                                                View Details
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* DESKTOP PAGINATION */}
-                <div className="flex items-center justify-center gap-1.5 border-t border-gray-100 pt-6">
-                    <button
-                        disabled={currentPage <= 1 || loading}
-                        onClick={() => setCurrentPage((p) => p - 1)}
-                        className="mr-2 rounded-lg border border-gray-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        Prev
-                    </button>
-
-                    {(() => {
-                        const delta = 1;
-                        const range: (number | string)[] = [];
-
-                        if (totalPages <= 7) {
-                            for (let i = 1; i <= totalPages; i++) range.push(i);
-                        } else {
-                            const left = Math.max(currentPage - delta, 1);
-                            const right = Math.min(currentPage + delta, totalPages);
-
-                            if (left > 2) {
-                                range.push(1, '...');
-                                for (let i = left; i <= right; i++) range.push(i);
-                            } else {
-                                for (let i = 1; i <= Math.max(3, right); i++) range.push(i);
-                            }
-
-                            if (right < totalPages - 1) {
-                                range.push('...', totalPages);
-                            } else if (right === totalPages - 1) {
-                                range.push(totalPages);
-                            }
-                        }
-
-                        return range.map((page, idx) =>
-                            page === '...' ? (
-                                <span key={`ellipsis-${idx}`} className="px-1 text-xs text-slate-400">
-                                    ...
-                                </span>
-                            ) : (
-                                <button
-                                    key={`page-btn-${page}`}
-                                    onClick={() => setCurrentPage(Number(page))}
-                                    disabled={loading}
-                                    className={`h-8 w-8 rounded-lg text-xs font-semibold transition ${currentPage === page
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-transparent text-slate-700 hover:bg-gray-100'
-                                        }`}
-                                >
-                                    {page}
-                                </button>
-                            )
-                        );
-                    })()}
-
-                    <button
-                        disabled={currentPage >= totalPages || totalPages === 0 || loading}
-                        onClick={() => setCurrentPage((p) => p + 1)}
-                        className="ml-2 rounded-lg border border-gray-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        Next
-                    </button>
-                </div>
-            </div>
-
-            {/* MOBILE CARDS VIEW */}
-            <div className={`space-y-4 lg:hidden transition-opacity ${loading ? 'opacity-50' : 'opacity-100'}`}>
-                {universities.length === 0 && !loading ? (
-                    <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center text-xs text-slate-400">
-                        No universities match the selected filters.
-                    </div>
+            <div className={`space-y-4 transition-opacity ${loading && universities.length ? 'pointer-events-none opacity-60' : ''}`}>
+                {loading && universities.length === 0 ? (
+                    Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)
+                ) : universities.length === 0 ? (
+                    <EmptyState
+                        title="No universities match these filters"
+                        text="Try widening the ranking or tuition range, or choose another country."
+                        onClear={active.length || filters.search ? clearAll : undefined}
+                    />
                 ) : (
-                    universities.map((uni: any) => (
-                        <div
+                    universities.map((uni) => (
+                        <UniversityCard
                             key={uni._id}
-                            className="rounded-2xl border border-gray-100 bg-white p-5 shadow-2xs transition active:scale-[0.99]"
-                        >
-                            <div className="flex items-start justify-between gap-2">
-                                <h3 className="text-base font-bold text-slate-900 leading-snug">
-                                    {uni.name}
-                                </h3>
-                                <span className="shrink-0 rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-800">
-                                    {getRanking(uni)}
-                                </span>
-                            </div>
-
-                            <div className="mt-2.5 flex items-center justify-between text-xs font-medium text-slate-700">
-                                <span>Tuition: <strong className="text-slate-900">{getTuition(uni)}</strong></span>
-                                <span className="text-slate-600">Location: <strong className="text-slate-900">{formatLocation(uni)}</strong></span>
-                            </div>
-
-                            {uni.description && (
-                                <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-slate-500">
-                                    {uni.description}
-                                </p>
-                            )}
-
-                            <Link
-                                href={`/universities/${uni._id}`}
-                                className="mt-4 block w-full rounded-2xl bg-blue-600 py-3 text-center text-xs font-bold text-white shadow-2xs transition hover:bg-blue-700 active:scale-98"
-                            >
-                                View Details
-                            </Link>
-                        </div>
+                            uni={uni}
+                            favorite={favorites.isFavorite(uni._id)}
+                            onToggleFavorite={() => favorites.toggle(uni._id)}
+                            favoritesReady={favorites.ready}
+                        />
                     ))
                 )}
-
-                {/* MOBILE PAGINATION */}
-                <div className="flex items-center justify-between pt-2">
-                    <button
-                        disabled={currentPage <= 1 || loading}
-                        onClick={() => setCurrentPage((p) => p - 1)}
-                        className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition disabled:opacity-50"
-                    >
-                        Prev
-                    </button>
-                    <span className="text-xs font-medium text-slate-500">
-                        Page {currentPage} of {totalPages}
-                    </span>
-                    <button
-                        disabled={currentPage >= totalPages || totalPages === 0 || loading}
-                        onClick={() => setCurrentPage((p) => p + 1)}
-                        className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition disabled:opacity-50"
-                    >
-                        Next
-                    </button>
-                </div>
             </div>
+
+            <Pagination page={currentPage} totalPages={totalPages} onChange={setCurrentPage} disabled={loading} />
         </div>
     );
 }

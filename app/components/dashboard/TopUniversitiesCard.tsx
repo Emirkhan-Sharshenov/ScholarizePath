@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { GraduationCap, Heart, MapPin, Shuffle, Loader2 } from "lucide-react";
+import { ArrowRight, Heart, MapPin, Shuffle, Loader2, Sparkles } from "lucide-react";
 
 interface LocationObject {
     country?: string;
@@ -19,6 +19,7 @@ interface University {
     location?: string | LocationObject;
     country?: string | LocationObject;
     rank?: string | number | { world?: string | number; rank?: string | number };
+    ranking?: number | { global?: number; qs?: number };
     websiteUrl?: string | { url?: string };
 }
 
@@ -170,15 +171,36 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
         return { text: "Worldwide", country: "" };
     };
 
-    const formatRank = (uni: University, index: number): string => {
-        if (typeof uni.rank === "string" || typeof uni.rank === "number") {
-            return `#${uni.rank}`;
-        }
+    // Real world ranking only — the API returns `ranking` ({ global, qs } or a
+    // plain number); `rank` is the fallback list's shape. No ranking → no badge,
+    // rather than inventing one from the card's position in the list.
+    const formatRank = (uni: University): string | null => {
+        const fromRanking =
+            typeof uni.ranking === "number" ? uni.ranking : uni.ranking?.global || uni.ranking?.qs;
+        if (fromRanking && fromRanking > 0) return `#${fromRanking} World`;
+
+        if (typeof uni.rank === "string" || typeof uni.rank === "number") return `#${uni.rank} World`;
         if (typeof uni.rank === "object" && uni.rank !== null) {
             const val = uni.rank.world || uni.rank.rank;
-            if (val) return `#${val}`;
+            if (val) return `#${val} World`;
         }
-        return `#${index + 1}`;
+        return null;
+    };
+
+    // Monogram for the logo tile: the short name if it's short, otherwise the
+    // initials of the capitalised words ("Imperial College London" → "ICL").
+    // "University" is dropped only when enough other words remain, so
+    // "Technical University of Munich" → "TM" but "Harvard University" → "HU".
+    const uniInitials = (uni: University, name: string): string => {
+        if (typeof uni.shortName === "string" && uni.shortName.length <= 5) return uni.shortName;
+        const words = name.split(/\s+/).filter((w) => /^[A-Z]/.test(w) && !["Of", "The", "And"].includes(w));
+        const withoutUniversity = words.filter((w) => w !== "University");
+        const picked = withoutUniversity.length >= 2 ? withoutUniversity : words;
+        return (picked.length ? picked : name.split(/\s+/))
+            .slice(0, 3)
+            .map((w) => w[0])
+            .join("")
+            .toUpperCase();
     };
 
     const getUniversityId = (uni: University, fallbackIndex: number): string => {
@@ -210,13 +232,14 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
     };
 
     return (
-        <div className="w-full mt-8">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <section className="w-full" aria-labelledby="suggested-universities-heading">
+            <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
                 <div>
-                    <h1 className="text-xl font-bold text-slate-900">
+                    <h2 id="suggested-universities-heading" className="flex items-center gap-2 font-display text-xl font-bold tracking-tight text-ink md:text-2xl">
+                        <Sparkles aria-hidden="true" className="h-5 w-5 text-amber-500" />
                         Suggested Universities {countryName ? `in ${countryName}` : ""}
-                    </h1>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-500">
                         {personalized
                             ? "Picked based on your profile preferences"
                             : "A fresh mix from around the world — reshuffle for more"}
@@ -227,113 +250,105 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                         type="button"
                         onClick={() => setRefreshKey((k) => k + 1)}
                         disabled={loading}
-                        className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-brand disabled:opacity-50"
+                        className="flex h-10 items-center gap-2 rounded-[10px] border border-slate-200 bg-white px-4 text-sm font-semibold text-ink shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-brand disabled:opacity-50"
                     >
-                        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Shuffle className="h-3.5 w-3.5" />}
+                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shuffle className="h-4 w-4" />}
                         Shuffle
                     </button>
                 )}
             </div>
 
             {loading && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {Array.from({ length: 8 }).map((_, i) => (
-                        <div
-                            key={i}
-                            className="h-[172px] rounded-2xl bg-gray-100 animate-pulse w-full"
-                        />
+                        <div key={i} className="h-[196px] w-full animate-pulse rounded-2xl bg-slate-200/60" />
                     ))}
                 </div>
             )}
 
             {error && !loading && universities.length === 0 && (
-                <p className="text-sm text-red-500 py-4">
+                <p className="py-4 text-sm text-red-500">
                     Couldn&apos;t find any university
                 </p>
             )}
 
             {!loading && !error && universities.length === 0 && (
-                <p className="text-sm text-slate-500 py-4">Universities not found</p>
+                <p className="py-4 text-sm text-slate-500">Universities not found</p>
             )}
 
             {!loading && universities.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {universities.map((uni, idx) => {
                         const uniId = getUniversityId(uni, idx);
                         const uniName = formatName(uni);
                         const { text: locationText, country } = formatLocation(uni);
-                        const rankText = formatRank(uni, idx);
+                        const rankText = formatRank(uni);
                         const flag = FLAG_BY_COUNTRY[country.toLowerCase()];
                         const isFallback = FALLBACK_IDS.has(uniId);
                         const isFavorite = favoriteIds.has(uniId);
 
                         return (
-                            <div
+                            <article
                                 key={`${uniId}-${idx}`}
-                                className="group relative w-full overflow-hidden rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between"
+                                className="group relative flex w-full flex-col rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_4px_12px_rgba(10,26,63,0.04)] transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-[0_10px_24px_rgba(10,26,63,0.08)]"
                             >
-                                <div
-                                    aria-hidden="true"
-                                    className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-400 opacity-80"
-                                />
-
-                                {!isFallback && (
-                                    <button
-                                        type="button"
-                                        onClick={() => handleToggleFavorite(uniId)}
-                                        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-                                        aria-pressed={isFavorite}
-                                        className="absolute right-3 top-3.5 rounded-full p-1.5 text-slate-300 transition-colors hover:bg-rose-50 hover:text-rose-500"
-                                    >
-                                        <Heart className={`h-4 w-4 ${isFavorite ? "fill-rose-500 text-rose-500" : ""}`} />
-                                    </button>
-                                )}
-
-                                <div>
-                                    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-brand transition-colors group-hover:bg-blue-600 group-hover:text-white">
-                                        <GraduationCap className="h-4.5 w-4.5" />
-                                    </div>
-
-                                    <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 pr-6">
-                                        {uniName}
-                                    </h3>
-
-                                    {typeof uni.shortName === "string" && (
-                                        <p className="text-xs text-slate-400 mt-1 font-medium">
-                                            {uni.shortName}
-                                        </p>
-                                    )}
-
-                                    <div className="flex items-center gap-1 text-slate-400 text-xs mt-3">
-                                        {flag ? (
-                                            <span className="text-sm leading-none">{flag}</span>
-                                        ) : (
-                                            <MapPin className="w-3.5 h-3.5 shrink-0" />
-                                        )}
-                                        <span className="truncate">{locationText}</span>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between mt-6 pt-2">
-                                    <span className="rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-bold text-slate-500">
-                                        {rankText} World
+                                <div className="flex items-start justify-between gap-3">
+                                    <span className="flex h-12 min-w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-[#2f7cf6] px-2 font-display text-sm font-bold text-white shadow-sm">
+                                        {uniInitials(uni, uniName)}
                                     </span>
-                                    {isFallback ? (
-                                        <span className="text-xs font-medium text-slate-300">Unavailable</span>
-                                    ) : (
-                                        <Link
-                                            href={`/universities/${uniId}`}
-                                            className="text-xs font-semibold text-slate-800 hover:text-blue-600 flex items-center gap-1 transition-colors"
-                                        >
-                                            View <span className="text-sm">→</span>
-                                        </Link>
-                                    )}
+                                    <div className="flex items-center gap-1.5">
+                                        {rankText && (
+                                            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-brand">
+                                                {rankText}
+                                            </span>
+                                        )}
+                                        {!isFallback && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleToggleFavorite(uniId)}
+                                                aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                                                aria-pressed={isFavorite}
+                                                className="flex h-8 w-8 items-center justify-center rounded-full text-slate-300 transition-colors hover:bg-rose-50 hover:text-rose-500"
+                                            >
+                                                <Heart className={`h-[18px] w-[18px] ${isFavorite ? "fill-rose-500 text-rose-500" : ""}`} />
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+
+                                <h3 className="mt-4 line-clamp-2 font-display text-base font-semibold leading-snug text-ink">
+                                    {uniName}
+                                </h3>
+
+                                <p className="mt-1.5 flex items-center gap-1.5 text-sm text-slate-500">
+                                    {flag ? (
+                                        <span className="text-sm leading-none">{flag}</span>
+                                    ) : (
+                                        <MapPin aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+                                    )}
+                                    <span className="truncate">{locationText}</span>
+                                </p>
+
+                                <div className="mt-5 flex flex-1 items-end justify-end">
+                                    <div className="flex w-full items-center justify-end border-t border-slate-100 pt-3">
+                                        {isFallback ? (
+                                            <span className="text-sm font-medium text-slate-300">Unavailable</span>
+                                        ) : (
+                                            <Link
+                                                href={`/universities/${uniId}`}
+                                                className="flex items-center gap-1 text-sm font-semibold text-brand transition-colors hover:text-[#004a9f]"
+                                            >
+                                                View details
+                                                <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                                            </Link>
+                                        )}
+                                    </div>
+                                </div>
+                            </article>
                         );
                     })}
                 </div>
             )}
-        </div>
+        </section>
     );
 }
