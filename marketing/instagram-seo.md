@@ -121,6 +121,22 @@ Reel about ScholarizePath: searching universities worldwide, scholarships and gr
 - **Пробные рилсы (Trial reels):** сначала покажите версию людям, которые не подписаны, и сравните RU и EN.
 - **Совместная публикация (Collab):** отметьте соавтором блогера или сообщество об учёбе за рубежом, чтобы рилс вышел сразу в двух аудиториях.
 - **Время:** 18:00–21:00 по местному времени аудитории, будни. Первые 30–60 минут отвечайте на все комментарии.
-- **Слово в комментариях («ГРАНТ» / «SCHOLARSHIP»):** настройте автоответ в Direct (например, через ManyChat) со ссылкой на `scholarizepath.xyz/scholarships` или отвечайте вручную. Комментарии и отправки поднимают охват.
+- **Слово в комментариях («ГРАНТ» / «SCHOLARSHIP»):** настройте автоответ в Direct (например, через ManyChat) со ссылкой на `https://scholarizepath.xyz/?utm_source=instagram&utm_medium=social&utm_campaign=reel_launch&utm_content=dm_grant` или отвечайте вручную. Ссылка ведёт на главную, а не на `/scholarships`: эта страница требует входа, а редирект на `/login` теряет UTM-метки. Комментарии и отправки поднимают охват.
 - **Highlights:** «Стипендии», «Вузы», «AI», «Отзывы», чтобы названия тоже содержали ключевые слова.
 - **Что отслеживать:** сохранения, отправки и досмотры (retention). Если досмотр падает на 3–4 секунде, крючок нужно усилить.
+
+---
+
+## 6. UTM-ссылки (Google Analytics)
+
+Все метки в нижнем регистре, `utm_medium=social`: так GA4 относит переход к каналу «Organic Social».
+Ссылки ведут только на публичные страницы (`/`, `/top`). Закрытые страницы вроде `/scholarships` для гостя
+редиректят на `/login`, и метки теряются.
+
+| Где | Ссылка |
+| --- | --- |
+| Instagram bio | `https://scholarizepath.xyz/?utm_source=instagram&utm_medium=social&utm_campaign=bio` |
+| Instagram stories | `https://scholarizepath.xyz/?utm_source=instagram&utm_medium=social&utm_campaign=stories` |
+| Instagram, автоответ «ГРАНТ» | `https://scholarizepath.xyz/?utm_source=instagram&utm_medium=social&utm_campaign=reel_launch&utm_content=dm_grant` |
+| TikTok bio | `https://scholarizepath.xyz/?utm_source=tiktok&utm_medium=social&utm_campaign=bio` |
+| Telegram | `https://scholarizepath.xyz/?utm_source=telegram&utm_medium=social&utm_campaign=channel` |
