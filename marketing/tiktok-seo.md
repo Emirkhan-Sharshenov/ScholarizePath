@@ -44,3 +44,13 @@ Backup hashtags:
 - **Первые 1–2 часа:** отвечайте на комментарии, лучше видеоответами, это готовые новые ролики.
 - **Регион:** русскую версию лучше таргетировать на Казахстан, Узбекистан и Россию, английскую — на международную аудиторию. TikTok показывает видео по региону, в котором он видит аккаунт.
 - **Отдельные посты:** не публикуйте RU и EN подряд в один день, разнесите их на 2–3 дня.
+
+## UTM-ссылки (Google Analytics)
+
+| Где | Ссылка |
+| --- | --- |
+| TikTok bio (поле «Сайт») | `https://scholarizepath.xyz/?utm_source=tiktok&utm_medium=social&utm_campaign=bio` |
+| Автоответ на «ГРАНТ» / «SCHOLARSHIP» в Direct | `https://scholarizepath.xyz/?utm_source=tiktok&utm_medium=social&utm_campaign=reel_launch&utm_content=dm_grant` |
+| Английский аккаунт или видео | тот же адрес, но `utm_content=en` |
+
+Адрес, написанный текстом (`scholarizepath.xyz`), люди перепечатывают без меток, и в GA такой переход попадёт в «Direct».
