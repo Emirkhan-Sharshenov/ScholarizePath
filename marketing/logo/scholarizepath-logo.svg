@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 498 386"><defs><mask id="cord" maskUnits="userSpaceOnUse" x="0" y="0" width="498" height="386"><rect width="498" height="386" fill="white"/><ellipse cx="250" cy="98" rx="24" ry="12" fill="black"/><line x1="262" y1="99.5" x2="425" y2="134" stroke="black" stroke-width="11" stroke-linecap="round"/></mask></defs>
+<g fill="#0058bd"><path d="M18 290 C120 294 200 318 244 350 L248 386 C205 356 110 322 15 322 L8 294 Z"/><path d="M42 263 C135 268 205 302 244 346 L240 352 C200 305 120 283 29 277 Z"/>
+<g transform="translate(497 0) scale(-1 1)"><path d="M18 290 C120 294 200 318 244 350 L248 386 C205 356 110 322 15 322 L8 294 Z"/><path d="M42 263 C135 268 205 302 244 346 L240 352 C200 305 120 283 29 277 Z"/></g>
+<path d="M112 166 L248 221 L386 164 L386 248 Q298 258 249 310 Q200 258 112 248 Z"/><path mask="url(#cord)" d="M249 0 L495 101 L248 206 L2 101 Z"/>
+<rect x="426" y="120" width="11" height="68" rx="3"/><circle cx="431" cy="195" r="12"/><path d="M422 207 L440 207 L445 236 L443 241 L420 241 L417 236 Z"/></g></svg>
