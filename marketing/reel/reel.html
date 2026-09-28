@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>ScholarizePath Reel</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{--brand:#0058bd;--brand2:#2f7cf6;--navy:#000139;--ink:#0a1a3f;--bg:#f7f9fc;--amber:#f59e0b;--violet:#7c3aed;--emerald:#10b981;--rose:#e11d48}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#000139}
+body{font-family:Inter,Manrope,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+.scene{position:absolute;inset:0;overflow:hidden;display:none;will-change:transform,clip-path}
+.dark{background:radial-gradient(120% 80% at 50% 0%,#0b1f6b 0%,#040a4a 45%,#000139 100%);color:#fff}
+.light{background:linear-gradient(180deg,#eaf2ff 0%,#f3f7ff 40%,#f7f9fc 100%)}
+.dots{position:absolute;inset:0;background-image:radial-gradient(rgba(0,88,189,.35) 2px,transparent 2px);background-size:44px 44px;-webkit-mask-image:linear-gradient(to bottom,#000,transparent 70%)}
+.dark .dots{background-image:radial-gradient(rgba(255,255,255,.18) 2px,transparent 2px)}
+.blob{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none}
+.abs{position:absolute}
+.disp{font-family:Manrope,sans-serif;font-weight:800;letter-spacing:-.03em}
+.grad{background:linear-gradient(90deg,#4f9bff,#8fc2ff 50%,#ffd27a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gradL{background:linear-gradient(90deg,var(--brand),var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.w{display:inline-block;will-change:transform,opacity,filter}
+.eyebrow{display:inline-flex;align-items:center;gap:14px;padding:14px 26px;border-radius:999px;background:#fff;border:2px solid #dbe8ff;font:700 28px Manrope;color:var(--brand);box-shadow:0 8px 24px rgba(0,88,189,.10)}
+.dark .eyebrow{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#bcd6ff;box-shadow:none}
+.eyebrow .num{font-variant-numeric:tabular-nums;opacity:.6}
+.h1{font:800 92px/1.06 Manrope;letter-spacing:-.035em}
+.sub{font:500 38px/1.35 Inter;color:#51607a}
+.dark .sub{color:#b8c7ea}
+.card{background:#fff;border:2px solid rgba(226,232,240,.9);border-radius:36px;box-shadow:0 24px 60px rgba(10,26,63,.10)}
+.ico{display:flex;align-items:center;justify-content:center;border-radius:24px;flex-shrink:0}
+svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.pill{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border-radius:999px;font:600 26px Inter;background:#fff;border:2px solid #e2e8f0;color:#334155;white-space:nowrap}
+.pill.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.tag{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:12px;font:700 22px Inter;white-space:nowrap}
+#brandmark{position:absolute;left:64px;top:118px;z-index:50;display:flex;align-items:center;gap:14px;font:800 32px 'Plus Jakarta Sans';letter-spacing:-.02em}
+#progress{position:absolute;left:64px;right:64px;top:84px;height:6px;border-radius:6px;background:rgba(127,140,170,.22);z-index:50;overflow:hidden}
+#progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:6px}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- ============ S1 HOOK ============ -->
+<section class="scene dark" id="s1">
+  <div class="dots"></div>
+  <div class="blob" id="s1b1" style="width:900px;height:900px;background:#1f6fff;opacity:.45;left:-200px;top:200px"></div>
+  <div class="blob" id="s1b2" style="width:700px;height:700px;background:#f59e0b;opacity:.18;right:-250px;bottom:300px"></div>
+  <canvas id="s1p" width="1080" height="1920" class="abs" style="inset:0"></canvas>
+  <div class="abs" style="left:80px;right:80px;top:640px">
+    <div class="h1" style="font-size:132px;line-height:1.02;color:#fff">
+      <span class="w" id="s1w1">Мечтаешь</span><br>
+      <span class="w" id="s1w2">учиться</span><br>
+      <span class="w grad" id="s1w3">за границей?</span>
+    </div>
+    <div class="sub" id="s1sub" style="margin-top:56px;font-size:46px;color:#c9d7f5;min-height:64px"><span id="s1type"></span><span id="s1caret" style="display:inline-block;width:4px;height:50px;background:#8fc2ff;vertical-align:-8px;margin-left:6px"></span></div>
+  </div>
+</section>
+
+<!-- ============ S2 LOGO ============ -->
+<section class="scene light" id="s2">
+  <div class="dots"></div>
+  <div class="blob" style="width:800px;height:800px;background:#60a5fa;opacity:.28;right:-300px;top:-200px"></div>
+  <div class="blob" style="width:700px;height:700px;background:#fcd34d;opacity:.25;left:-300px;bottom:100px"></div>
+  <div class="abs" id="s2wrap" style="left:0;right:0;top:560px;display:flex;flex-direction:column;align-items:center">
+    <svg id="logo" viewBox="0 0 498 386" width="420" height="326" style="overflow:visible">
+      <defs><mask id="cord" maskUnits="userSpaceOnUse" x="0" y="0" width="498" height="386"><rect width="498" height="386" fill="white"/><ellipse cx="250" cy="98" rx="24" ry="12" fill="black"/><line x1="262" y1="99.5" x2="425" y2="134" stroke="black" stroke-width="11" stroke-linecap="round"/></mask></defs>
+      <g id="bookL"><path id="pbL" fill="#0058bd" d="M18 290 C120 294 200 318 244 350 L248 386 C205 356 110 322 15 322 L8 294 Z"/><path id="ptL" fill="#0058bd" d="M42 263 C135 268 205 302 244 346 L240 352 C200 305 120 283 29 277 Z"/></g>
+      <g transform="translate(497 0) scale(-1 1)"><g id="bookR"><path id="pbR" fill="#0058bd" d="M18 290 C120 294 200 318 244 350 L248 386 C205 356 110 322 15 322 L8 294 Z"/><path id="ptR" fill="#0058bd" d="M42 263 C135 268 205 302 244 346 L240 352 C200 305 120 283 29 277 Z"/></g></g>
+      <path id="band" fill="#0058bd" d="M112 166 L248 221 L386 164 L386 248 Q298 258 249 310 Q200 258 112 248 Z"/>
+      <g id="board"><path fill="#0058bd" mask="url(#cord)" d="M249 0 L495 101 L248 206 L2 101 Z"/>
+        <g id="tassel"><rect x="426" y="120" width="11" height="68" rx="3" fill="#0058bd"/><circle cx="431" cy="195" r="12" fill="#0058bd"/><path fill="#0058bd" d="M422 207 L440 207 L445 236 L443 241 L420 241 L417 236 Z"/></g>
+      </g>
+    </svg>
+    <div id="s2name" style="margin-top:60px;font:800 104px 'Plus Jakarta Sans';letter-spacing:-.03em;color:var(--ink);white-space:nowrap"></div>
+    <div id="s2tag" style="margin-top:18px;font:600 34px Inter;color:#51607a;letter-spacing:.01em">Your Pathway to Global Education</div>
+    <div id="s2line" style="margin-top:90px;text-align:center" class="disp">
+      <div style="font-size:60px;line-height:1.15;color:var(--ink)">Всё для поступления<br><span class="gradL">за рубеж — в одном месте</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S3 STATS ============ -->
+<section class="scene light" id="s3">
+  <div class="dots"></div>
+  <div class="blob" style="width:900px;height:900px;background:#93c5fd;opacity:.35;left:-300px;top:300px"></div>
+  <div class="abs" style="left:72px;right:72px;top:300px">
+    <div class="eyebrow" id="s3eb"><span class="num">01</span>Платформа в цифрах</div>
+    <div class="h1" id="s3h" style="margin-top:34px">Огромная база.<br><span class="gradL">Реальные данные.</span></div>
+  </div>
+  <div class="abs" id="s3grid" style="left:72px;right:72px;top:760px;display:grid;grid-template-columns:1fr 1fr;gap:32px"></div>
+</section>
+
+<!-- ============ S4 GLOBE ============ -->
+<section class="scene dark" id="s4">
+  <div class="dots" style="opacity:.6"></div>
+  <div class="blob" style="width:1000px;height:1000px;background:#1d4ed8;opacity:.45;left:40px;top:560px"></div>
+  <div class="abs" style="left:72px;right:72px;top:300px">
+    <div class="eyebrow" id="s4eb"><span class="num">02</span>Университеты</div>
+    <div class="h1" id="s4h" style="margin-top:34px;color:#fff">Весь мир —<br><span class="grad">на одной карте</span></div>
+  </div>
+  <canvas id="globe" width="1080" height="1080" class="abs" style="left:0;top:700px"></canvas>
+  <div class="abs sub" id="s4sub" style="left:72px;right:72px;top:1660px;text-align:center;font-size:36px">Фильтры по стране, рейтингу, цене и программе</div>
+</section>
+
+<!-- ============ S5 SCHOLARSHIPS ============ -->
+<section class="scene light" id="s5">
+  <div class="dots"></div>
+  <div class="blob" style="width:800px;height:800px;background:#fcd34d;opacity:.3;right:-300px;top:200px"></div>
+  <div class="abs" style="left:72px;right:72px;top:300px">
+    <div class="eyebrow" id="s5eb"><span class="num">03</span>Стипендии</div>
+    <div class="h1" id="s5h" style="margin-top:34px">120+ грантов,<br><span style="background:linear-gradient(90deg,#f59e0b,#ea580c);-webkit-background-clip:text;color:transparent">вплоть до полного покрытия</span></div>
+  </div>
+  <div class="abs card" id="s5search" style="left:72px;right:72px;top:790px;height:128px;display:flex;align-items:center;gap:22px;padding:0 36px;border-radius:28px">
+    <svg class="i" width="46" height="46" viewBox="0 0 24 24" style="color:#94a3b8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <div style="font:500 40px Inter;color:var(--ink)"><span id="s5type"></span><span id="s5caret" style="display:inline-block;width:3px;height:44px;background:var(--brand);vertical-align:-8px;margin-left:4px"></span></div>
+  </div>
+  <div class="abs" id="s5pills" style="left:72px;right:72px;top:950px;display:flex;flex-wrap:wrap;gap:14px"></div>
+  <div class="abs" id="s5cards" style="left:72px;right:72px;top:1100px;display:flex;flex-direction:column;gap:24px"></div>
+</section>
+
+<!-- ============ S6 AI ============ -->
+<section class="scene light" id="s6" style="background:linear-gradient(180deg,#f1ecff 0%,#f6f3ff 40%,#f7f9fc 100%)">
+  <div class="dots" style="background-image:radial-gradient(rgba(124,58,237,.28) 2px,transparent 2px)"></div>
+  <div class="blob" style="width:800px;height:800px;background:#a78bfa;opacity:.35;left:-300px;top:900px"></div>
+  <div class="abs" style="left:72px;right:72px;top:300px">
+    <div class="eyebrow" id="s6eb" style="color:#6d28d9;border-color:#e9dfff"><span class="num">04</span>AI-советник</div>
+    <div class="h1" id="s6h" style="margin-top:34px">Спроси как<br><span style="background:linear-gradient(90deg,#7c3aed,#2f7cf6);-webkit-background-clip:text;color:transparent">у друга-эксперта</span></div>
+  </div>
+  <div class="abs card" id="s6chat" style="left:56px;right:56px;top:740px;height:940px;padding:0;overflow:hidden">
+    <div style="display:flex;align-items:center;gap:20px;padding:30px 36px;border-bottom:2px solid #eef2f7">
+      <div class="ico" style="width:72px;height:72px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;border-radius:22px"><svg class="i" width="40" height="40" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div>
+      <div><div style="font:800 34px Manrope">ScholarizePath AI</div><div style="font:500 24px Inter;color:#10b981;display:flex;align-items:center;gap:8px"><i style="width:12px;height:12px;border-radius:50%;background:#10b981;display:inline-block"></i>онлайн · ищет по базе платформы</div></div>
+    </div>
+    <div id="s6msgs" style="position:relative;padding:32px 32px;display:flex;flex-direction:column;gap:24px"></div>
+  </div>
+</section>
+
+<!-- ============ S7 ODDS + COST ============ -->
+<section class="scene dark" id="s7">
+  <div class="dots" style="opacity:.6"></div>
+  <div class="blob" style="width:900px;height:900px;background:#059669;opacity:.28;left:-200px;top:700px"></div>
+  <div class="blob" style="width:700px;height:700px;background:#2563eb;opacity:.4;right:-250px;top:200px"></div>
+  <div class="abs" style="left:72px;right:72px;top:300px">
+    <div class="eyebrow" id="s7eb"><span class="num">05</span>Шансы и бюджет</div>
+    <div class="h1" id="s7h" style="margin-top:34px;color:#fff">Узнай свои шансы<br><span class="grad">ещё до подачи</span></div>
+  </div>
+  <div class="abs" id="s7gauge" style="left:0;right:0;top:720px;display:flex;justify-content:center">
+    <div style="position:relative;width:520px;height:520px">
+      <svg width="520" height="520" viewBox="0 0 520 520" style="transform:rotate(-90deg)">
+        <defs><linearGradient id="gg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs>
+        <circle cx="260" cy="260" r="220" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="36"/>
+        <circle id="s7arc" cx="260" cy="260" r="220" fill="none" stroke="url(#gg)" stroke-width="36" stroke-linecap="round" stroke-dasharray="1382.3" stroke-dashoffset="1382.3"/>
+      </svg>
+      <div class="abs" style="inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div id="s7pct" style="font:800 150px Manrope;letter-spacing:-.04em;color:#fff;font-variant-numeric:tabular-nums">0%</div>
+        <div style="font:600 32px Inter;color:#a7f3d0;margin-top:-6px">шанс поступления</div>
+      </div>
+    </div>
+  </div>
+  <div class="abs" id="s7tags" style="left:0;right:0;top:1270px;display:flex;justify-content:center;gap:18px"></div>
+  <div class="abs" id="s7cost" style="left:72px;right:72px;top:1390px;padding:34px 40px;border-radius:32px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.14)">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font:600 30px Inter;color:#b8c7ea">Стоимость обучения / год</div>
+      <div class="tag" id="s7save" style="background:#10b981;color:#fff">−85% со стипендией</div>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:28px;margin-top:14px">
+      <div id="s7full" style="font:800 64px Manrope;color:#fff;font-variant-numeric:tabular-nums;position:relative">$0</div>
+      <div id="s7net" style="font:800 64px Manrope;color:#34d399;font-variant-numeric:tabular-nums">$0</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S8 TRACKER ============ -->
+<section class="scene light" id="s8">
+  <div class="dots"></div>
+  <div class="blob" style="width:900px;height:900px;background:#6ee7b7;opacity:.3;right:-300px;top:900px"></div>
+  <div class="abs" style="left:72px;right:72px;top:300px">
+    <div class="eyebrow" id="s8eb"><span class="num">06</span>Трекер заявок</div>
+    <div class="h1" id="s8h" style="margin-top:34px">Все дедлайны<br><span class="gradL">под контролем</span></div>
+  </div>
+  <div class="abs" id="s8board" style="left:40px;right:40px;top:760px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px"></div>
+  <canvas id="confetti" width="1080" height="1920" class="abs" style="inset:0;pointer-events:none"></canvas>
+  <div class="abs" id="s8chips" style="left:60px;right:60px;top:1480px;display:flex;flex-wrap:wrap;justify-content:center;gap:16px"></div>
+</section>
+
+<!-- ============ S9 CTA ============ -->
+<section class="scene dark" id="s9">
+  <div class="dots"></div>
+  <div class="blob" id="s9b" style="width:1000px;height:1000px;background:#1f6fff;opacity:.55;left:40px;top:300px"></div>
+  <canvas id="s9p" width="1080" height="1920" class="abs" style="inset:0"></canvas>
+  <div class="abs" style="left:0;right:0;top:470px;display:flex;flex-direction:column;align-items:center;text-align:center">
+    <svg id="logo2" viewBox="0 0 498 386" width="230" height="178" style="overflow:visible">
+      <path fill="#fff" d="M18 290 C120 294 200 318 244 350 L248 386 C205 356 110 322 15 322 L8 294 Z"/><path fill="#fff" d="M42 263 C135 268 205 302 244 346 L240 352 C200 305 120 283 29 277 Z"/>
+      <g transform="translate(497 0) scale(-1 1)"><path fill="#fff" d="M18 290 C120 294 200 318 244 350 L248 386 C205 356 110 322 15 322 L8 294 Z"/><path fill="#fff" d="M42 263 C135 268 205 302 244 346 L240 352 C200 305 120 283 29 277 Z"/></g>
+      <path fill="#fff" d="M112 166 L248 221 L386 164 L386 248 Q298 258 249 310 Q200 258 112 248 Z"/>
+      <path fill="#fff" mask="url(#cord)" d="M249 0 L495 101 L248 206 L2 101 Z"/>
+      <g id="tassel2"><rect x="426" y="120" width="11" height="68" rx="3" fill="#ffd27a"/><circle cx="431" cy="195" r="12" fill="#ffd27a"/><path fill="#ffd27a" d="M422 207 L440 207 L445 236 L443 241 L420 241 L417 236 Z"/></g>
+    </svg>
+    <div class="h1" style="margin-top:70px;color:#fff;font-size:100px;line-height:1.05">
+      <span class="w" id="s9w1">Твой путь</span><br><span class="w" id="s9w2">к учёбе за рубежом</span><br><span class="w grad" id="s9w3">начинается здесь</span>
+    </div>
+    <div id="s9feat" style="margin-top:56px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:0 60px"></div>
+    <div id="s9btn" style="margin-top:80px;position:relative;display:inline-flex;align-items:center;gap:20px;padding:36px 60px;border-radius:28px;background:#fff;color:var(--ink);font:800 54px 'Plus Jakarta Sans';letter-spacing:-.02em;overflow:hidden;box-shadow:0 30px 80px rgba(31,111,255,.55)">
+      scholarizepath.xyz
+      <svg class="i" width="50" height="50" viewBox="0 0 24 24" style="color:var(--brand);stroke-width:2.6"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      <i id="s9shine" style="position:absolute;top:-20px;bottom:-20px;width:120px;background:linear-gradient(90deg,transparent,rgba(47,124,246,.35),transparent);transform:skewX(-20deg)"></i>
+    </div>
+    <div id="s9ripple" class="abs" style="width:40px;height:40px;border-radius:50%;border:5px solid #fff;opacity:0"></div>
+    <svg id="s9cursor" class="abs" width="84" height="84" viewBox="0 0 24 24" style="opacity:0;filter:drop-shadow(0 6px 12px rgba(0,0,0,.4))"><path d="M4 2l16 9-7 1.8L9.5 20z" fill="#fff" stroke="#0a1a3f" stroke-width="1.4" stroke-linejoin="round"/></svg>
+    <div id="s9foot" style="margin-top:56px;font:600 36px Inter;color:#b8c7ea">Бесплатно · Ссылка в профиле</div>
+  </div>
+</section>
+
+<div id="progress"><i></i></div>
+<div id="brandmark"><svg viewBox="0 0 498 386" width="52" height="40" fill="currentColor"><path d="M18 290 C120 294 200 318 244 350 L248 386 C205 356 110 322 15 322 L8 294 Z"/><path d="M42 263 C135 268 205 302 244 346 L240 352 C200 305 120 283 29 277 Z"/><g transform="translate(497 0) scale(-1 1)"><path d="M18 290 C120 294 200 318 244 350 L248 386 C205 356 110 322 15 322 L8 294 Z"/><path d="M42 263 C135 268 205 302 244 346 L240 352 C200 305 120 283 29 277 Z"/></g><path d="M112 166 L248 221 L386 164 L386 248 Q298 258 249 310 Q200 258 112 248 Z"/><path mask="url(#cord)" d="M249 0 L495 101 L248 206 L2 101 Z"/><rect x="426" y="120" width="11" height="68" rx="3"/><circle cx="431" cy="195" r="12"/><path d="M422 207 L440 207 L445 236 L443 241 L420 241 L417 236 Z"/></svg><span>ScholarizePath</span></div>
+</div>
+
+<script src="dots.js"></script>
+<script>
+// ---------- helpers ----------
+const $=id=>document.getElementById(id);
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp=(a,b,x)=>a+(b-a)*x;
+const E={
+  lin:x=>x,
+  out:x=>1-Math.pow(1-x,3),
+  out5:x=>1-Math.pow(1-x,5),
+  expo:x=>x>=1?1:1-Math.pow(2,-10*x),
+  inOut:x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,
+  in:x=>x*x*x,
+  back:x=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)},
+  spring:x=>x>=1?1:1-Math.exp(-6*x)*Math.cos(12*x),
+};
+const P=(t,a,b,e=E.out)=>t<=a?0:t>=b?1:e((t-a)/(b-a));
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const set=(el,o,tf,filter)=>{el.style.opacity=o;if(tf!==undefined)el.style.transform=tf;if(filter!==undefined)el.style.filter=filter};
+// word/element entrance: rise + blur
+function rise(el,t,a,d=.7,dist=80){const p=P(t,a,a+d,E.out5);set(el,clamp(p*1.4),`translateY(${(1-p)*dist}px)`,`blur(${(1-p)*14}px)`);}
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+const ICONS={
+ cap:'<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
+ award:'<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+ bot:'<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
+ trend:'<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+ pin:'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+ cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+ check:'<path d="M20 6 9 17l-5-5"/>',
+ heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+ cols:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/>',
+ file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m9 15 2 2 4-4"/>',
+ calc:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>',
+ spark:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>',
+};
+const ico=(k,s=40,sw=1.9)=>`<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" style="stroke-width:${sw}">${ICONS[k]}</svg>`;
+
+// ---------- scene timing ----------
+// [id, start, transition type]
+const SC=[['s1',0,'none'],['s2',3.2,'circle'],['s3',7.0,'slide'],['s4',11.0,'circle'],['s5',15.6,'slide'],['s6',20.2,'slide'],['s7',24.8,'circle'],['s8',29.2,'slide'],['s9',33.0,'circle']];
+const TOTAL=38.5, TR=.65;
+
+// ---------- build DOM ----------
+// S2 name letters
+$('s2name').innerHTML='ScholarizePath'.split('').map(c=>`<span class="w">${c}</span>`).join('');
+const s2letters=[...$('s2name').children];
+// S3 stat cards
+const STATS=[
+ {k:'cap',v:1500,suf:'+',l:'университетов по всему миру',bg:'#eff6ff',c:'#0058bd'},
+ {k:'award',v:120,suf:'+',l:'стипендий и грантов',bg:'#fffbeb',c:'#d97706'},
+ {k:'bot',v:null,txt:'AI',l:'советник 24/7 по реальной базе',bg:'#f5f3ff',c:'#7c3aed'},
+ {k:'trend',v:6,suf:'+',l:'инструментов: трекер, сравнение, калькулятор…',bg:'#ecfdf5',c:'#059669'},
+];
+$('s3grid').innerHTML=STATS.map((s,i)=>`<div class="card" style="padding:40px 36px;min-height:370px;display:flex;flex-direction:column;justify-content:space-between">
+  <div class="ico" style="width:96px;height:96px;background:${s.bg};color:${s.c}">${ico(s.k,50)}</div>
+  <div><div class="disp s3v" style="font-size:104px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums">0</div>
+  <div style="font:600 30px/1.3 Inter;color:#64748b;margin-top:12px">${s.l}</div></div></div>`).join('');
+const s3cards=[...$('s3grid').children], s3vals=[...document.querySelectorAll('.s3v')];
+// S5
+const PILLS=['Страна','Уровень: Master','Направление','Сумма','Дедлайн'];
+$('s5pills').innerHTML=PILLS.map((p,i)=>`<span class="pill ${i==1?'on':''}">${p}</span>`).join('');
+const s5pills=[...$('s5pills').children];
+const SCH=[
+ {n:'DAAD Scholarship',c:'Германия',f:'Fully funded',d:'23 дня',col:'#0058bd',bg:'#eff6ff'},
+ {n:'Chevening',c:'Великобритания',f:'Fully funded',d:'41 день',col:'#d97706',bg:'#fffbeb'},
+ {n:'Global Korea Scholarship',c:'Южная Корея',f:'Fully funded',d:'58 дней',col:'#7c3aed',bg:'#f5f3ff'},
+];
+$('s5cards').innerHTML=SCH.map(s=>`<div class="card" style="padding:30px 34px;display:flex;align-items:center;gap:28px;border-radius:30px">
+ <div class="ico" style="width:100px;height:100px;background:${s.bg};color:${s.col}">${ico('award',52)}</div>
+ <div style="flex:1;min-width:0">
+  <div style="font:800 40px Manrope;letter-spacing:-.02em;white-space:nowrap">${s.n}</div>
+  <div style="display:flex;align-items:center;gap:8px;font:500 28px Inter;color:#64748b;margin-top:6px">${ico('pin',28)}${s.c}</div>
+  <div style="display:flex;gap:12px;margin-top:14px"><span class="tag" style="background:#dcfce7;color:#15803d">${ico('check',22,3)}${s.f}</span><span class="tag" style="background:#fff1f2;color:#e11d48">${ico('cal',22,2.4)}${s.d}</span></div>
+ </div>
+ <div style="color:#e11d48">${ico('heart',48,2)}</div></div>`).join('');
+const s5cards=[...$('s5cards').children];
+// S6 chat
+$('s6msgs').innerHTML=`
+ <div id="m1" style="align-self:flex-end;max-width:760px;background:linear-gradient(135deg,#2f7cf6,#0058bd);color:#fff;padding:26px 32px;border-radius:32px 32px 8px 32px;font:500 34px/1.4 Inter"><span id="m1t"></span></div>
+ <div id="mtyping" style="align-self:flex-start;background:#f1f5f9;padding:26px 30px;border-radius:32px 32px 32px 8px;display:flex;gap:10px">${[0,1,2].map(i=>`<i class="td" style="width:16px;height:16px;border-radius:50%;background:#94a3b8;display:block"></i>`).join('')}</div>
+ <div id="m2" style="align-self:flex-start;max-width:860px;background:#f5f3ff;padding:26px 32px;border-radius:32px 32px 32px 8px;font:500 34px/1.4 Inter;color:var(--ink)">Нашёл 3 варианта под твой бюджет:</div>
+ <div id="m3" style="display:flex;flex-direction:column;gap:18px">
+  ${[['Technical University of Munich','Германия','84%','#059669'],['Politecnico di Milano','Италия','77%','#059669'],['Charles University','Чехия','91%','#059669']].map(u=>`<div class="uc" style="display:flex;align-items:center;gap:22px;padding:18px 24px;border:2px solid #e2e8f0;border-radius:26px;background:#fff">
+   <div class="ico" style="width:76px;height:76px;background:#eff6ff;color:#0058bd;border-radius:20px">${ico('cap',40)}</div>
+   <div style="flex:1"><div style="font:800 32px Manrope;letter-spacing:-.02em">${u[0]}</div><div style="font:500 25px Inter;color:#64748b;display:flex;align-items:center;gap:6px;margin-top:4px">${ico('pin',24)}${u[1]}</div></div>
+   <div style="text-align:right"><div style="font:800 40px Manrope;color:${u[3]}">${u[2]}</div><div style="font:600 20px Inter;color:#94a3b8">match</div></div></div>`).join('')}
+ </div>`;
+const s6uc=[...document.querySelectorAll('.uc')], s6dots=[...document.querySelectorAll('.td')];
+// S7 tags
+$('s7tags').innerHTML=[['Reach','#f43f5e'],['Match','#3b82f6'],['Safety','#10b981']].map((x,i)=>`<span class="tag" style="font-size:28px;padding:14px 26px;border-radius:999px;background:${i==1?x[1]:'rgba(255,255,255,.08)'};color:#fff;border:2px solid ${i==1?x[1]:'rgba(255,255,255,.16)'}"><i style="width:14px;height:14px;border-radius:50%;background:${x[1]};${i==1?'background:#fff':''}"></i>${x[0]}</span>`).join('');
+const s7tags=[...$('s7tags').children];
+// S8 board
+const COLS=[['Подано','#3b82f6'],['Ожидание','#f59e0b'],['Принят','#10b981']];
+$('s8board').innerHTML=COLS.map((c,i)=>`<div style="background:rgba(241,245,249,.9);border:2px solid #e2e8f0;border-radius:30px;padding:22px 16px;min-height:640px" class="col">
+ <div style="display:flex;align-items:center;gap:10px;font:800 28px Manrope;margin:4px 8px 20px"><i style="width:14px;height:14px;border-radius:50%;background:${c[1]}"></i>${c[0]}</div>
+ <div class="slot" style="display:flex;flex-direction:column;gap:16px"></div></div>`).join('');
+const s8cols=[...$('s8board').children];
+const kc=(n,c,d,col)=>`<div class="kc card" style="padding:22px 20px;border-radius:22px;box-shadow:0 10px 24px rgba(10,26,63,.08)">
+ <div style="font:800 26px/1.2 Manrope;letter-spacing:-.01em">${n}</div>
+ <div style="font:500 20px Inter;color:#64748b;margin-top:6px">${c}</div>
+ <div class="tag" style="margin-top:12px;font-size:18px;padding:6px 12px;background:${col}1a;color:${col}">${d}</div></div>`;
+const slots=[...document.querySelectorAll('.slot')];
+slots[0].innerHTML=kc('ETH Zürich','Швейцария','дедлайн 15 дек','#3b82f6')+kc('KAIST','Южная Корея','дедлайн 10 янв','#3b82f6');
+slots[1].innerHTML=kc('TU Delft','Нидерланды','ответ в марте','#f59e0b');
+slots[2].innerHTML=`<div id="dropzone" style="height:180px;border:3px dashed #a7f3d0;border-radius:22px"></div>`;
+// moving card lives above board
+const mover=document.createElement('div');mover.id='mover';mover.className='abs';mover.style.width='314px';mover.style.zIndex=5;
+mover.innerHTML=kc('University of Toronto','Канада','<span id="mvtag">ожидание</span>','#f59e0b');
+$('s8').appendChild(mover);
+const CHIPS=[['cols','Сравнение'],['heart','Избранное'],['file','Экспорт в .docx'],['calc','Калькулятор'],['spark','Топ рейтинги']];
+$('s8chips').innerHTML=CHIPS.map(c=>`<span class="pill" style="font-size:28px;padding:16px 26px;color:var(--ink)"><span style="color:var(--brand);display:flex">${ico(c[0],30,2.2)}</span>${c[1]}</span>`).join('');
+const s8chips=[...$('s8chips').children];
+// S9 features
+$('s9feat').innerHTML=['1 500+ вузов','120+ стипендий','AI-советник','Трекер'].map(x=>`<span class="pill" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#dbe8ff;font-size:28px">${ico('check',26,3)}${x}</span>`).join('');
+const s9feat=[...$('s9feat').children];
+
+// ---------- particles ----------
+function particles(cv,t,seed,n,col){const c=cv.getContext('2d');c.clearRect(0,0,1080,1920);const r=rng(seed);
+ for(let i=0;i<n;i++){const x=r()*1080,y0=r()*1920,sp=20+r()*60,s=1.5+r()*3.5,ph=r()*6;
+  const y=((y0-t*sp)%1920+1920)%1920;const a=(.25+.5*r())*(.6+.4*Math.sin(t*2+ph));
+  c.fillStyle=`rgba(${col},${a})`;c.beginPath();c.arc(x+Math.sin(t*.7+ph)*14,y,s,0,7);c.fill();}}
+
+// ---------- globe ----------
+const G=$('globe').getContext('2d');const D2R=Math.PI/180;
+const ORIG=[74.6,42.9];
+const DEST=[
+ {n:'Сеул',p:[127,37.5],t:.45,below:1},{n:'Токио',p:[139.7,35.7],t:.75},
+ {n:'Мюнхен',p:[11.6,48.1],t:1.25,right:1},{n:'Лондон',p:[-.1,51.5],t:1.55},{n:'Милан',p:[9.2,45.5],t:1.85,below:1},
+ {n:'Торонто',p:[-79.4,43.7],t:2.55},{n:'Нью-Йорк',p:[-74,40.7],t:2.85,below:1},
+];
+function proj(lon,lat,l0,p0,R,cx,cy,h=0){const l=(lon-l0)*D2R,f=lat*D2R,f0=p0*D2R;
+ const cosc=Math.sin(f0)*Math.sin(f)+Math.cos(f0)*Math.cos(f)*Math.cos(l);
+ const rr=R*(1+h);return{x:cx+rr*Math.cos(f)*Math.sin(l),y:cy-rr*(Math.cos(f0)*Math.sin(f)-Math.sin(f0)*Math.cos(f)*Math.cos(l)),z:cosc};}
+function toV([lon,lat]){const l=lon*D2R,f=lat*D2R;return[Math.cos(f)*Math.cos(l),Math.cos(f)*Math.sin(l),Math.sin(f)]}
+function toLL(v){return[Math.atan2(v[1],v[0])/D2R,Math.asin(clamp(v[2],-1,1))/D2R]}
+function slerp(a,b,s){const d=Math.acos(clamp(a[0]*b[0]+a[1]*b[1]+a[2]*b[2],-1,1)),sd=Math.sin(d);const k1=Math.sin((1-s)*d)/sd,k2=Math.sin(s*d)/sd;return[a[0]*k1+b[0]*k2,a[1]*k1+b[1]*k2,a[2]*k1+b[2]*k2]}
+function drawGlobe(lt){ // lt: local time in scene
+ const c=G;c.clearRect(0,0,1080,1080);
+ const intro=P(lt,0,1.1,E.out5);
+ const R=410*lerp(.6,1,intro),cx=540,cy=540;
+ const l0=lerp(95,-20,E.inOut(clamp(lt/4.6))),p0=28;
+ // atmosphere
+ let g=c.createRadialGradient(cx,cy,R*.85,cx,cy,R*1.25);g.addColorStop(0,'rgba(59,130,246,.35)');g.addColorStop(1,'rgba(59,130,246,0)');
+ c.globalAlpha=intro;c.fillStyle=g;c.beginPath();c.arc(cx,cy,R*1.25,0,7);c.fill();
+ g=c.createRadialGradient(cx-R*.35,cy-R*.4,R*.1,cx,cy,R);g.addColorStop(0,'#123a9e');g.addColorStop(1,'#050d4d');
+ c.fillStyle=g;c.beginPath();c.arc(cx,cy,R,0,7);c.fill();
+ c.strokeStyle='rgba(143,194,255,.35)';c.lineWidth=2;c.stroke();
+ // land dots
+ for(const [lon,lat] of window.LAND||[]){const q=proj(lon,lat,l0,p0,R,cx,cy);if(q.z<=0)continue;
+  c.fillStyle=`rgba(${Math.round(lerp(90,170,q.z))},${Math.round(lerp(150,210,q.z))},255,${.25+.75*q.z})`;
+  c.fillRect(q.x-2.6,q.y-2.6,5.2,5.2);}
+ // arcs
+ const o=toV(ORIG);
+ for(const d of DEST){const s=P(lt,d.t,d.t+.8,E.inOut);if(s<=0)continue;const v=toV(d.p);
+  const tail=P(lt,d.t+1.4,d.t+2.2,E.inOut)*.0; // keep full arc
+  c.lineWidth=5;c.lineCap='round';const N=48;let prev=null;
+  for(let i=0;i<=N*s;i++){const k=i/N;const ll=toLL(slerp(o,v,k));const q=proj(ll[0],ll[1],l0,p0,R,cx,cy,Math.sin(Math.PI*k)*.16);
+   const vis=q.z>-.15;if(prev&&vis&&prev.vis){c.strokeStyle=`rgba(255,210,122,${.35+.65*k})`;c.beginPath();c.moveTo(prev.x,prev.y);c.lineTo(q.x,q.y);c.stroke();}
+   prev={...q,vis};}
+  // head
+  if(s<1&&prev&&prev.vis){c.fillStyle='#fff';c.beginPath();c.arc(prev.x,prev.y,8,0,7);c.fill();}
+  // pin
+  const pp=P(lt,d.t+.75,d.t+1.2,E.back);if(pp>0){const q=proj(d.p[0],d.p[1],l0,p0,R,cx,cy);if(q.z>0){
+   const pulse=((lt-d.t-.75)%1.2)/1.2;
+   c.strokeStyle=`rgba(255,210,122,${(1-pulse)*.8})`;c.lineWidth=3;c.beginPath();c.arc(q.x,q.y,10+pulse*40,0,7);c.stroke();
+   c.fillStyle='#ffd27a';c.beginPath();c.arc(q.x,q.y,Math.max(0,11*pp),0,7);c.fill();
+   c.globalAlpha=intro*clamp(pp)*clamp(q.z*3);
+   c.font='700 30px Manrope';const w=c.measureText(d.n).width+36;const bx=d.right?q.x+18:q.x-w/2,by=d.below?q.y+22:d.right?q.y-25:q.y-70;
+   c.fillStyle='rgba(255,255,255,.95)';roundRect(c,bx,by,w,50,25);c.fill();
+   c.fillStyle='#0a1a3f';c.textAlign='center';c.textBaseline='middle';c.fillText(d.n,bx+w/2,by+26);c.globalAlpha=intro;}}
+ }
+ // origin
+ const q=proj(ORIG[0],ORIG[1],l0,p0,R,cx,cy);if(q.z>0){c.globalAlpha=intro*clamp(q.z*4);
+  const pulse=(lt%1)/1;c.strokeStyle=`rgba(255,255,255,${1-pulse})`;c.lineWidth=3;c.beginPath();c.arc(q.x,q.y,12+pulse*36,0,7);c.stroke();
+  c.fillStyle='#fff';c.beginPath();c.arc(q.x,q.y,13,0,7);c.fill();c.fillStyle='#2f7cf6';c.beginPath();c.arc(q.x,q.y,7,0,7);c.fill();
+  c.font='800 30px Manrope';c.textAlign='center';c.textBaseline='middle';const w=c.measureText('Ты здесь').width+36;
+  c.fillStyle='#2f7cf6';roundRect(c,q.x-w/2,q.y+26,w,50,25);c.fill();c.fillStyle='#fff';c.fillText('Ты здесь',q.x,q.y+52);}
+ c.globalAlpha=1;
+}
+function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+
+// ---------- confetti ----------
+function confetti(cv,lt,ox,oy){const c=cv.getContext('2d');c.clearRect(0,0,1080,1920);if(lt<0||lt>2.6)return;const r=rng(7);
+ const cols=['#0058bd','#2f7cf6','#f59e0b','#10b981','#e11d48','#7c3aed','#ffd27a'];
+ for(let i=0;i<90;i++){const a=-Math.PI/2+(r()-.5)*2.4,sp=600+r()*900,x=ox+Math.cos(a)*sp*lt,y=oy+Math.sin(a)*sp*lt+900*lt*lt,rot=r()*6+lt*(4+r()*8);
+  c.save();c.globalAlpha=clamp(2.4-lt);c.translate(x,y);c.rotate(rot);c.fillStyle=cols[i%cols.length];c.fillRect(-9,-5,18,10);c.restore();}}
+
+// ---------- typing ----------
+const typed=(s,t,a,cps)=>s.slice(0,Math.max(0,Math.floor((t-a)*cps)));
+
+// ---------- main render ----------
+function render(t){
+ // scene visibility + transitions
+ SC.forEach(([id,st,ty],i)=>{const el=$(id);const next=SC[i+1];const end=next?next[1]+TR+.05:TOTAL+1;
+  if(t<st||t>end){el.style.display='none';return;}el.style.display='block';el.style.zIndex=i+1;
+  const p=P(t,st,st+TR,E.inOut);
+  if(ty==='circle'){el.style.clipPath=p<1?`circle(${p*2300}px at 540px 1000px)`:'none';el.style.transform='none';}
+  else if(ty==='slide'){el.style.clipPath=p<1?`inset(${(1-p)*100}% 0 0 0 round ${(1-p)*120}px ${(1-p)*120}px 0 0)`:'none';el.style.transform=p<1?`translateY(${(1-p)*220}px)`:'none';}
+  // push-back of outgoing scene
+  if(next&&t>next[1]){const q=P(t,next[1],next[1]+TR,E.inOut);el.style.transform=`scale(${1-q*.08})`;el.style.filter=`brightness(${1-q*.35})`;}
+  else el.style.filter='none';
+ });
+ $('progress').firstElementChild.style.width=(clamp(t/TOTAL)*100)+'%';
+ $('progress').style.opacity=clamp(1-P(t,33,33.6));
+ // brand mark: visible in content scenes
+ const bm=$('brandmark');const bmo=P(t,7.2,7.8)*(1-P(t,33,33.5));const dark=[[11.3,15.9],[25.1,29.4]].some(([a,b])=>t>a&&t<b);
+ bm.style.opacity=bmo;bm.style.color=dark?'#fff':'var(--ink)';bm.style.transform=`translateY(${(1-P(t,7.2,7.9))*-20}px)`;
+
+ // ===== S1 =====
+ if(t<4){const lt=t;
+  particles($('s1p'),lt,3,70,'170,200,255');
+  $('s1b1').style.transform=`translate(${Math.sin(lt*.8)*120}px,${Math.cos(lt*.6)*80}px)`;
+  ['s1w1','s1w2','s1w3'].forEach((id,i)=>rise($(id),lt,.15+i*.28,.8,120));
+  const s=$('s1w3');const pop=P(lt,.85,1.4,E.back);s.style.transform+=` scale(${lerp(.9,1,pop)})`;
+  $('s1type').textContent=typed('Но не знаешь, с чего начать?',lt,1.45,26);
+  $('s1caret').style.opacity=(lt>1.3&&Math.floor(lt*3)%2==0)?1:0;
+  const zo=P(lt,2.9,3.6,E.in);$('s1').querySelector('.h1').parentElement.style.transform=`scale(${1+zo*.25})`;$('s1').querySelector('.h1').parentElement.style.opacity=1-zo;
+ }
+ // ===== S2 =====
+ if(t>3&&t<8){const lt=t-3.3;
+  const bk=P(lt,0,.6,E.out5),bk2=P(lt,.1,.7,E.out5);
+  ['bookL','bookR'].forEach(id=>{$(id).style.transformOrigin='248px 386px';$(id).style.transformBox='view-box';});
+  for(const [id,p] of [['pbL',bk],['pbR',bk],['ptL',bk2],['ptR',bk2]]){const e=$(id);e.style.transformBox='view-box';e.style.transformOrigin=id.startsWith('pb')?'248px 386px':'248px 350px';e.style.transform=`scaleX(${lerp(.05,1,p)})`;e.style.opacity=p;}
+  const bd=P(lt,.3,.8,E.out5);const band=$('band');band.style.transform=`translateY(${(1-bd)*40}px)`;band.style.opacity=bd;
+  const sp=clamp((lt-.5)/1.1);const spr=E.spring(sp);const brd=$('board');brd.style.transformBox='view-box';brd.style.transformOrigin='248px 110px';
+  brd.style.transform=`translateY(${(1-spr)*-160}px) rotate(${(1-spr)*-14}deg)`;brd.style.opacity=clamp((lt-.5)*5);
+  const ts=clamp((lt-.95)/1.4);const tas=$('tassel');tas.style.transformBox='view-box';tas.style.transformOrigin='431px 124px';
+  tas.style.transform=`rotate(${Math.sin(ts*Math.PI*3.2)*16*(1-ts)}deg)`;
+  s2letters.forEach((l,i)=>{const p=P(lt,.55+i*.035,1.05+i*.035,E.out5);set(l,p,`translateY(${(1-p)*40}px)`);});
+  rise($('s2tag'),lt,1.2,.6,20);rise($('s2line'),lt,1.75,.8,60);
+  const up=P(lt,3.1,3.9,E.inOut);$('s2wrap').style.transform=`translateY(${-up*60}px) scale(${1-up*.06})`;
+  const lg=$('logo');lg.style.transform=`scale(${1+Math.sin(lt*2)*.012})`;
+ }
+ // ===== S3 =====
+ if(t>6.8&&t<12){const lt=t-7.0;
+  rise($('s3eb'),lt,.35,.6,30);rise($('s3h'),lt,.5,.7,60);
+  s3cards.forEach((c,i)=>{const p=P(lt,.85+i*.16,1.55+i*.16,E.back);set(c,clamp(p*2),`translateY(${(1-p)*140}px) scale(${lerp(.85,1,p)})`);});
+  s3vals.forEach((v,i)=>{const s=STATS[i];const p=P(lt,1.0+i*.16,2.6+i*.16,E.expo);
+   if(s.v)v.textContent=fmt(s.v*p)+(p>.98?s.suf:'');else if(s.txt==='%')v.textContent=Math.round(78*p)+'%';else{v.textContent='AI';v.style.transform=`scale(${lerp(.4,1,E.back(clamp(p*1.6)))})`;v.style.display='inline-block';v.style.transformOrigin='left bottom';}
+   v.style.color=s.c;});
+  // gentle float
+  s3cards.forEach((c,i)=>{if(lt>2.4)c.style.transform=`translateY(${Math.sin((lt+i)*1.6)*6}px)`;});
+ }
+ // ===== S4 =====
+ if(t>10.8&&t<16.5){const lt=t-11.0;
+  rise($('s4eb'),lt,.35,.6,30);rise($('s4h'),lt,.5,.7,60);rise($('s4sub'),lt,2.8,.7,30);
+  drawGlobe(lt);
+ }
+ // ===== S5 =====
+ if(t>15.4&&t<21){const lt=t-15.6;
+  rise($('s5eb'),lt,.35,.6,30);rise($('s5h'),lt,.5,.7,60);
+  const sb=P(lt,.8,1.4,E.back);set($('s5search'),clamp(sb*2),`translateY(${(1-sb)*60}px) scale(${lerp(.92,1,sb)})`);
+  $('s5type').textContent=typed('Fully funded Master\'s',lt,1.2,22);$('s5caret').style.opacity=(Math.floor(lt*3)%2==0&&lt<2.6)?1:0;
+  s5pills.forEach((p,i)=>{const q=P(lt,1.5+i*.08,1.95+i*.08,E.back);set(p,clamp(q*2),`scale(${lerp(.5,1,q)})`);});
+  s5cards.forEach((c,i)=>{const q=P(lt,2.1+i*.22,2.8+i*.22,E.out5);set(c,q,`translateX(${(1-q)*300}px) rotate(${(1-q)*3}deg)`);
+   const hb=c.lastElementChild;const hp=P(lt,3.3+i*.2,3.7+i*.2,E.back);hb.style.color=hp>0?'#e11d48':'#cbd5e1';hb.style.transform=`scale(${1+Math.sin(hp*Math.PI)*.45})`;hb.querySelector('path').style.fill=hp>.3?'#e11d48':'none';});
+ }
+ // ===== S6 =====
+ if(t>20&&t<25.6){const lt=t-20.2;
+  rise($('s6eb'),lt,.35,.6,30);rise($('s6h'),lt,.5,.7,60);
+  const ch=P(lt,.7,1.3,E.out5);set($('s6chat'),ch,`translateY(${(1-ch)*120}px)`);
+  const m1=P(lt,1.05,1.4,E.back);set($('m1'),m1,`scale(${lerp(.6,1,m1)})`);$('m1').style.transformOrigin='right bottom';
+  $('m1t').textContent=lt<1.05?'':typed('Хочу на IT в Европе, бюджет до $10k в год. Что подойдёт?',lt,1.1,48)||' ';
+  const ty=$('mtyping');const tyOn=lt>2.4&&lt<3.2;ty.style.display=tyOn?'flex':'none';s6dots.forEach((d,i)=>d.style.transform=`translateY(${Math.sin(lt*10-i*.9)*-7}px)`);
+  const m2=P(lt,3.2,3.55,E.back);$('m2').style.display=lt>3.2?'block':'none';set($('m2'),m2,`scale(${lerp(.6,1,m2)})`);$('m2').style.transformOrigin='left bottom';
+  s6uc.forEach((u,i)=>{const q=P(lt,3.5+i*.18,4.0+i*.18,E.back);u.style.display=lt>3.5+i*.18?'flex':'none';set(u,clamp(q*2),`translateY(${(1-q)*50}px)`);});
+ }
+ // ===== S7 =====
+ if(t>24.6&&t<30){const lt=t-24.8;
+  rise($('s7eb'),lt,.35,.6,30);rise($('s7h'),lt,.5,.7,60);
+  const g=P(lt,.7,1.2,E.back);set($('s7gauge'),clamp(g*2),`scale(${lerp(.6,1,g)})`);
+  const a=P(lt,.9,2.6,E.expo);$('s7arc').style.strokeDashoffset=1382.3*(1-.78*a);$('s7pct').textContent=Math.round(78*a)+'%';
+  s7tags.forEach((x,i)=>{const q=P(lt,2.1+i*.1,2.5+i*.1,E.back);set(x,clamp(q*2),`scale(${lerp(.4,1,q)})`);});
+  const cs=P(lt,2.2,2.8,E.out5);set($('s7cost'),cs,`translateY(${(1-cs)*80}px)`);
+  const f=P(lt,2.4,3.2,E.expo);$('s7full').textContent='$'+fmt(42000*f);
+  const strike=P(lt,3.2,3.5);$('s7full').style.color=strike>0?`rgba(255,255,255,${1-strike*.55})`:'#fff';$('s7full').style.textDecoration=strike>.5?'line-through':'none';
+  const n=P(lt,3.3,4.0,E.expo);$('s7net').textContent='$'+fmt(lerp(42000,6300,n));set($('s7net'),clamp(n*3),`scale(${1+Math.sin(clamp((lt-3.9)/.4)*Math.PI)*.12})`);
+  const sv=P(lt,3.8,4.1,E.back);set($('s7save'),clamp(sv*2),`scale(${lerp(.3,1,sv)})`);
+ }
+ // ===== S8 =====
+ if(t>29&&t<34){const lt=t-29.2;
+  rise($('s8eb'),lt,.35,.6,30);rise($('s8h'),lt,.5,.7,60);
+  s8cols.forEach((c,i)=>{const q=P(lt,.7+i*.12,1.3+i*.12,E.out5);set(c,q,`translateY(${(1-q)*140}px)`);});
+  const col1=s8cols[1].getBoundingClientRect(),col2=s8cols[2].getBoundingClientRect();const st=$('stage').getBoundingClientRect();
+  const slotY=s8cols[1].querySelector('.slot').getBoundingClientRect();
+  const sx=col1.left-st.left+16,sy=(slotY.top-st.top)+ (s8cols[1].querySelector('.slot').children[0].offsetHeight+16);
+  const dz=$('dropzone').getBoundingClientRect();const ex=dz.left-st.left,ey=dz.top-st.top;
+  const ap=P(lt,1.2,1.6,E.out5);const mv=P(lt,2.0,2.8,E.inOut);const lift=Math.sin(mv*Math.PI);
+  mover.style.left=lerp(sx,ex,mv)+'px';mover.style.top=(lerp(sy,ey,mv)-lift*120)+'px';
+  mover.style.opacity=ap;mover.style.transform=`rotate(${lift*6}deg) scale(${1+lift*.08})`;
+  mover.firstElementChild.style.boxShadow=`0 ${10+lift*40}px ${24+lift*50}px rgba(10,26,63,${.08+lift*.15})`;
+  const done=lt>2.8;const tg=mover.querySelector('.tag');tg.style.background=done?'#10b9811a':'#f59e0b1a';tg.style.color=done?'#059669':'#d97706';$('mvtag').textContent=done?'принят 🎉':'ожидание';
+  $('dropzone').style.opacity=1-P(lt,2.6,2.9);
+  const pop=P(lt,2.8,3.2,E.back);if(done)mover.style.transform=`scale(${1+Math.sin(clamp((lt-2.8)/.4)*Math.PI)*.1})`;
+  confetti($('confetti'),lt-2.85,ex+157,ey+60);
+  s8chips.forEach((c,i)=>{const q=P(lt,2.9+i*.1,3.4+i*.1,E.back);set(c,clamp(q*2),`translateY(${(1-q)*50}px) scale(${lerp(.6,1,q)})`);});
+ }
+ // ===== S9 =====
+ if(t>32.8){const lt=t-33.0;
+  particles($('s9p'),lt,11,80,'255,220,150');
+  $('s9b').style.transform=`scale(${1+Math.sin(lt*1.5)*.08})`;
+  const lg=P(lt,.3,.9,E.back);set($('logo2'),clamp(lg*2),`scale(${lerp(.3,1,lg)}) rotate(${(1-lg)*-12}deg)`);
+  const tz=clamp((lt-.7)/1.6);const t2=$('tassel2');t2.style.transformBox='view-box';t2.style.transformOrigin='431px 124px';t2.style.transform=`rotate(${Math.sin(tz*Math.PI*3)*18*(1-tz)}deg)`;
+  ['s9w1','s9w2','s9w3'].forEach((id,i)=>rise($(id),lt,.55+i*.2,.8,90));
+  s9feat.forEach((f,i)=>{const q=P(lt,1.5+i*.1,1.9+i*.1,E.back);set(f,clamp(q*2),`scale(${lerp(.5,1,q)})`);});
+  const b=P(lt,2.0,2.5,E.back);const click=P(lt,3.35,3.5)*(1-P(lt,3.5,3.75));
+  set($('s9btn'),clamp(b*2),`scale(${lerp(.6,1,b)*(1-click*.06)*(1+Math.sin(Math.max(0,lt-3.8)*4)*.015)})`);
+  $('s9shine').style.left=(lerp(-200,900,clamp(((lt-2.4)%1.8)/1)))+'px';
+  // cursor
+  const btn=$('s9btn').getBoundingClientRect(),st=$('stage').getBoundingClientRect(),par=$('s9btn').parentElement.getBoundingClientRect();
+  const tx=btn.left-par.left+btn.width*.72,ty=btn.top-par.top+btn.height*.55;
+  const cm=P(lt,2.5,3.3,E.inOut);const cu=$('s9cursor');cu.style.opacity=clamp((lt-2.5)*4)*(1-P(lt,4.6,5));
+  cu.style.left=lerp(tx+260,tx,cm)+'px';cu.style.top=lerp(ty+380,ty,cm)+'px';cu.style.transform=`scale(${1-click*.2})`;
+  const rp=P(lt,3.45,4.2,E.out);const ri=$('s9ripple');ri.style.left=(tx-20)+'px';ri.style.top=(ty-20)+'px';ri.style.opacity=rp>0&&rp<1?(1-rp):0;ri.style.transform=`scale(${1+rp*8})`;
+  rise($('s9foot'),lt,3.8,.6,30);
+ }
+}
+window.render=render;window.TOTAL=TOTAL;
+// preview mode: loop in real time
+if(!location.search.includes('capture')){const t0=performance.now();(function loop(){render(((performance.now()-t0)/1000)%TOTAL);requestAnimationFrame(loop)})();}
+</script>
+</body>
+</html>
