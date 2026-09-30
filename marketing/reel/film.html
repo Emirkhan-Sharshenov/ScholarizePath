@@ -294,7 +294,7 @@ function render(t){
 
  // ---- laptop
  const L=track(LK,t);const lap=$('laptop');lap.style.display=L.o>0?'block':'none';
- const lo=L.o*(t>8.2&&t<8.9?1-P(t,8.3,8.8):1);['lidFront','lidBack','base'].forEach(id=>$(id).style.opacity=lo);lap.style.display=lo>0?'block':'none';lap.style.transform=`translate3d(${L.x}px,${L.y}px,${L.z}px) rotateX(${L.rx}deg) rotateY(${L.ry}deg) scale(${L.s})`;
+ const lo=t>=33.7?0:L.o*(t>8.2&&t<8.9?1-P(t,8.3,8.8):1);['lidFront','lidBack','base'].forEach(id=>$(id).style.opacity=lo);lap.style.display=lo>0?'block':'none';lap.style.transform=`translate3d(${L.x}px,${L.y}px,${L.z}px) rotateX(${L.rx}deg) rotateY(${L.ry}deg) scale(${L.s})`;
  const open=t<26?P(t,3.2,5.2,E.io):1;$('lid').style.transform=`rotateX(${lerp(72,0,open)}deg)`;
  $('screen').style.filter=`brightness(${t<26?lerp(.08,1,P(t,4.6,5.5)):1})`;
  // which page is on the laptop
@@ -334,7 +334,7 @@ function render(t){
 
  // ---- phone
  const Q=track(PK,t);const ph=$('phone');ph.style.display=Q.o>0?'block':'none';
- ['phoneFront','phoneBack'].forEach(id=>$(id).style.opacity=Q.o);ph.style.transform=`translate3d(${Q.x}px,${Q.y}px,${Q.z}px) rotateX(${Q.rx}deg) rotateY(${Q.ry}deg) rotateZ(${Q.rz}deg) scale(${Q.s})`;
+ const qo=t>=33.7?0:Q.o;['phoneFront','phoneBack'].forEach(id=>$(id).style.opacity=qo);ph.style.display=qo>0?'block':'none';ph.style.transform=`translate3d(${Q.x}px,${Q.y}px,${Q.z}px) rotateX(${Q.rx}deg) rotateY(${Q.ry}deg) rotateZ(${Q.rz}deg) scale(${Q.s})`;
  const detail=t>22.35;$('mAI').style.opacity=detail?0:1;$('mDet').style.opacity=detail?1:0;
  glow(540,1080+Q.y*.2,460,'rgba(150,110,255,A)',.18*Q.o);
  // AI chat
