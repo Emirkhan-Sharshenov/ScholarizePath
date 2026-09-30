@@ -97,8 +97,8 @@ for i in range(3):
     add(fx, pop(1.2 + i * 0.1), 20.45 + i * 0.2, 0.12)
 add(fx, whoosh(1.1), 21.9, 0.25)                                        # phone spins
 for i in range(4):
-    add(fx, pop(1.3 + i * 0.06), 23.0 + i * 0.15, 0.12)
-add(fx, chime(84), 24.5, 0.3)                                           # "High chance"
+    add(fx, pop(1.3 + i * 0.06), 22.6 + i * 0.15, 0.12)
+add(fx, chime(84), 23.9, 0.3)                                           # "High chance"
 add(fx, whoosh(0.8), 28.1, 0.16)                                        # card moves on the board
 add(fx, chime(76), 28.9, 0.4)                                           # accepted
 
