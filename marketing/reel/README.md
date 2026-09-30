@@ -31,3 +31,12 @@ REEL=path OUT=path-ru.mp4 node cap.mjs video
 Q='&lang=en' REEL=path OUT=path-en.mp4 node cap.mjs video
 python3 path_music.py ru path-ru.wav   # then mux with ffmpeg as above
 ```
+
+## «Хаос → порядок» (28.5 s)
+
+`chaos.html` (`?lang=en` for English) + `chaos_music.py` (tension build, then a 96 BPM groove from the 9 s snap).
+
+```bash
+REEL=chaos OUT=chaos-ru.mp4 node cap.mjs video
+python3 chaos_music.py ru chaos-ru.wav
+```

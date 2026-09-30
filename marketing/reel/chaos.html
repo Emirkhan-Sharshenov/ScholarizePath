@@ -1,0 +1,237 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ScholarizePath — Chaos to Order</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{--brand:#0058bd;--ink:#0a1a3f}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#140f1f}
+body{font-family:Inter,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:radial-gradient(120% 80% at 50% 40%,#2a1830 0%,#160f22 55%,#0c0814 100%)}
+#calm{position:absolute;inset:0;background:linear-gradient(180deg,#eaf2ff 0%,#f3f7ff 45%,#f7f9fc 100%);clip-path:circle(0 at 540px 1000px)}
+#calm .dots{position:absolute;inset:0;background-image:radial-gradient(rgba(0,88,189,.28) 2px,transparent 2px);background-size:44px 44px;-webkit-mask-image:linear-gradient(to bottom,#000,transparent 75%)}
+#redv{position:absolute;inset:0;pointer-events:none;background:radial-gradient(80% 60% at 50% 55%,transparent 45%,rgba(255,40,60,.55) 100%);opacity:0}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.abs{position:absolute}
+svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* chaos items */
+.it{position:absolute;left:0;top:0;will-change:transform,opacity;transform-origin:50% 50%}
+.win{width:500px;height:300px;background:#fff;border-radius:18px;box-shadow:0 30px 60px rgba(0,0,0,.45);overflow:hidden}
+.win .bar{height:52px;background:#e9ecf2;display:flex;align-items:center;gap:8px;padding:0 16px}
+.win .bar i{width:13px;height:13px;border-radius:50%;background:#f87171;display:block}.win .bar i:nth-child(2){background:#fbbf24}.win .bar i:nth-child(3){background:#34d399}
+.win .url{margin-left:12px;flex:1;height:30px;border-radius:15px;background:#fff;font:500 16px Inter;color:#64748b;display:flex;align-items:center;padding:0 14px;white-space:nowrap;overflow:hidden}
+.win .bd{padding:22px 24px}
+.win .t{font:700 26px/1.25 Inter;color:#1a0dab;margin-bottom:14px}
+.win .ln{height:12px;border-radius:6px;background:#e2e8f0;margin:10px 0}
+.note{width:250px;height:230px;padding:24px;font:700 30px/1.25 Inter;color:#3b2f00;box-shadow:0 20px 40px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;text-align:center}
+.toast{width:620px;height:112px;border-radius:26px;background:rgba(40,40,52,.92);color:#fff;display:flex;align-items:center;gap:20px;padding:0 26px;box-shadow:0 20px 40px rgba(0,0,0,.5);backdrop-filter:blur(8px)}
+.toast .ic{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.toast b{display:block;font:700 26px Inter}.toast span{font:500 22px Inter;color:#cbd5e1}
+.sheet{width:540px;background:#fff;border-radius:12px;box-shadow:0 24px 50px rgba(0,0,0,.45);overflow:hidden;font:600 24px Inter}
+.sheet .r{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #e5e7eb}.sheet .r div{padding:14px 18px;border-right:2px solid #e5e7eb}
+.sheet .hd{background:#107c41;color:#fff}.sheet .bad{background:#fee2e2;color:#dc2626}
+.badge{width:150px;height:150px;border-radius:50%;background:#ef4444;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font:800 64px Manrope;box-shadow:0 20px 40px rgba(239,68,68,.5)}
+.badge small{font:700 20px Inter;margin-top:-4px}
+/* order UI */
+#app{position:absolute;left:56px;right:56px;top:560px;height:1090px;background:#fff;border-radius:44px;box-shadow:0 40px 90px rgba(10,26,63,.14);padding:26px 30px;opacity:0}
+.hdr{display:flex;align-items:center;gap:14px;height:70px;font:800 34px 'Plus Jakarta Sans';letter-spacing:-.02em;color:var(--ink)}
+.hdr .av{margin-left:auto;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#2f7cf6,#0058bd);color:#fff;display:flex;align-items:center;justify-content:center;font:800 28px Manrope}
+.sec{margin-top:18px;border-radius:30px;padding:20px 22px;background:#f7f9fc;border:2px solid #eef2f7;transform-origin:50% 50%}
+.sec h4{font:800 28px Manrope;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.row{display:flex;align-items:center;gap:18px;background:#fff;border-radius:20px;padding:12px 18px;margin-top:10px;border:2px solid #eef2f7}
+.row .tile{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.row .n{font:700 27px Manrope;letter-spacing:-.01em}.row .c{font:500 20px Inter;color:#64748b}
+.row .pc{margin-left:auto;font:800 32px Manrope;color:#059669}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sc{background:#fff;border-radius:20px;padding:16px;border:2px solid #eef2f7}
+.sc .n{font:800 26px Manrope;margin-top:10px}.tag{display:inline-block;margin-top:8px;padding:5px 12px;border-radius:10px;background:#dcfce7;color:#15803d;font:700 18px Inter}
+.tl{position:relative;height:110px;margin-top:6px}
+.tl .ln{position:absolute;left:30px;right:30px;top:26px;height:6px;border-radius:3px;background:#dbe6f7}
+.tl .pt{position:absolute;top:10px;width:220px;margin-left:-110px;text-align:center}
+.tl .pt i{display:block;margin:0 auto;width:38px;height:38px;border-radius:50%;background:#fff;border:6px solid #2f7cf6}
+.tl .pt b{display:block;font:700 22px Inter;margin-top:10px}.tl .pt span{font:600 19px Inter;color:#e11d48}
+.bub{display:flex;align-items:center;gap:16px}
+.bub .ai{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;display:flex;align-items:center;justify-content:center;font:800 26px Manrope;flex-shrink:0}
+.bub .tx{background:#f5f3ff;border-radius:24px 24px 24px 8px;padding:18px 22px;font:600 28px Inter;color:var(--ink);min-height:70px;flex:1}
+/* captions */
+.cap{position:absolute;z-index:30;left:64px;right:64px;top:250px;text-align:center;will-change:transform,opacity,filter}
+.cap .h{font:800 84px/1.06 Manrope;letter-spacing:-.035em}
+.cap .s{font:600 40px/1.3 Inter;margin-top:14px}
+.dk{color:#fff}.lt{color:var(--ink)}
+.gl{background:linear-gradient(90deg,#0058bd,#2f7cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gr{background:linear-gradient(90deg,#ff6b6b,#ffb86b);-webkit-background-clip:text;background-clip:text;color:transparent}
+#kin{position:absolute;left:0;right:0;top:230px;text-align:center;z-index:30}
+#kin div{font:800 96px/1.08 Manrope;letter-spacing:-.04em;color:#fff;text-shadow:0 0 40px rgba(12,8,20,.95),0 0 80px rgba(12,8,20,.8)}
+#btn{position:absolute;left:540px;top:1060px;transform:translate(-50%,-50%);padding:34px 56px;border-radius:999px;background:linear-gradient(90deg,#2f7cf6,#0058bd);color:#fff;font:800 48px Manrope;white-space:nowrap;box-shadow:0 0 0 0 rgba(47,124,246,.6),0 30px 70px rgba(47,124,246,.6);opacity:0;z-index:40}
+#cursor{position:absolute;z-index:41;opacity:0;filter:drop-shadow(0 6px 12px rgba(0,0,0,.5))}
+#ripple{position:absolute;z-index:39;width:60px;height:60px;border-radius:50%;border:6px solid #fff;opacity:0}
+#cta{position:absolute;left:0;right:0;top:700px;display:flex;flex-direction:column;align-items:center;opacity:0}
+#cta .nm{font:800 96px 'Plus Jakarta Sans';letter-spacing:-.03em;color:var(--ink);margin-top:40px}
+#cta .url{margin-top:60px;position:relative;overflow:hidden;padding:34px 60px;border-radius:28px;background:var(--brand);color:#fff;font:800 54px 'Plus Jakarta Sans';box-shadow:0 30px 70px rgba(0,88,189,.35)}
+#cta .ft{margin-top:44px;font:600 36px Inter;color:#51607a}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="calm"><div class="dots"></div></div>
+  <div id="redv"></div>
+  <div id="app"></div>
+  <div id="items"></div>
+  <div id="kin"></div>
+  <div id="caps"></div>
+  <div id="btn"></div>
+  <div id="ripple"></div>
+  <svg id="cursor" width="90" height="90" viewBox="0 0 24 24"><path d="M4 2l16 9-7 1.8L9.5 20z" fill="#fff" stroke="#0a1a3f" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  <div id="cta"></div>
+  <div id="flash"></div>
+</div>
+<script>
+const LANG=new URLSearchParams(location.search).get('lang')==='en'?'en':'ru';
+const T={
+ ru:{c1:'Когда поступаешь <span class="gr">сам:</span>',kin:['47 вкладок.','12 дедлайнов.','0 понимания.'],btn:'Навести порядок',
+  c3:['А можно <span class="gl">вот так</span>','Всё в одном месте'],c4:['1 500+ <span class="gl">вузов</span>','с фильтрами и шансами'],c5:['120+ <span class="gl">стипендий</span>','включая fully funded'],
+  c6:['Все <span class="gl">дедлайны</span>','с напоминаниями на почту'],c7:['<span class="gl">AI</span>-советник','подберёт вузы под бюджет'],c8:['Порядок <span class="gl">вместо хаоса</span>',''],
+  foot:'Бесплатно · ссылка в профиле',unis:'Мои университеты',sch:'Стипендии',dl:'Дедлайны',ai:'Подобрал 3 вуза под твой бюджет ✓',
+  days:['23 дня','41 день','58 дней'],countries:['Германия','Италия','Чехия'],
+  wins:[['google.com/search?q=QS+rankings','QS World University Rankings'],['tum.de/admission','TU Munich — требования к поступлению'],['polimi.it/fees','Politecnico di Milano: стоимость'],
+   ['daad.de/scholarships','DAAD Scholarship — как подать?'],['chevening.org','Chevening: кто может подать'],['ielts.org/band-scores','IELTS: какой балл нужен?'],
+   ['numbeo.com/cost-of-living','Стоимость жизни в Европе'],['google.com/search?q=motivation+letter','Как написать мотивационное письмо']],
+  notes:['дедлайн DAAD когда?!','IELTS 6.5 или 7??','спросить про грант!!','Chevening — успеваю??'],
+  toasts:[['Напоминание','Дедлайн через 2 дня!'],['Почта','Письмо не отправлено'],['Входящие','12 непрочитанных писем']],
+  sheet:[['Расход','Сумма'],['Обучение','???'],['Жильё','???'],['Билеты','???']],tabs:'вкладок'},
+ en:{c1:'Applying <span class="gr">on your own:</span>',kin:['47 tabs.','12 deadlines.','0 clue.'],btn:'Get organized',
+  c3:['Or <span class="gl">like this</span>','Everything in one place'],c4:['1,500+ <span class="gl">universities</span>','with filters and odds'],c5:['120+ <span class="gl">scholarships</span>','incl. fully funded'],
+  c6:['Every <span class="gl">deadline</span>','with email reminders'],c7:['<span class="gl">AI</span> advisor','matches unis to your budget'],c8:['Order <span class="gl">over chaos</span>',''],
+  foot:'Free · link in bio',unis:'My universities',sch:'Scholarships',dl:'Deadlines',ai:'Found 3 universities within your budget ✓',
+  days:['23 days','41 days','58 days'],countries:['Germany','Italy','Czechia'],
+  wins:[['google.com/search?q=QS+rankings','QS World University Rankings'],['tum.de/admission','TU Munich — admission requirements'],['polimi.it/fees','Politecnico di Milano: tuition fees'],
+   ['daad.de/scholarships','DAAD Scholarship — how to apply?'],['chevening.org','Chevening: who is eligible'],['ielts.org/band-scores','IELTS: what score do I need?'],
+   ['numbeo.com/cost-of-living','Cost of living in Europe'],['google.com/search?q=motivation+letter','How to write a motivation letter']],
+  notes:['DAAD deadline WHEN?!','IELTS 6.5 or 7??','ask about grants!!','Chevening — on time??'],
+  toasts:[['Reminder','Deadline in 2 days!'],['Mail','Email not sent'],['Inbox','12 unread emails']],
+  sheet:[['Expense','Amount'],['Tuition','???'],['Housing','???'],['Flights','???']],tabs:'tabs'},
+}[LANG];
+
+const $=id=>document.getElementById(id);
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp=(a,b,x)=>a+(b-a)*x;
+const E={out:x=>1-Math.pow(1-x,3),out5:x=>1-Math.pow(1-x,5),inOut:x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,in:x=>x*x*x,
+ back:x=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)}};
+const P=(t,a,b,e=E.out)=>t<=a?0:t>=b?1:e((t-a)/(b-a));
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const ICON={cap:'<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
+ award:'<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+ bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/>',
+ cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',check:'<path d="M20 6 9 17l-5-5"/>'};
+const ico=(k,s=30,c='currentColor')=>`<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" style="color:${c}">${ICON[k]}</svg>`;
+const LOGO='<svg viewBox="0 0 498 386" width="W" height="H" fill="#0058bd"><defs><mask id="cordM" maskUnits="userSpaceOnUse" x="0" y="0" width="498" height="386"><rect width="498" height="386" fill="white"/><ellipse cx="250" cy="98" rx="24" ry="12" fill="black"/><line x1="262" y1="99.5" x2="425" y2="134" stroke="black" stroke-width="11" stroke-linecap="round"/></mask></defs><path d="M18 290 C120 294 200 318 244 350 L248 386 C205 356 110 322 15 322 L8 294 Z"/><path d="M42 263 C135 268 205 302 244 346 L240 352 C200 305 120 283 29 277 Z"/><g transform="translate(497 0) scale(-1 1)"><path d="M18 290 C120 294 200 318 244 350 L248 386 C205 356 110 322 15 322 L8 294 Z"/><path d="M42 263 C135 268 205 302 244 346 L240 352 C200 305 120 283 29 277 Z"/></g><path d="M112 166 L248 221 L386 164 L386 248 Q298 258 249 310 Q200 258 112 248 Z"/><path mask="url(#cordM)" d="M249 0 L495 101 L248 206 L2 101 Z"/><g class="tsl"><rect x="426" y="120" width="11" height="68" rx="3"/><circle cx="431" cy="195" r="12"/><path d="M422 207 L440 207 L445 236 L443 241 L420 241 L417 236 Z"/></g></svg>';
+const logo=(w)=>LOGO.replace('W',w).replace('H',Math.round(w*386/498));
+
+// ---------------- order UI (built first so slots can be measured)
+const UNIS=[['Technical University of Munich',T.countries[0],'84%'],['Politecnico di Milano',T.countries[1],'77%'],['Charles University',T.countries[2],'91%']];
+$('app').innerHTML=`<div class="hdr">${logo(62)}ScholarizePath<div class="av">A</div></div>
+ <div class="sec" id="secA"><h4>${ico('cap',30,'#0058bd')}${T.unis}</h4>${UNIS.map((u,i)=>`<div class="row" id="A${i}"><div class="tile" style="background:#eff6ff;color:#0058bd">${ico('cap',30)}</div><div><div class="n">${u[0]}</div><div class="c">${u[1]}</div></div><div class="pc">${u[2]}</div></div>`).join('')}</div>
+ <div class="sec" id="secB"><h4>${ico('award',30,'#d97706')}${T.sch}</h4><div class="two">
+  <div class="sc" id="B0"><div class="tile" style="width:52px;height:52px;border-radius:14px;background:#fffbeb;color:#d97706;display:flex;align-items:center;justify-content:center">${ico('award',30)}</div><div class="n">DAAD</div><span class="tag">Fully funded</span></div>
+  <div class="sc" id="B1"><div class="tile" style="width:52px;height:52px;border-radius:14px;background:#f5f3ff;color:#7c3aed;display:flex;align-items:center;justify-content:center">${ico('award',30)}</div><div class="n">Chevening</div><span class="tag">Fully funded</span></div></div></div>
+ <div class="sec" id="secC"><h4>${ico('cal',30,'#e11d48')}${T.dl}<span id="bell" style="margin-left:auto;color:#0058bd;display:flex">${ico('bell',32)}</span></h4><div class="tl"><div class="ln"></div>
+  ${['DAAD','Chevening','GKS'].map((n,i)=>`<div class="pt" id="C${i}" style="left:${[16,50,84][i]}%"><i></i><b>${n}</b><span>${T.days[i]}</span></div>`).join('')}</div></div>
+ <div class="sec" id="secD" style="background:#fff"><div class="bub" id="D0"><div class="ai">AI</div><div class="tx" id="aitx"></div></div></div>`;
+const SLOT={};['A0','A1','A2','B0','B1','C0','C1','C2','D0'].forEach(k=>{const r=$(k).getBoundingClientRect();SLOT[k]={x:r.left+r.width/2,y:r.top+r.height/2,w:r.width,h:r.height,el:$(k)};});
+$('app').style.opacity=0;
+
+// ---------------- chaos items
+const ITEMS=[];const r=rng(21);
+function addItem(html,cls,target,w,h,spawn){h=h||0;const el=document.createElement('div');el.className='it';el.innerHTML=html;$('items').appendChild(el);
+ const x=60+r()*(1080-120),y=Math.max(640+h/2,720+r()*(1720-720)),rot=(r()-.5)*18;ITEMS.push({el,target,w,h,x,y,rot,spawn,seed:r()*10,fromX:(r()<.5?-1:1)*(700+r()*300),fromY:(r()-.5)*400});}
+const win=(u,tt)=>`<div class="win"><div class="bar"><i></i><i></i><i></i><div class="url">${u}</div></div><div class="bd"><div class="t">${tt}</div><div class="ln" style="width:92%"></div><div class="ln" style="width:78%"></div><div class="ln" style="width:85%"></div><div class="ln" style="width:60%"></div></div></div>`;
+const note=(s,c)=>`<div class="note" style="background:${c}">${s}</div>`;
+const toast=([a,b],c,k)=>`<div class="toast"><div class="ic" style="background:${c}">${ico(k,36,'#fff')}</div><div><b>${a}</b><span>${b}</span></div></div>`;
+const sheet=`<div class="sheet">${T.sheet.map((row,i)=>`<div class="r ${i?'':'hd'}"><div>${row[0]}</div><div class="${i?'bad':''}">${row[1]}</div></div>`).join('')}</div>`;
+// spawn times accelerate (more and more stuff)
+const SP=n=>0.25+7.2*Math.pow(n,1.35);
+const plan=[
+ [win(...T.wins[0]),'A2',500,300],[note(T.notes[0],'#fde68a'),'C0',250,230],[win(...T.wins[1]),'A0',500,300],[toast(T.toasts[0],'#ef4444','bell'),'C2',620,112],
+ [win(...T.wins[3]),'B0',500,300],[sheet,null,540,230],[note(T.notes[1],'#fbcfe8'),null,250,230],[win(...T.wins[2]),'A1',500,300],
+ [toast(T.toasts[1],'#f59e0b','mail'),null,620,112],[win(...T.wins[4]),'B1',500,300],[note(T.notes[3],'#bbf7d0'),'C1',250,230],[win(...T.wins[5]),null,500,300],
+ [`<div class="badge">47<small>${T.tabs}</small></div>`,null,150,150],[toast(T.toasts[2],'#3b82f6','mail'),null,620,112],[win(...T.wins[6]),null,500,300],
+ [note(T.notes[2],'#fde68a'),null,250,230],[win(...T.wins[7]),'D0',500,300],[win(...T.wins[0]),null,500,300],[note(T.notes[1],'#fed7aa'),null,250,230],[win(...T.wins[5]),null,500,300],
+];
+plan.forEach(([h,tg,w,hh],i)=>addItem(h,'',tg,w,hh,SP(i/(plan.length-1))));
+let ord=0;ITEMS.forEach(it=>{if(it.target)it.ord=ord++;});
+
+// ---------------- captions
+const CAPS=[['c1',0.3,4.3,'dk'],['c3',11.5,13.9,'lt'],['c4',14.0,16.4,'lt'],['c5',16.5,18.9,'lt'],['c6',19.0,21.4,'lt'],['c7',21.5,23.9,'lt'],['c8',24.4,40,'lt']];
+$('caps').innerHTML=CAPS.map(([k,,,c])=>{const v=T[k];const [h,s]=Array.isArray(v)?v:[v,''];return `<div class="cap ${c}" id="${k}"><div class="h">${h}</div>${s?`<div class="s" style="color:${c=='dk'?'#cbd5e1':'#51607a'}">${s}</div>`:''}</div>`}).join('');
+$('kin').innerHTML=T.kin.map(s=>`<div>${s}</div>`).join('');
+const kin=[...$('kin').children];
+$('btn').innerHTML=T.btn+' ✨';
+$('cta').innerHTML=`<div id="clogo">${logo(300)}</div><div class="nm">ScholarizePath</div><div class="url" id="curl">scholarizepath.xyz<i id="shine" style="position:absolute;top:-20px;bottom:-20px;width:120px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);transform:skewX(-20deg)"></i></div><div class="ft">${T.foot}</div>`;
+const ctaKids=[...$('cta').children];
+
+function capAnim(t){for(const [k,a,b] of CAPS){const el=$(k);const pi=P(t,a,a+.6,E.out5),po=P(t,b-.3,b,E.inOut);const o=pi*(1-po);
+ el.style.display=o>0?'block':'none';el.style.opacity=o;el.style.transform=`translateY(${(1-pi)*50-po*30}px)`;el.style.filter=`blur(${(1-pi)*12+po*8}px)`;}}
+
+const SNAP=9.0;
+function render(t){
+ capAnim(t);
+ const tension=t<8.8?P(t,1.5,8.7,E.in):0;
+ // stage shake during chaos
+ const sh=tension*tension*14;$('items').style.transform=`translate(${Math.sin(t*47)*sh}px,${Math.cos(t*39)*sh}px)`;
+ $('redv').style.opacity=t<8.8?tension*(.55+.45*Math.sin(t*9)):0;
+ // kinetic stamp words
+ kin.forEach((k,i)=>{const a=4.4+i*.9;const p=P(t,a,a+.35,E.back),o=p*(1-P(t,8.5,8.8));k.style.opacity=clamp(o*1.5);k.style.transform=`scale(${lerp(1.6,1,clamp(p))}) rotate(${(i%2?1:-1)*(1-clamp(p))*6}deg)`;
+  k.style.color=i==2?'#ff8a8a':'#fff';});
+ // items
+ ITEMS.forEach((it,i)=>{const el=it.el;
+  if(t<it.spawn){el.style.opacity=0;return;}
+  const sp=P(t,it.spawn,it.spawn+.45,E.out5);
+  const amp=2+16*tension;const jx=Math.sin(t*13+it.seed*7)*amp,jy=Math.cos(t*11+it.seed*5)*amp,jr=Math.sin(t*9+it.seed)*amp*.25;
+  let x=it.x+(1-sp)*it.fromX+jx,y=it.y+(1-sp)*it.fromY+jy,rot=it.rot+jr,sc=lerp(.7,1,sp),o=clamp(sp*2);
+  if(t>=SNAP-0.05){
+   if(it.target){const s=SLOT[it.target];const a=SNAP+it.ord*.08,p=P(t,a,a+.7,E.inOut);
+    const lift=Math.sin(p*Math.PI)*-120;
+    x=lerp(it.x,s.x,p);y=lerp(it.y,s.y,p)+lift;rot=lerp(it.rot,0,p);sc=lerp(1,Math.min(s.w/it.w,s.h/it.h)*1.02,p);o=1-P(t,a+.55,a+.75);}
+   else{const a=SNAP-.05+(i%6)*.03,p=P(t,a,a+.4,E.in);x=lerp(it.x,540,p);y=lerp(it.y,1060,p);sc=lerp(1,0,p);rot=it.rot+p*90;o=1-p;}
+  }
+  el.style.opacity=o;el.style.transform=`translate(${x-it.w/2}px,${y-it.h/2}px) rotate(${rot}deg) scale(${sc})`;el.style.display=o>0?'block':'none';});
+ // button + cursor + click
+ const bp=P(t,7.7,8.1,E.back),bo=1-P(t,SNAP,SNAP+.3);const click=P(t,8.72,8.8)*(1-P(t,8.8,8.95));
+ $('btn').style.opacity=clamp(bp*2)*bo;$('btn').style.transform=`translate(-50%,-50%) scale(${lerp(.4,1,bp)*(1-click*.08)*(1+P(t,SNAP,SNAP+.3)*.4)})`;
+ $('btn').style.boxShadow=`0 0 0 ${((t*1.4)%1)*40}px rgba(47,124,246,${.5*(1-((t*1.4)%1))}),0 30px 70px rgba(47,124,246,.6)`;
+ const cm=P(t,7.9,8.7,E.inOut);const cu=$('cursor');cu.style.opacity=clamp((t-7.9)*5)*(1-P(t,9.1,9.4));
+ cu.style.left=lerp(900,640,cm)+'px';cu.style.top=lerp(1650,1075,cm)+'px';cu.style.transform=`scale(${1-click*.25})`;
+ const rp=P(t,8.8,9.5,E.out);const ri=$('ripple');ri.style.left='610px';ri.style.top='1045px';ri.style.opacity=rp>0&&rp<1?1-rp:0;ri.style.transform=`scale(${1+rp*10})`;
+ $('flash').style.opacity=P(t,8.82,8.9)*(1-P(t,8.9,9.25))*.5;
+ // calm background reveal
+ const cr=P(t,8.85,9.7,E.inOut);$('calm').style.clipPath=cr>=1?'none':`circle(${cr*2300}px at 620px 1060px)`;
+ // app: appears as items land; tour highlights afterwards
+ const app=$('app');const ap=P(t,SNAP+.1,SNAP+.6,E.out);
+ const out=P(t,24.0,24.7,E.inOut);
+ app.style.opacity=ap*(1-out);app.style.transform=`translateY(${out*260}px) scale(${lerp(.97,1,ap)*(1-out*.12)})`;
+ // slot contents fade in as each item lands
+ Object.values(SLOT).forEach(s=>{s.el.style.opacity=0;});
+ ITEMS.forEach(it=>{if(!it.target)return;const a=SNAP+it.ord*.08;const q=P(t,a+.5,a+.8,E.out);SLOT[it.target].el.style.opacity=q;SLOT[it.target].el.style.transform=`scale(${lerp(.9,1,E.back(q))})`;});
+ // tour
+ const FOC=[['secA',14.0,16.4],['secB',16.5,18.9],['secC',19.0,21.4],['secD',21.5,23.9]];
+ const anyF=FOC.some(([,a,b])=>t>=a-.2&&t<b);
+ FOC.forEach(([id,a,b])=>{const el=$(id);const f=P(t,a-.2,a+.3,E.out)*(1-P(t,b-.2,b+.1,E.inOut));const dim=anyF?1-.6*(1-f):1;
+  el.style.opacity=dim;el.style.transform=`scale(${1+f*.035})`;el.style.boxShadow=f>0?`0 0 0 ${4*f}px rgba(47,124,246,.9),0 24px 60px rgba(0,88,189,${.25*f})`:'none';el.style.background=id==='secD'?'#fff':f>0?'#fff':'#f7f9fc';});
+ // deadlines: dots light up + bell ring
+ [0,1,2].forEach(i=>{const d=$('C'+i).querySelector('i');const q=P(t,19.3+i*.35,19.6+i*.35,E.back);d.style.background=q>.5?'#2f7cf6':'#fff';d.style.transform=`scale(${1+Math.sin(clamp(q)*Math.PI)*.5})`;});
+ $('bell').style.transform=`rotate(${Math.sin((t-20.4)*22)*18*P(t,20.4,20.5)*(1-P(t,20.5,21.4))}deg)`;
+ // AI typing
+ const tx=T.ai;$('aitx').textContent=t<21.7?'':tx.slice(0,Math.floor(clamp((t-21.7)/1.1)*tx.length));
+ // CTA
+ const cta=$('cta');cta.style.opacity=t>24.3?1:0;
+ ctaKids.forEach((k,i)=>{const p=P(t,24.5+i*.35,25.1+i*.35,i==2?E.back:E.out5);k.style.opacity=clamp(p*1.5);k.style.transform=`translateY(${(1-p)*50}px) scale(${i==2?lerp(.6,1,p):1})`;});
+ const tsl=$('clogo').querySelector('.tsl');const tz=clamp((t-24.9)/1.5);tsl.style.transformBox='view-box';tsl.style.transformOrigin='431px 124px';tsl.style.transform=`rotate(${Math.sin(tz*Math.PI*3)*18*(1-tz)}deg)`;
+ $('shine').style.left=lerp(-200,800,clamp(((t-26.2)%1.8)/1))+'px';
+}
+window.render=render;window.TOTAL=28.5;
+if(!location.search.includes('capture')){const t0=performance.now();(function loop(){render(((performance.now()-t0)/1000)%28.5);requestAnimationFrame(loop)})();}
+</script>
+</body>
+</html>
