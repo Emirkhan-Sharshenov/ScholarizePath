@@ -20,3 +20,14 @@ python3 music.py ru soundtrack-ru.wav   # or: en soundtrack-en.wav
 ffmpeg -i reel.mp4 -i soundtrack-ru.wav -map 0:v -map 1:a -c:v copy \
   -af "loudnorm=I=-14:TP=-1.5:LRA=9" -c:a aac -b:a 192k -shortest ../scholarizepath-reel.mp4
 ```
+
+## «Путь» (one-line reel, 34 s)
+
+`path.html` draws the whole video as one continuous line; `?lang=en` switches to English.
+`path_music.py` reuses the synth voices from `music.py` with a 120 BPM arrangement (every scene is two bars).
+
+```bash
+REEL=path OUT=path-ru.mp4 node cap.mjs video
+Q='&lang=en' REEL=path OUT=path-en.mp4 node cap.mjs video
+python3 path_music.py ru path-ru.wav   # then mux with ffmpeg as above
+```
