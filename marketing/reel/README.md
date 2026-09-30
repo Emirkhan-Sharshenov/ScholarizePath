@@ -40,3 +40,13 @@ python3 path_music.py ru path-ru.wav   # then mux with ffmpeg as above
 REEL=chaos OUT=chaos-ru.mp4 node cap.mjs video
 python3 chaos_music.py ru chaos-ru.wav
 ```
+
+## Промо-фильм в духе Apple (37 s, 60 fps)
+
+`film.html` (`?lang=en`) — laptop and phone in CSS 3D with screens rebuilt from the site's components,
+a 3D map with light beams and an exploded view of the scholarships page. `film_music.py` scores it.
+
+```bash
+FPS=60 REEL=film OUT=film-ru.mp4 node cap.mjs video
+python3 film_music.py ru film-ru.wav
+```

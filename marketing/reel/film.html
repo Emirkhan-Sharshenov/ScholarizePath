@@ -1,0 +1,372 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ScholarizePath — Film</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{--brand:#0058bd;--ink:#0a1a3f}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
+body{font-family:Inter,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:#000}
+#light{position:absolute;inset:0;pointer-events:none}
+svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.layer{position:absolute;inset:0}
+.persp{position:absolute;inset:0;perspective:2400px;perspective-origin:50% 45%}
+/* ---------- titles */
+.ttl{position:absolute;left:40px;right:40px;top:230px;text-align:center;color:#f5f5f7;display:none}
+.ttl .a,.ttl .b{display:block;font:800 92px/1.04 Manrope;letter-spacing:-.04em;will-change:transform,opacity,filter}
+.ttl .b{background:linear-gradient(90deg,#6aa8ff,#b9d6ff 55%,#ffd9a0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ttl.big .a{font:800 120px 'Plus Jakarta Sans';letter-spacing:-.04em}
+.ttl.big .b{font:600 44px Inter;letter-spacing:-.01em;margin-top:18px;background:none;color:#a1a1a6}
+/* ---------- laptop */
+#laptop{position:absolute;left:90px;top:690px;width:900px;transform-style:preserve-3d;will-change:transform}
+#lid{position:relative;width:900px;height:580px;transform-origin:50% 100%;transform-style:preserve-3d}
+.face{position:absolute;inset:0;border-radius:30px;backface-visibility:hidden}
+#lidFront{background:#07080b;padding:22px 22px 26px;box-shadow:inset 0 0 0 2px #2a2e38}
+#lidFront .cam{position:absolute;top:8px;left:50%;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:#1f2937}
+#screen{position:relative;width:100%;height:100%;border-radius:10px;overflow:hidden;background:#f7f9fc}
+#glare{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,0) 40%)}
+#lidBack{transform:rotateY(180deg);background:linear-gradient(160deg,#4a4f59,#23262d)}
+#base{position:relative;width:1000px;margin-left:-50px;height:34px;border-radius:4px 4px 30px 30px;background:linear-gradient(180deg,#8a919c 0%,#4b5059 55%,#2a2d33 100%)}
+#base .notch{position:absolute;left:50%;top:0;width:150px;height:12px;margin-left:-75px;border-radius:0 0 12px 12px;background:#3a3e46}
+/* ---------- phone */
+#phone{position:absolute;left:370px;top:760px;width:340px;height:700px;transform-style:preserve-3d;will-change:transform}
+#phoneFront,#phoneBack{position:absolute;inset:0;border-radius:58px;backface-visibility:hidden}
+#phoneFront{background:#0b0c10;padding:13px;box-shadow:inset 0 0 0 3px #4a4f5b,inset 0 0 0 6px #111318}
+#phoneBack{transform:rotateY(180deg);background:linear-gradient(150deg,#3b3f48,#15171c);box-shadow:inset 0 0 0 3px #555b67}
+#phoneBack .lens{position:absolute;left:26px;top:26px;width:120px;height:120px;border-radius:34px;background:#1c1f25;box-shadow:inset 0 0 0 2px #3b404a}
+#pscreen{position:relative;width:100%;height:100%;border-radius:46px;overflow:hidden;background:#f7f9fc}
+#island{position:absolute;top:12px;left:50%;width:100px;height:28px;margin-left:-50px;border-radius:16px;background:#000;z-index:5}
+#pglare{position:absolute;inset:0;border-radius:46px;pointer-events:none;background:linear-gradient(120deg,rgba(255,255,255,.22),rgba(255,255,255,0) 40%)}
+.pg{position:absolute;left:0;top:0;transform-origin:0 0}
+/* ---------- desktop pages (authored 1440 wide) */
+.desk{width:1440px;min-height:896px;background:#f7f9fc;overflow:hidden}
+.nav{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 64px;background:rgba(255,255,255,.85);border-bottom:1px solid rgba(226,232,240,.7)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand b{font:800 20px 'Plus Jakarta Sans';letter-spacing:-.02em;display:block}.brand small{font:500 8px Inter;display:block;margin-top:2px}
+.navr{display:flex;gap:12px;align-items:center;font:500 14px Inter}
+.btn{height:40px;display:inline-flex;align-items:center;gap:8px;padding:0 18px;border-radius:10px;font:600 14px Inter}
+.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#eaf2ff,#f3f7ff 60%,#f7f9fc);padding:80px 64px 96px;display:grid;grid-template-columns:7fr 5fr;gap:40px;align-items:center}
+.hero .dots{position:absolute;inset:0;opacity:.35;background-image:radial-gradient(#0058bd 1px,transparent 1px);background-size:24px 24px;-webkit-mask-image:linear-gradient(to bottom,#000,transparent)}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid #dbeafe;background:#fff;border-radius:999px;padding:4px 12px;font:600 12px Inter;color:var(--brand)}
+.h1{margin-top:20px;font:700 56px/1.12 'Plus Jakarta Sans';letter-spacing:-.025em}
+.gl{background:linear-gradient(90deg,#0058bd,#2f7cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{margin-top:20px;max-width:576px;font:400 18px/1.6 Inter;color:#475569}
+.pc{display:flex;align-items:center;gap:16px;border:1px solid rgba(226,232,240,.8);background:#fff;border-radius:16px;padding:20px;box-shadow:0 12px 28px rgba(10,26,63,.08)}
+.pc .ic,.tile{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pc .e{font:600 11px Inter;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8}.pc .t{font:600 16px 'Plus Jakarta Sans';margin-top:2px}.pc .p{font:400 14px Inter;color:#64748b;margin-top:2px}
+.stats{margin:-32px 64px 0;position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;border:1px solid rgba(226,232,240,.8);background:#fff;border-radius:16px;padding:16px}
+.stats li{list-style:none;display:flex;align-items:center;gap:12px;padding:12px}.stats b{display:block;font:700 20px 'Plus Jakarta Sans'}.stats span{font:500 14px Inter;color:#64748b}
+.app{display:grid;grid-template-columns:250px 1fr;height:896px}
+.side{background:#fff;border-right:1px solid #eef2f7;padding:22px 16px}
+.side .it{display:flex;align-items:center;gap:12px;height:44px;padding:0 14px;border-radius:12px;font:500 15px Inter;color:#475569;margin-top:4px}
+.side .it.on{background:#eff6ff;color:var(--brand);font-weight:600}
+.main{padding:30px 36px;overflow:hidden}
+.main h1{font:700 30px 'Plus Jakarta Sans';letter-spacing:-.02em}.main .sub{font:400 15px Inter;color:#64748b;margin-top:4px}
+.card{background:#fff;border:1px solid rgba(226,232,240,.8);border-radius:24px;box-shadow:0 4px 12px rgba(10,26,63,.04)}
+.col{background:#f1f5f9;border-radius:20px;padding:12px;min-height:600px}
+.col h5{display:flex;align-items:center;gap:8px;font:600 14px Inter;color:#334155;margin:4px 4px 12px}
+.col h5 i{width:9px;height:9px;border-radius:50%;display:inline-block}.col h5 em{margin-left:auto;font-style:normal;color:#94a3b8;font-weight:500}
+.tc{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 2px 6px rgba(10,26,63,.04)}
+.tc b{display:block;font:600 14px/1.3 'Plus Jakarta Sans'}.tc span{display:block;font:400 12px Inter;color:#64748b;margin-top:4px}
+.chip{display:inline-block;margin-top:10px;border-radius:999px;padding:3px 10px;font:600 11px Inter}
+/* ---------- mobile pages (authored 390 wide) */
+.mob{width:390px;height:844px;background:#f7f9fc;overflow:hidden;position:relative}
+.mtop{height:100px;padding:50px 16px 0;display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid #eef2f7}
+.vio{width:40px;height:40px;border-radius:12px;background:#f5f3ff;color:#7c3aed;display:flex;align-items:center;justify-content:center}
+.msg{margin:14px 14px 0}
+.ub{margin-left:auto;max-width:280px;background:var(--brand);color:#fff;border-radius:20px 20px 6px 20px;padding:12px 14px;font:500 14px/1.45 Inter}
+.ab{max-width:330px;background:#fff;border:1px solid #eef2f7;border-radius:20px 20px 20px 6px;padding:12px 14px;font:400 14px/1.5 Inter;color:#1e293b}
+.li{position:relative;display:flex;gap:12px;align-items:flex-start;border:1px solid rgba(226,232,240,.8);background:#fff;border-radius:16px;padding:12px;margin-top:8px}
+.mono{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font:700 12px 'Plus Jakarta Sans';color:#fff;flex-shrink:0;background:linear-gradient(135deg,#7c3aed,#0058bd)}
+.li b{display:block;font:600 14px/1.3 Inter;color:var(--ink)}.li .v{font:600 13px Inter;color:#6d28d9;margin-top:3px}.li .m{font:400 12px Inter;color:#64748b;margin-top:2px}
+.inbar{position:absolute;left:12px;right:12px;bottom:26px;height:52px;border-radius:16px;border:1px solid #e2e8f0;background:#fff;display:flex;align-items:center;gap:10px;padding:0 8px 0 14px;font:400 14px Inter;color:#94a3b8}
+.inbar .sb{margin-left:auto;width:38px;height:38px;border-radius:12px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center}
+.fp{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font:600 12px Inter}
+.cov{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.cv{display:flex;align-items:center;gap:8px;border-radius:14px;padding:10px;font:600 13px Inter}
+.cr{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid #f1f5f9;font:400 13px Inter;color:#475569}
+.cr b{display:block;font:600 13px Inter;color:var(--ink)}
+/* ---------- map + stack */
+#mapScene{position:absolute;inset:0;perspective:1400px;perspective-origin:50% 38%;opacity:0;display:none}
+#mapPlane{position:absolute;left:-460px;top:560px;width:2000px;height:1000px;transform-style:preserve-3d;transform-origin:50% 50%}
+#mapPlane canvas{position:absolute;inset:0}
+.beam{position:absolute;width:6px;height:200px;margin-left:-3px;transform-origin:50% 100%;background:linear-gradient(to top,rgba(255,214,140,1),rgba(255,214,140,0));border-radius:3px;box-shadow:0 0 18px rgba(255,200,120,.8)}
+.blab{position:absolute;transform-origin:50% 100%;white-space:nowrap;font:700 34px Inter;color:#fff;padding:8px 18px;border-radius:999px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.3);backdrop-filter:blur(6px)}
+#stackScene{position:absolute;inset:0;perspective:2200px;perspective-origin:50% 40%;display:none}
+#stack{position:absolute;left:170px;top:640px;width:740px;height:1040px;transform-style:preserve-3d;transform-origin:50% 50%}
+.sl{position:absolute;left:0;width:740px;transform-style:preserve-3d}
+.sc{border:1px solid rgba(226,232,240,.8);background:#fff;border-radius:28px;padding:22px 24px;box-shadow:0 30px 60px rgba(0,0,0,.35)}
+.sc h3{margin-top:12px;font:600 24px/1.3 'Plus Jakarta Sans'}.sc .m{margin-top:4px;font:400 17px Inter;color:#64748b}
+.sc .am{margin-top:14px;border-radius:18px;background:#f8fafc;padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:400 15px Inter}
+.lv{border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:2px 10px;font:400 14px Inter;color:#475569}
+/* ---------- end card */
+#endc{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;color:#f5f5f7}
+#endc .nm{margin-top:48px;font:800 104px 'Plus Jakarta Sans';letter-spacing:-.04em}
+#endc .u{margin-top:26px;font:500 40px Inter;color:#a1a1a6}
+#black{position:absolute;inset:0;background:#000;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="stage">
+ <canvas id="light" width="1080" height="1920"></canvas>
+ <div id="mapScene"><div id="mapPlane"><canvas id="mapc" width="2000" height="1000"></canvas></div></div>
+ <div id="stackScene"><div id="stack"></div></div>
+ <div class="persp" id="devs">
+  <div id="laptop"><div id="lid">
+    <div class="face" id="lidFront"><div class="cam"></div><div id="screen"><div class="pg" id="dHome"></div><div class="pg" id="dDash"></div><div class="pg" id="dTrack"></div><div id="glare"></div></div></div>
+    <div class="face" id="lidBack"></div></div>
+   <div id="base"><div class="notch"></div></div></div>
+  <div id="phone"><div id="phoneFront"><div id="pscreen"><div id="island"></div><div class="pg" id="mAI"></div><div class="pg" id="mDet"></div><div id="pglare"></div></div></div><div id="phoneBack"><div class="lens"></div></div></div>
+ </div>
+ <div id="titles"></div>
+ <div id="endc"></div>
+ <div id="black"></div>
+</div>
+<script src="dots.js"></script>
+<script>
+const LANG=new URLSearchParams(location.search).get('lang')==='en'?'en':'ru';
+const TT={
+ en:[['t1',0.35,2.75,'Your future','is out there.'],['t2',5.7,7.6,'ScholarizePath','Study abroad. Figured out.','big'],['t3',9.0,12.3,'1,500+ universities.','One map.'],
+  ['t4',13.1,16.5,'120+ scholarships.','Fully funded included.'],['t5',17.9,21.7,'An advisor','that knows the data.'],['t6',23.0,26.2,'Know if','you qualify.'],
+  ['t7',27.2,30.2,'Every deadline.','Handled.'],['t8',31.1,33.3,'Everything you need','to study abroad.']],
+ ru:[['t1',0.35,2.75,'Твоё будущее','где-то там.'],['t2',5.7,7.6,'ScholarizePath','Учёба за рубежом. Без хаоса.','big'],['t3',9.0,12.3,'1 500+ университетов.','Одна карта.'],
+  ['t4',13.1,16.5,'120+ стипендий.','Включая fully funded.'],['t5',17.9,21.7,'AI-советник,','который знает базу.'],['t6',23.0,26.2,'Узнай,','подходишь ли ты.'],
+  ['t7',27.2,30.2,'Каждый дедлайн.','Под контролем.'],['t8',31.1,33.3,'Всё для учёбы','за рубежом.']]}[LANG];
+const ENDU={en:'Free at scholarizepath.xyz',ru:'Бесплатно на scholarizepath.xyz'}[LANG];
+const TOTAL=37;
+
+const $=id=>document.getElementById(id);
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp=(a,b,x)=>a+(b-a)*x;
+const E={lin:x=>x,out:x=>1-Math.pow(1-x,3),out5:x=>1-Math.pow(1-x,5),in:x=>x*x*x,inOut:x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,
+ io:x=>x<.5?8*x*x*x*x:1-Math.pow(-2*x+2,4)/2,sine:x=>-(Math.cos(Math.PI*x)-1)/2,back:x=>{const c1=1.3,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)}};
+const P=(t,a,b,e=E.out)=>t<=a?0:t>=b?1:e((t-a)/(b-a));
+const I={cap:'<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
+ award:'<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+ bot:'<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
+ trend:'<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',pin:'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+ arrow:'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',spark:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>',search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+ coins:'<circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/>',heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+ dash:'<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
+ uni:'<path d="M14 21v-3a2 2 0 0 0-4 0v3"/><path d="M18 5v16"/><path d="m4 6 7.106-3.79a2 2 0 0 1 1.788 0L20 6"/><path d="m6 11-3.52 2.147a1 1 0 0 0-.48.854V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a1 1 0 0 0-.48-.853L18 11"/><path d="M6 5v16"/>',
+ scale:'<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+ clip:'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/>',
+ calc:'<rect width="16" height="20" x="4" y="2" rx="2"/><path d="M8 6h8M16 14v4M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>',
+ check:'<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+ grad:'<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
+ wallet:'<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+ hp:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/>',
+ plane:'<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>',
+ plus:'<path d="M5 12h14M12 5v14"/>',sl:'<path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4"/>'};
+const ic=(k,s=24,c='currentColor',w=1.9)=>`<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" style="color:${c};stroke-width:${w}">${I[k]}</svg>`;
+const MP=['M18 290 C120 294 200 318 244 350 L248 386 C205 356 110 322 15 322 L8 294 Z','M42 263 C135 268 205 302 244 346 L240 352 C200 305 120 283 29 277 Z','M112 166 L248 221 L386 164 L386 248 Q298 258 249 310 Q200 258 112 248 Z','M249 0 L495 101 L248 206 L2 101 Z'];
+const MARK=(w,fill='#0058bd',id='')=>`<svg ${id?`id="${id}"`:''} viewBox="0 0 498 386" width="${w}" height="${Math.round(w*386/498)}" fill="${fill}" style="overflow:visible"><g class="mb"><path d="${MP[0]}"/><path d="${MP[1]}"/><g transform="translate(497 0) scale(-1 1)"><path d="${MP[0]}"/><path d="${MP[1]}"/></g></g><path class="mband" d="${MP[2]}"/><g class="mboard"><path d="${MP[3]}"/><g class="mtas"><rect x="426" y="120" width="11" height="68" rx="3"/><circle cx="431" cy="195" r="12"/><path d="M422 207 L440 207 L445 236 L443 241 L420 241 L417 236 Z"/></g></g></svg>`;
+
+// ======================= screens =======================
+const SIDE=on=>`<div class="side"><div class="brand" style="margin:4px 8px 22px">${MARK(34)}<b>ScholarizePath</b></div>
+ ${[['dash','Dashboard'],['cap','Scholarships'],['uni','Universities'],['bot','AI Bot'],['scale','Compare'],['clip','Tracker'],['calc','Calculator'],['heart','Favourites']].map(([k,l])=>`<div class="it ${l==on?'on':''}">${ic(k,20)}${l}</div>`).join('')}</div>`;
+$('dHome').innerHTML=`<div class="desk"><div class="nav"><div class="brand">${MARK(40)}<div><b>ScholarizePath</b><small>Your Pathway to Global Education</small></div></div>
+ <div class="navr"><span style="color:#475569">Rankings</span><span class="btn">Sign In</span><span class="btn" style="background:#0058bd;color:#fff">Sign Up</span></div></div>
+<section class="hero"><div class="dots"></div>
+ <div style="position:relative"><span class="pill">${ic('spark',14,'#f59e0b')}Universities · Scholarships · AI tools</span>
+  <div class="h1">Find your best fit: <span class="gl">explore global opportunities</span></div>
+  <p class="lead">Explore 1,500+ universities and 120+ scholarships, get AI help with your applications, and see your personalized admission odds — all in one place.</p>
+  <div style="margin-top:32px;display:flex;gap:12px"><span class="btn" style="height:48px;padding:0 24px;font-size:15px;background:#0058bd;color:#fff">Get started ${ic('arrow',16,'#fff',2.2)}</span><span class="btn" style="height:48px;padding:0 24px;font-size:15px;background:#fff;border:1px solid #e2e8f0">Explore features</span></div></div>
+ <div style="position:relative;display:flex;flex-direction:column;gap:16px;max-width:448px;margin:0 auto;width:100%">
+  <p style="display:flex;align-items:center;gap:8px;font:600 12px Inter;letter-spacing:.08em;text-transform:uppercase;color:#64748b"><i style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block"></i>Most favorited right now</p>
+  <div class="pc" style="transform:rotate(-1deg)"><span class="ic" style="background:#eff6ff;color:#0058bd">${ic('cap',24)}</span><span style="flex:1"><span class="e">University</span><div class="t">University of Buenos Aires (UBA)</div><div class="p">Buenos Aires, Argentina</div></span></div>
+  <div class="pc" style="transform:translateX(24px) rotate(1deg)"><span class="ic" style="background:#fffbeb;color:#d97706">${ic('award',24)}</span><span style="flex:1"><span class="e">Scholarship</span><div class="t">Stipendium Hungaricum</div><div class="p">Hungary</div></span></div>
+ </div></section>
+<ul class="stats">${[['cap','1,500+','Universities','#eff6ff','#0058bd'],['award','120+','Scholarships','#fffbeb','#d97706'],['bot','AI','Application assistant','#f5f3ff','#7c3aed'],['trend','Odds','Personalized estimates','#ecfdf5','#059669']].map(s=>`<li><span class="tile" style="background:${s[3]};color:${s[4]}">${ic(s[0],24)}</span><span><b>${s[1]}</b><span>${s[2]}</span></span></li>`).join('')}</ul>
+<section style="padding:64px 64px"><div style="font:600 12px Inter;letter-spacing:.08em;text-transform:uppercase;color:#0058bd">Platform features</div><div style="margin-top:8px;font:700 36px 'Plus Jakarta Sans';letter-spacing:-.02em">Everything you need to apply abroad</div>
+ <div style="margin-top:28px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:20px">${[['cap','Global Universities','Explore over 1,500 top-ranked universities worldwide tailored to your academic profile.','#eff6ff','#2563eb'],['award','Scholarship Finder','Discover fully funded and partial scholarships matching your target field and criteria.','#fffbeb','#d97706'],['bot','Smart Assistant','Leverage interactive AI tools to streamline, draft, and automate your entire application process.','#f5f3ff','#7c3aed']].map(f=>`<div class="card" style="padding:26px"><span class="tile" style="background:${f[3]};color:${f[4]}">${ic(f[0],24)}</span><div style="margin-top:16px;font:700 20px 'Plus Jakarta Sans'">${f[1]}</div><div style="margin-top:8px;font:400 15px/1.55 Inter;color:#64748b">${f[2]}</div></div>`).join('')}</div></section></div>`;
+$('dDash').innerHTML=`<div class="desk app">${SIDE('Dashboard')}<div class="main"><h1>Dashboard</h1><div class="sub">Explore universities and scholarships around the world</div>
+ <div style="display:grid;grid-template-columns:1fr 330px;gap:22px;margin-top:22px">
+  <div class="card" id="mapCard" style="height:560px;padding:22px;position:relative;overflow:hidden"><div style="font:600 18px 'Plus Jakarta Sans'">World map</div><div style="font:400 13px Inter;color:#64748b;margin-top:2px">Universities and scholarships by country</div>
+   <canvas id="dmap" width="880" height="440" style="position:absolute;left:22px;top:90px;width:880px;height:440px"></canvas></div>
+  <div class="card" style="height:560px;padding:22px"><div style="font:600 18px 'Plus Jakarta Sans'">Suggested for you</div>
+   ${[['UNAM','Mexico City, Mexico'],['Tec de Monterrey','Monterrey, Mexico'],['University of Buenos Aires','Buenos Aires, Argentina'],['ITAM','Mexico City, Mexico'],['National University of La Plata','La Plata, Argentina']].map(u=>`<div style="display:flex;gap:12px;align-items:center;margin-top:18px"><span class="tile" style="width:40px;height:40px;background:#eff6ff;color:#0058bd">${ic('cap',20)}</span><div><div style="font:600 14px Inter">${u[0]}</div><div style="font:400 12px Inter;color:#64748b">${u[1]}</div></div></div>`).join('')}</div></div></div></div>`;
+const COLS=[['Not started','#94a3b8'],['In progress','#3b82f6'],['Submitted','#6366f1'],['Waiting','#f59e0b'],['Accepted','#10b981']];
+$('dTrack').innerHTML=`<div class="desk app">${SIDE('Tracker')}<div class="main"><div style="display:flex;justify-content:space-between;align-items:center"><div><h1>Application tracker</h1><div class="sub">Every application and deadline in one board</div></div><span class="btn" style="background:#0058bd;color:#fff;height:44px">${ic('plus',18,'#fff',2.4)}Add application</span></div>
+ <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:24px">${COLS.map((c,i)=>`<div class="col" id="tcol${i}"><h5><i style="background:${c[1]}"></i>${c[0]}<em id="tcnt${i}"></em></h5><div class="slot"></div></div>`).join('')}</div></div></div>`;
+const TC=(n,sub,chip,cc,cb,id='')=>`<div class="tc" ${id?`id="${id}"`:''}><b>${n}</b><span>${sub}</span><span class="chip" style="background:${cb};color:${cc}">${chip}</span></div>`;
+const slots=[...document.querySelectorAll('#dTrack .slot')];
+slots[0].innerHTML=TC('Hong Kong PhD Fellowship Scheme','Scholarship · Hong Kong','Due Dec 1','#0058bd','#eff6ff');
+slots[1].innerHTML=TC('ETH Zurich ESOP','Scholarship · Switzerland','Due in 5 days','#dc2626','#fef2f2')+TC('TaiwanICDF Scholarship','Scholarship · Taiwan','Due Mar 31','#0058bd','#eff6ff');
+slots[2].innerHTML=TC('Government of Ireland IES','Scholarship · Ireland','Deadline Mar 13','#64748b','#f1f5f9');
+slots[3].innerHTML=`<div id="tHole"></div>`;
+slots[4].innerHTML=TC('University of Buenos Aires','University · Argentina','Deadline Feb 28','#64748b','#f1f5f9');
+// the card that moves Waiting → Accepted
+const mover=document.createElement('div');mover.style.cssText='position:absolute;width:0;z-index:5';mover.innerHTML=TC('Stipendium Hungaricum','Scholarship · Hungary','Waiting for result','#b45309','#fffbeb','tMove');
+$('dTrack').firstElementChild.appendChild(mover);$('dTrack').firstElementChild.style.position='relative';
+
+const SCH=[['Stipendium Hungaricum Scholarship','Hungary','🇭🇺',["Bachelor's","Master's",'PhD'],'SH'],['Government of Ireland International Education Scholarship (GOI-IES)','Ireland','🇮🇪',["Master's",'PhD'],'GI'],
+ ['ETH Zurich Excellence Scholarship & Opportunity Programme (ESOP)','Switzerland','🇨🇭',["Master's"],'EE'],['Hong Kong PhD Fellowship Scheme (HKPFS)','Hong Kong','🇭🇰',['PhD'],'HK']];
+$('mAI').innerHTML=`<div class="mob"><div class="mtop"><span class="vio">${ic('spark',20)}</span><div><div style="font:700 18px 'Plus Jakarta Sans'">AI Advisor</div><div style="font:400 12px Inter;color:#64748b">Ask about universities, scholarships and applications</div></div></div>
+ <div class="msg" id="m1" style="display:flex"><div class="ub" id="m1t"></div></div>
+ <div class="msg" id="mdots"><div class="ab" style="display:inline-flex;gap:6px">${[0,1,2].map(()=>'<i class="dt" style="width:8px;height:8px;border-radius:50%;background:#a78bfa;display:block"></i>').join('')}</div></div>
+ <div class="msg" id="m2"><div class="ab">Here are fully funded scholarships for a Master's in Europe that match your profile:</div></div>
+ <div class="msg" id="m3"><div style="font:600 11px Inter;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin:4px 2px 2px">Scholarships (3)</div>
+  ${SCH.slice(0,3).map(s=>`<div class="li ai-li"><span class="mono">${s[4]}</span><div style="min-width:0"><b>${s[0].replace(/ \(.*\)/,'')}</b><div class="v">Fully funded</div><div class="m">${s[3].join(', ')} · ${s[2]} ${s[1]}</div></div></div>`).join('')}</div>
+ <div class="inbar">Ask a question…<span class="sb">${ic('send',18,'#fff')}</span></div></div>`;
+$('mDet').innerHTML=`<div class="mob"><div class="mtop" style="gap:10px"><span style="font:600 14px Inter;color:#0058bd">← Scholarships</span></div>
+ <div style="padding:16px">
+  <div class="card" style="padding:16px;border-radius:22px"><div style="display:flex;gap:6px"><span class="fp" style="background:#ecfdf5;color:#047857"><i style="width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block"></i>Fully Funded</span><span class="fp" style="background:#f1f5f9;color:#64748b">Dates not announced</span></div>
+   <div style="font:700 22px/1.25 'Plus Jakarta Sans';margin-top:10px">Stipendium Hungaricum Scholarship</div><div style="font:400 14px Inter;color:#64748b;margin-top:4px">Hungary 🇭🇺 · Bachelor's, Master's, PhD</div></div>
+  <div class="card" style="padding:16px;border-radius:22px;margin-top:12px"><div style="font:600 15px 'Plus Jakarta Sans'">What it covers</div><div class="cov">
+   ${[['grad','Tuition fees',1],['wallet','Living stipend',1],['hp','Health insurance',1],['plane','Travel',0]].map(([k,l,on],i)=>`<div class="cv cvi" style="background:${on?'#ecfdf5':'#f8fafc'};color:${on?'#047857':'#94a3b8'}">${ic(on?'check':k,18)}${l}</div>`).join('')}</div></div>
+  <div class="card" id="elig" style="padding:16px;border-radius:22px;margin-top:12px"><div style="display:flex;align-items:center;gap:8px"><span class="vio" style="width:32px;height:32px;border-radius:10px">${ic('spark',16)}</span><div style="font:600 15px 'Plus Jakarta Sans'">AI eligibility explanation</div>
+   <span class="fp" id="verdict" style="margin-left:auto;background:#ecfdf5;color:#047857">High chance</span></div>
+   ${[['Study level',"You're applying for a Master's — offered"],['Nationality','Your country is a partner country'],['Field of study','All fields are eligible']].map(r=>`<div class="cr crow">${ic('check',18,'#10b981')}<div><b>${r[0]}</b>${r[1]}</div></div>`).join('')}</div>
+ </div></div>`;
+
+// scales
+const dScale=856/1440;['dHome','dDash','dTrack'].forEach(id=>$(id).style.transform=`scale(${dScale})`);
+const mScale=314/390;['mAI','mDet'].forEach(id=>$(id).style.transform=`scale(${mScale})`);
+
+// dashboard mini-map (light, like the site)
+{const c=$('dmap').getContext('2d');for(const [lon,lat] of window.LAND){const x=(lon+180)/360*880,y=(80-lat)/140*440;c.fillStyle='#bfd4f5';c.fillRect(x-1.6,y-1.6,3.2,3.2);}
+ [[-99,19],[-58,-34],[-0.1,51.5],[11.6,48.1],[19,47.5],[8.5,47.4],[-6.3,53.3],[114,22.3],[121.5,25],[127,37.5]].forEach(([lon,lat])=>{const x=(lon+180)/360*880,y=(80-lat)/140*440;c.fillStyle='rgba(0,88,189,.2)';c.beginPath();c.arc(x,y,12,0,7);c.fill();c.fillStyle='#0058bd';c.beginPath();c.arc(x,y,5,0,7);c.fill();});}
+
+// measure zoom target (map card centre) while the laptop is untransformed
+const LAP={L:90,T:690};
+let MX=450,MY=290;{const lr=$('laptop').getBoundingClientRect();$('dDash').style.opacity=1;const r=$('mapCard').getBoundingClientRect();MX=r.left+r.width/2-lr.left;MY=r.top+r.height/2-lr.top;}
+$('laptop').style.transformOrigin=`${MX}px ${MY}px`;
+const ZX=540-(LAP.L+MX),ZY=900-(LAP.T+MY);
+
+// ======================= 3D map =======================
+const mc=$('mapc').getContext('2d');
+const PINS=[['USA',-71,42.4],['Canada',-79.4,43.7],['Mexico',-99.1,19.4],['Argentina',-58.4,-34.6],['UK',-0.1,51.5],['Ireland',-6.3,53.3],['Germany',11.6,48.1],['Switzerland',8.5,47.4],['Hungary',19,47.5],
+ ['South Korea',127,37.5],['Japan',139.7,35.7],['Hong Kong',114.2,22.3],['Taiwan',121.5,25],['Australia',145,-37.8]];
+const MW=2000,MH=1000,mx=lon=>(lon+180)/360*MW,my=lat=>(82-lat)/150*MH;
+PINS.forEach(([n,lon,lat],i)=>{const b=document.createElement('div');b.className='beam';const bh=170+(i%3)*110;b.style.height=bh+'px';b.style.left=mx(lon)+'px';b.style.top=(my(lat)-bh)+'px';b.id='bm'+i;$('mapPlane').appendChild(b);
+ const l=document.createElement('div');l.className='blab';l.textContent=n;l.id='bl'+i;l.style.left=mx(lon)+'px';l.style.top=(my(lat)-52)+'px';$('mapPlane').appendChild(l);});
+function drawMap(lt){mc.clearRect(0,0,MW,MH);
+ for(const [lon,lat] of window.LAND){const x=mx(lon),y=my(lat);const w=.5+.5*Math.sin(x*.012-lt*3.2+y*.004);
+  mc.fillStyle=`rgba(${Math.round(70+60*w)},${Math.round(130+60*w)},255,${.35+.5*w})`;mc.fillRect(x-3,y-3,6,6);}
+ PINS.forEach(([n,lon,lat],i)=>{const a=P(lt,.4+i*.12,.9+i*.12,E.out);if(a<=0)return;const x=mx(lon),y=my(lat);
+  const g=mc.createRadialGradient(x,y,0,x,y,60*a);g.addColorStop(0,'rgba(255,214,140,.9)');g.addColorStop(1,'rgba(255,214,140,0)');mc.fillStyle=g;mc.beginPath();mc.arc(x,y,60*a,0,7);mc.fill();});}
+
+// ======================= exploded stack =======================
+$('stack').innerHTML=`
+ <div class="sl" id="sl0" style="top:0;height:1040px;border-radius:40px;background:rgba(247,249,252,.96);box-shadow:0 60px 120px rgba(0,0,0,.6)"></div>
+ <div class="sl" id="sl1" style="top:40px;left:30px;width:680px"><div class="card" style="padding:18px;border-radius:26px;display:flex;gap:12px;align-items:center"><div style="flex:1;height:58px;border-radius:14px;border:1px solid #e2e8f0;background:#f8fafc;display:flex;align-items:center;gap:10px;padding:0 16px;font:400 19px Inter;color:#94a3b8">${ic('search',20,'#94a3b8')}Fully funded Master's</div><span class="btn" style="height:58px;background:#0058bd;color:#fff;font-size:18px;border-radius:14px">${ic('sl',20,'#fff')}Filters</span></div></div>
+ <div class="sl" id="sl2" style="top:150px;left:30px;width:680px;display:flex;gap:10px;flex-wrap:wrap">${["Master's",'Fully Funded','Europe','All fields','Deadline'].map((p,i)=>`<span style="padding:10px 18px;border-radius:999px;font:600 18px Inter;${i<2?'background:#0058bd;color:#fff':'background:#fff;color:#334155;border:1px solid #e2e8f0'}">${p}</span>`).join('')}</div>
+ ${SCH.map((s,i)=>`<div class="sl scard" id="sc${i}" style="top:${230+i*200}px;left:30px;width:680px"><div class="sc"><div style="display:flex;justify-content:space-between"><span class="fp" style="background:#ecfdf5;color:#047857;font-size:15px"><i style="width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block"></i>Fully Funded</span><span style="color:${i==0?'#e11d48':'#cbd5e1'}">${ic('heart',26)}</span></div>
+  <h3>${s[0].replace(/ \(.*\)/,'')}</h3><div class="m">${s[1]} ${s[2]}</div><div class="am"><span style="display:inline-flex;gap:6px;align-items:center">${ic('coins',18,'#0058bd')}<i style="color:#64748b">See official website</i></span>${s[3].map(l=>`<span class="lv">${l}</span>`).join('')}</div></div></div>`).join('')}`;
+
+// ======================= titles + end card =======================
+$('titles').innerHTML=TT.map(([id,,,a,b,cls])=>`<div class="ttl ${cls||''}" id="${id}"><span class="a">${a}</span><span class="b">${b}</span></div>`).join('');
+$('endc').innerHTML=`${MARK(260,'#f5f5f7','endLogo')}<div class="nm">ScholarizePath</div><div class="u">${ENDU}</div>`;
+
+// ======================= light canvas =======================
+const LC=$('light').getContext('2d');
+function glow(x,y,r,col,a){if(a<=0)return;const g=LC.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,col.replace('A',a));g.addColorStop(1,col.replace('A',0));LC.fillStyle=g;LC.fillRect(x-r,y-r,r*2,r*2);}
+
+// ======================= keyframe tracks =======================
+function track(keys,t){if(t<=keys[0][0])return keys[0][1];for(let i=0;i<keys.length-1;i++){const [a,A]=keys[i],[b,B,ease]=keys[i+1];if(t<=b){const k=(ease||E.io)((t-a)/(b-a));const o={};for(const p in A)o[p]=lerp(A[p],B[p]??A[p],k);return o;}}return keys[keys.length-1][1];}
+const LK=[[3.0,{x:0,y:700,z:-300,rx:14,ry:-34,s:.8,o:0}],[4.2,{x:0,y:40,z:0,rx:10,ry:-24,s:.94,o:1},E.out5],[7.2,{x:0,y:0,z:0,rx:3,ry:0,s:1,o:1},E.sine],
+ [8.75,{x:ZX,y:ZY,z:0,rx:0,ry:0,s:9,o:1},E.in],[8.76,{x:-1400,y:0,z:0,rx:8,ry:40,s:.9,o:0}],[26.4,{x:-1400,y:0,z:0,rx:8,ry:40,s:.9,o:0}],
+ [27.4,{x:0,y:-20,z:0,rx:6,ry:12,s:.96,o:1},E.out5],[30.4,{x:0,y:-20,z:0,rx:5,ry:4,s:1,o:1},E.sine],[31.4,{x:-150,y:-60,z:-200,rx:6,ry:16,s:.78,o:1}],[33.4,{x:-120,y:-60,z:-200,rx:5,ry:10,s:.8,o:1},E.sine],[33.9,{x:-120,y:-60,z:-200,rx:5,ry:10,s:.8,o:0}]];
+const PK=[[16.9,{x:0,y:900,z:-200,rx:10,ry:-30,rz:6,s:1.1,o:0}],[18.0,{x:0,y:40,z:0,rx:4,ry:-12,rz:0,s:1.3,o:1},E.out5],[21.8,{x:0,y:30,z:0,rx:3,ry:6,rz:0,s:1.3,o:1},E.sine],
+ [22.9,{x:0,y:30,z:0,rx:3,ry:366,rz:0,s:1.3,o:1},E.io],[26.0,{x:0,y:20,z:0,rx:3,ry:372,rz:0,s:1.3,o:1},E.sine],[26.8,{x:1100,y:40,z:0,rx:3,ry:400,rz:0,s:1,o:1},E.in],
+ [30.6,{x:1100,y:40,z:0,rx:3,ry:400,rz:0,s:1,o:0}],[31.5,{x:250,y:170,z:120,rx:4,ry:348,rz:0,s:.86,o:1},E.out5],[33.4,{x:240,y:170,z:120,rx:4,ry:352,rz:0,s:.86,o:1},E.sine],[33.9,{x:240,y:170,z:120,rx:4,ry:352,rz:0,s:.86,o:0}]];
+
+const ttlEls=TT.map(x=>$(x[0]));
+const aiLis=[...document.querySelectorAll('.ai-li')],dts=[...document.querySelectorAll('.dt')],cvis=[...document.querySelectorAll('.cvi')],crows=[...document.querySelectorAll('.crow')];
+const USERQ="Fully funded Master's in Europe?";
+
+function render(t){
+ LC.clearRect(0,0,1080,1920);
+ // ---- titles: soft rise, blur and tracking tighten
+ TT.forEach(([id,a,b],i)=>{const el=ttlEls[i];const vis=t>a-.05&&t<b+.05;el.style.display=vis?'block':'none';if(!vis)return;
+  const out=P(t,b-.45,b,E.inOut);[el.children[0],el.children[1]].forEach((s,j)=>{const p=P(t,a+j*.45,a+j*.45+.9,E.out5);s.style.opacity=p*(1-out);
+   s.style.transform=`translateY(${(1-p)*30-out*20}px)`;s.style.filter=`blur(${(1-p)*14+out*10}px)`;s.style.letterSpacing=j==0||el.classList.contains('big')?`${lerp(.02,-.04,p)}em`:'';});});
+ // ---- ambient light
+ const lapOn=P(t,4.2,5.4)*(1-P(t,7.9,8.6));
+ glow(540,980,760,'rgba(40,90,210,A)',.35*lapOn+.28*P(t,26.8,27.6)*(1-P(t,33.4,33.9)));
+ glow(540,1360,520,'rgba(90,140,255,A)',.25*lapOn);
+ glow(540,1050,600,'rgba(120,80,255,A)',.28*P(t,17,18)*(1-P(t,26.2,26.8)));
+ glow(540,300,700,'rgba(60,110,230,A)',.12*P(t,0.2,1.5)*(1-P(t,2.6,3.2)));
+
+ // ---- laptop
+ const L=track(LK,t);const lap=$('laptop');lap.style.display=L.o>0?'block':'none';
+ lap.style.opacity=L.o;lap.style.transform=`translate3d(${L.x}px,${L.y}px,${L.z}px) rotateX(${L.rx}deg) rotateY(${L.ry}deg) scale(${L.s})`;
+ const open=t<26?P(t,3.5,5.2,E.io):1;$('lid').style.transform=`rotateX(${lerp(89,0,open)}deg)`;
+ $('screen').style.filter=`brightness(${t<26?lerp(.08,1,P(t,4.6,5.5)):1})`;
+ // which page is on the laptop
+ const onDash=t>=6.9&&t<20,onTrack=t>=20;$('dHome').style.opacity=onDash||onTrack?0:1;$('dDash').style.opacity=onDash?P(t,6.9,7.3):0;$('dTrack').style.opacity=onTrack?1:0;
+ // home page gentle scroll
+ $('dHome').style.transform=`scale(${dScale}) translateY(${-E.sine(clamp((t-5.3)/1.8))*260}px)`;
+ // tracker: card moves Waiting → Accepted
+ if(onTrack){const mv=$('tMove');
+  const c3=$('tcol3').querySelector('.slot'),c4=$('tcol4').querySelector('.slot');
+  // positions in authored (unscaled) px, relative to the tracker page
+  const x3=c3.offsetLeft,y3=c3.offsetTop,x4=c4.offsetLeft,y4=c4.offsetTop+c4.firstElementChild.offsetHeight+10;
+  const mvp=P(t,28.1,28.9,E.io),lift=Math.sin(mvp*Math.PI);const W=c3.offsetWidth;
+  mover.style.left=lerp(x3,x4,mvp)+'px';mover.style.top=(lerp(y3,y4,mvp)-lift*40)+'px';mv.style.width=W+'px';
+  mv.style.transform=`rotate(${lift*4}deg) scale(${1+lift*.06})`;mv.style.boxShadow=`0 ${4+lift*30}px ${10+lift*40}px rgba(10,26,63,${.06+lift*.18})`;
+  const done=mvp>=1;const ch=mv.querySelector('.chip');ch.textContent=done?'Accepted 🎉':'Waiting for result';ch.style.background=done?'#ecfdf5':'#fffbeb';ch.style.color=done?'#047857':'#b45309';
+  mv.style.borderColor=done?`rgba(16,185,129,${1-P(t,29.6,30.4)*.6})`:'#e2e8f0';mv.style.outline=done?`${3*(1-P(t,29.4,30.4))}px solid rgba(16,185,129,.35)`:'none';
+  $('tcnt3').textContent=done?'0':'1';$('tcnt4').textContent=done?'2':'1';[0,1,2].forEach(i=>$('tcnt'+i).textContent=[1,2,1][i]);}
+ // floor reflection light under the laptop
+ glow(540,1330+L.y*.3,420,'rgba(90,150,255,A)',.25*L.o*(t<8.7||t>26?1:0));
+
+ // ---- 3D map
+ const ms=$('mapScene');const mOn=t>8.3&&t<13.1;ms.style.display=mOn?'block':'none';
+ if(mOn){const lt=t-8.3;ms.style.opacity=P(t,8.35,8.85)*(1-P(t,12.5,13.1));drawMap(lt);
+  const pan=E.sine(clamp(lt/4.8));$('mapPlane').style.transform=`translate3d(${lerp(420,-420,pan)}px,${lerp(-80,20,pan)}px,${lerp(700,0,E.out5(clamp(lt/1.2)))}px) rotateX(${lerp(40,58,E.out(clamp(lt/1.4)))}deg)`;
+  PINS.forEach((p,i)=>{const a=P(lt,.4+i*.12,1.0+i*.12,E.out5);const b=$('bm'+i),l=$('bl'+i);b.style.opacity=a;b.style.transform=`rotateX(-90deg) scaleY(${a})`;l.style.opacity=P(lt,.7+i*.12,1.1+i*.12);l.style.transform=`translateX(-50%) rotateX(-90deg) translateY(${-(185+(i%3)*110)}px)`;});}
+
+ // ---- exploded stack
+ const ss=$('stackScene');const sOn=t>12.4&&t<17.4;ss.style.display=sOn?'block':'none';
+ if(sOn){const lt=t-12.4;ss.style.opacity=P(t,12.45,13.0)*(1-P(t,16.8,17.3));
+  const ex=E.io(clamp((lt-.4)/1.6));
+  $('stack').style.transform=`translateY(${lerp(120,0,E.out5(clamp(lt/1.2)))}px) rotateX(${lerp(20,54,E.io(clamp(lt/1.8)))}deg) rotateZ(${lerp(0,-26,E.io(clamp(lt/1.8)))+Math.sin(lt*.5)*2}deg) scale(${lerp(.9,.86,ex)})`;
+  const layers=['sl0','sl1','sl2','sc0','sc1','sc2','sc3'];
+  layers.forEach((id,i)=>{const el=$(id);let z=i*55*ex;let o=1,sc=1;
+   if(id==='sc0'){const hi=E.io(clamp((lt-2.3)/.9));z+=hi*220;sc=1+hi*.06;el.firstElementChild.style.boxShadow=`0 ${30+hi*50}px ${60+hi*60}px rgba(0,0,0,.45),0 0 0 ${hi*4}px rgba(96,165,250,.9)`;}
+   else if(i>=3){o=1-.45*E.io(clamp((lt-2.3)/.9));}
+   el.style.transform=`translateZ(${z}px) scale(${sc})`;el.style.opacity=o;});}
+
+ // ---- phone
+ const Q=track(PK,t);const ph=$('phone');ph.style.display=Q.o>0?'block':'none';
+ ph.style.opacity=Q.o;ph.style.transform=`translate3d(${Q.x}px,${Q.y}px,${Q.z}px) rotateX(${Q.rx}deg) rotateY(${Q.ry}deg) rotateZ(${Q.rz}deg) scale(${Q.s})`;
+ const detail=t>22.35;$('mAI').style.opacity=detail?0:1;$('mDet').style.opacity=detail?1:0;
+ glow(540,1080+Q.y*.2,460,'rgba(150,110,255,A)',.18*Q.o);
+ // AI chat
+ const m1=P(t,18.3,18.6,E.back);$('m1').style.opacity=clamp(m1*2);$('m1').style.transform=`scale(${lerp(.8,1,m1)})`;$('m1').style.transformOrigin='right';
+ $('m1t').textContent=USERQ.slice(0,Math.max(1,Math.floor(clamp((t-18.35)/.9)*USERQ.length)));
+ $('mdots').style.display=t>19.4&&t<20.1?'block':'none';dts.forEach((d,i)=>d.style.transform=`translateY(${Math.sin(t*11-i)*-3}px)`);
+ const m2=P(t,20.1,20.45,E.back);$('m2').style.display=t>20.1?'block':'none';$('m2').style.opacity=clamp(m2*2);$('m2').style.transform=`translateY(${(1-m2)*12}px)`;
+ $('m3').style.display=t>20.4?'block':'none';aiLis.forEach((li,i)=>{const q=P(t,20.45+i*.2,20.9+i*.2,E.out5);li.style.opacity=q;li.style.transform=`translateY(${(1-q)*20}px)`;});
+ // detail page
+ cvis.forEach((c,i)=>{const q=P(t,23.0+i*.15,23.4+i*.15,E.back);c.style.opacity=clamp(q*2);c.style.transform=`scale(${lerp(.7,1,q)})`;});
+ const eg=P(t,23.8,24.3,E.out5);$('elig').style.opacity=eg;$('elig').style.transform=`translateY(${(1-eg)*30}px)`;
+ const vd=P(t,24.5,24.85,E.back);$('verdict').style.transform=`scale(${lerp(.3,1,vd)})`;$('verdict').style.opacity=clamp(vd*2);
+ crows.forEach((r,i)=>{const q=P(t,24.7+i*.2,25.1+i*.2,E.out);r.style.opacity=q;r.style.transform=`translateX(${(1-q)*16}px)`;});
+
+ // ---- end card
+ const ec=$('endc');const eOn=t>33.7;ec.style.display=eOn?'flex':'none';
+ if(eOn){const lt=t-33.7;const lg=$('endLogo');
+  const mb=lg.querySelector('.mb'),band=lg.querySelector('.mband'),board=lg.querySelector('.mboard'),tas=lg.querySelector('.mtas');
+  [mb,band,board,tas].forEach(e=>{e.style.transformBox='view-box';});
+  const b1=P(lt,.1,.7,E.out5);mb.style.transformOrigin='248px 386px';mb.style.transform=`scaleX(${lerp(.05,1,b1)})`;mb.style.opacity=b1;
+  const b2=P(lt,.35,.8,E.out5);band.style.transform=`translateY(${(1-b2)*40}px)`;band.style.opacity=b2;
+  const sp=clamp((lt-.5)/1.1);const spr=sp>=1?1:1-Math.exp(-6*sp)*Math.cos(12*sp);board.style.transformOrigin='248px 110px';board.style.transform=`translateY(${(1-spr)*-160}px) rotate(${(1-spr)*-14}deg)`;board.style.opacity=clamp((lt-.5)*5);
+  const ts=clamp((lt-.95)/1.4);tas.style.transformOrigin='431px 124px';tas.style.transform=`rotate(${Math.sin(ts*Math.PI*3.2)*16*(1-ts)}deg)`;
+  const nm=P(lt,.9,1.7,E.out5);ec.children[1].style.opacity=nm;ec.children[1].style.transform=`translateY(${(1-nm)*24}px)`;ec.children[1].style.letterSpacing=`${lerp(.02,-.04,nm)}em`;
+  const u=P(lt,1.5,2.3,E.out5);ec.children[2].style.opacity=u;ec.children[2].style.transform=`translateY(${(1-u)*16}px)`;
+  glow(540,900,640,'rgba(60,110,230,A)',.22*P(lt,.2,1.5));}
+
+ // ---- fades to black between acts
+ $('black').style.opacity=Math.max(1-P(t,0,.2),P(t,33.3,33.7)*(1-P(t,33.7,34.0)),P(t,36.2,37));
+}
+window.render=render;window.TOTAL=TOTAL;
+if(!location.search.includes('capture')){const t0=performance.now();(function loop(){render(((performance.now()-t0)/1000)%TOTAL);requestAnimationFrame(loop)})();}
+</script>
+</body>
+</html>
