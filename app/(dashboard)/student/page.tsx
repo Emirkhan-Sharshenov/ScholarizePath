@@ -8,12 +8,14 @@ import { ProfileHeader } from '@/components/student/ProfileHeader';
 import { AcademicScores } from '@/components/student/AcademicScores';
 import { PersonalPreferences } from '@/components/student/PersonalPreferences';
 import { NotificationSettings } from '@/components/student/NotificationSettings';
+import { DeleteAccount } from '@/components/student/DeleteAccount';
 
 export interface ProfileData {
     _id: string;
     firstName: string;
     lastName: string;
     email: string;
+    authProvider?: 'local' | 'google';
     deadlineReminders?: boolean;
     profile?: {
         age?: number | null;
@@ -165,6 +167,8 @@ export default function ProfilePage() {
                 </div>
 
                 <NotificationSettings deadlineReminders={formData.deadlineReminders !== false} />
+
+                <DeleteAccount email={data?.email ?? formData.email} authProvider={formData.authProvider} />
             </div>
 
             {/* Save bar and toast are portalled into <body>: the dashboard shell's
