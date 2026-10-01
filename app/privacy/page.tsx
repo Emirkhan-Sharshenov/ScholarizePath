@@ -188,7 +188,7 @@ export default function PrivacyPage() {
 
                         <Section id="retention" title="5. How long we keep it">
                             <ul className={list}>
-                                <li>Account, profile and tracker data: until you ask us to delete your account.</li>
+                                <li>Account, profile and tracker data: until you delete your account.</li>
                                 <li>Email verification codes: until they expire.</li>
                                 <li>Rate-limit counters: seconds to one day.</li>
                                 <li>Google Analytics data: up to 14 months, then deleted automatically.</li>
@@ -211,7 +211,12 @@ export default function PrivacyPage() {
                                     with <CookieSettingsButton className={link} />.
                                 </li>
                                 <li>
-                                    <span className="font-semibold text-ink">Get a copy or delete your account</span>{' '}
+                                    <span className="font-semibold text-ink">Delete your account</span> anytime
+                                    with &ldquo;Delete account&rdquo; on your profile page. Your profile, saved
+                                    items and tracker are removed immediately.
+                                </li>
+                                <li>
+                                    <span className="font-semibold text-ink">Get a copy of your data</span>{' '}
                                     by emailing{' '}
                                     <a href={`mailto:${CONTACT_EMAIL}`} className={link}>
                                         {CONTACT_EMAIL}
