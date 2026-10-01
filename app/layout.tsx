@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Geist, Geist_Mono, Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import CookieBanner from "@/components/consent/CookieBanner";
+import { consentDefaultsScript } from "@/lib/consent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +43,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} ${jakarta.variable} ${inter.variable} antialiased`}>
+        <Script id="consent-defaults" strategy="beforeInteractive">
+          {consentDefaultsScript}
+        </Script>
         <Providers>{children}</Providers>
+        <CookieBanner />
       </body>
       <GoogleAnalytics gaId="G-GPE7XKV53Q" />
     </html>

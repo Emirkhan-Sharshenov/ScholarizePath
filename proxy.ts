@@ -4,7 +4,7 @@ import { authMiddleware } from "@/middleware/auth.middleware";
 import { checkRateLimit } from "@/lib/simpleRateLimit";
 
 // Pages/APIs reachable with NO token at all (exact match)
-const PUBLIC_PATHS = new Set<string>(["/", "/login", "/top", "/support"]);
+const PUBLIC_PATHS = new Set<string>(["/", "/login", "/top", "/support", "/privacy"]);
 
 // Pages/APIs reachable with NO token at all (prefix match — covers nested paths too)
 const PUBLIC_PATH_PREFIXES = [

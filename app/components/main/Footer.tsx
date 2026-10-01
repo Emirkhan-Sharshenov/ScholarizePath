@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Mail, HeartHandshake } from 'lucide-react';
 import BrandLogo from '@/components/brand/BrandLogo';
+import CookieSettingsButton from '@/components/consent/CookieSettingsButton';
 
 
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -94,9 +95,15 @@ export default function Footer() {
             </div>
 
             <div className="border-t border-slate-100">
-                <p className="mx-auto max-w-7xl px-4 py-5 text-xs text-slate-400 sm:px-6 lg:px-8">
-                    &copy; {new Date().getFullYear()} ScholarizePath. All rights reserved.
-                </p>
+                <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 text-xs text-slate-400 sm:px-6 lg:px-8">
+                    <p>&copy; {new Date().getFullYear()} ScholarizePath. All rights reserved.</p>
+                    <div className="flex gap-5">
+                        <Link href="/privacy" className="transition-colors hover:text-brand">
+                            Privacy Policy
+                        </Link>
+                        <CookieSettingsButton className="transition-colors hover:text-brand" />
+                    </div>
+                </div>
             </div>
         </footer>
     );
