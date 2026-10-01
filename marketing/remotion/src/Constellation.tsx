@@ -57,9 +57,10 @@ const camAt = (t: number) => {
 
 // ---------------------------------------------------------------- shaders
 const VERT = `
-attribute float aSize; attribute vec3 aCol; uniform float uScale; varying vec3 vCol;
+attribute float aSize; attribute float aDelay; attribute vec3 aCol; uniform float uScale; uniform float uT; varying vec3 vCol;
 void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); gl_Position = projectionMatrix * mv;
-  gl_PointSize = aSize * uScale / -mv.z; vCol = aCol; }`;
+  float k = clamp((uT - 3.0 - aDelay * 1.3) / 1.7, 0.0, 1.0); k = k < 0.5 ? 8.0*k*k*k*k : 1.0 - pow(-2.0*k + 2.0, 4.0)/2.0;
+  gl_PointSize = aSize * (1.0 + 0.9 * (1.0 - k)) * uScale / -mv.z; vCol = aCol; }`;
 const FRAG = `
 varying vec3 vCol;
 void main(){ float d = length(gl_PointCoord - 0.5); float a = smoothstep(0.5, 0.0, d); a = a*a;
@@ -82,7 +83,7 @@ function Backdrop({t}: {t: number}) {
 }
 
 const pointsMaterial = () =>
-	new THREE.ShaderMaterial({vertexShader: VERT, fragmentShader: FRAG, uniforms: {uScale: {value: 1}}, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending});
+	new THREE.ShaderMaterial({vertexShader: VERT, fragmentShader: FRAG, uniforms: {uScale: {value: 1}, uT: {value: 100}}, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending});
 
 // ---------------------------------------------------------------- the particle field
 const D = Math.PI / 180;
@@ -102,6 +103,7 @@ function Field({t, shapes}: {t: number; shapes: {dust: Shape; globe: Shape; cap:
 			d[i] = r();
 		}
 		g.setAttribute('aSize', new THREE.BufferAttribute(s, 1));
+		g.setAttribute('aDelay', new THREE.BufferAttribute(d, 1));
 		const m = pointsMaterial();
 		return {geo: g, mat: m, delay: d, size0: s, pts: new THREE.Points(g, m)};
 	}, []);
@@ -163,6 +165,7 @@ function Field({t, shapes}: {t: number; shapes: {dust: Shape; globe: Shape; cap:
 	}
 	pos.needsUpdate = true;
 	col.needsUpdate = true;
+	mat.uniforms.uT.value = t; // dust reads larger and shrinks as it settles (vertex shader)
 	void size0;
 	return <primitive object={pts} frustumCulled={false} />;
 }

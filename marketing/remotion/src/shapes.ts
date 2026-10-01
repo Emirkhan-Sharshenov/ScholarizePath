@@ -26,9 +26,9 @@ export function dust(): Shape {
 	const pos = new Float32Array(N * 3);
 	const col = new Float32Array(N * 3);
 	for (let i = 0; i < N; i++) {
-		pos[i * 3] = (r() - 0.5) * 12;
-		pos[i * 3 + 1] = (r() - 0.5) * 20;
-		pos[i * 3 + 2] = -12 + r() * 16;
+		pos[i * 3] = (r() - 0.5) * 8;
+		pos[i * 3 + 1] = (r() - 0.5) * 13;
+		pos[i * 3 + 2] = -8 + r() * 10;
 		const c = mixc(BLUE, ICE, r());
 		const b = 0.45 + r() * 0.65;
 		col.set([c[0] * b, c[1] * b, c[2] * b], i * 3);
