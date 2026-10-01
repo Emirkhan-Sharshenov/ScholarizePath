@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Promo-video sources with their own toolchain (Remotion/Three.js).
+    "marketing/**",
   ]),
 ]);
 
