@@ -7,6 +7,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Award, Building2, Loader2, MapPin, MousePointerClick, X } from "lucide-react";
 import { toDbCountryName } from "./mapData";
 import type { MapCountry } from "./WorldMap";
+import { useI18n } from "@/i18n/I18nProvider";
+import { localizeCountry } from "@/i18n/countries";
 
 interface ApiUniversity {
     _id: string;
@@ -78,20 +80,23 @@ interface CountryDetailsProps {
 }
 
 function CountryDetails({ country, universities, onClose }: CountryDetailsProps) {
+    const { t, locale } = useI18n();
+    const countryLabel = localizeCountry(country.name, locale);
+
     return (
         <div className="flex h-full flex-col">
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
                         <MapPin aria-hidden="true" className="h-3.5 w-3.5" />
-                        Selected country
+                        {t.dashboard.selectedCountry}
                     </span>
-                    <h2 className="mt-2 truncate font-display text-2xl font-bold tracking-tight text-ink">{country.name}</h2>
+                    <h2 className="mt-2 truncate font-display text-2xl font-bold tracking-tight text-ink">{countryLabel}</h2>
                 </div>
                 <button
                     type="button"
                     onClick={onClose}
-                    aria-label="Close country details"
+                    aria-label={t.dashboard.closeCountry}
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 hover:text-ink"
                 >
                     <X className="h-[18px] w-[18px]" />
@@ -102,28 +107,28 @@ function CountryDetails({ country, universities, onClose }: CountryDetailsProps)
                 <div className="rounded-2xl bg-blue-50 p-4">
                     <Building2 aria-hidden="true" className="h-5 w-5 text-brand" />
                     <p className="mt-2 font-display text-3xl font-bold leading-none text-ink">{country.unis}</p>
-                    <p className="mt-1 text-sm text-slate-600">Universities</p>
+                    <p className="mt-1 text-sm text-slate-600">{t.dashboard.universitiesCount}</p>
                 </div>
                 <div className="rounded-2xl bg-amber-50 p-4">
                     <Award aria-hidden="true" className="h-5 w-5 text-amber-600" />
                     <p className="mt-2 font-display text-3xl font-bold leading-none text-amber-900">{country.scholarships}</p>
-                    <p className="mt-1 text-sm text-amber-800/80">Scholarships</p>
+                    <p className="mt-1 text-sm text-amber-800/80">{t.dashboard.scholarshipsCount}</p>
                 </div>
             </div>
 
-            <h3 className="mt-6 text-sm font-semibold text-ink">Top universities in {country.name}</h3>
+            <h3 className="mt-6 text-sm font-semibold text-ink">{t.dashboard.topIn(countryLabel)}</h3>
 
             <div className="mt-3 min-h-0 flex-1">
                 {universities.loading && (
                     <div className="flex items-center gap-2 py-6 text-sm text-slate-500">
-                        <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+                        <Loader2 className="h-4 w-4 animate-spin" /> {t.dashboard.loading}
                     </div>
                 )}
                 {universities.error && (
-                    <p className="py-6 text-sm text-slate-500">Couldn&apos;t load universities right now.</p>
+                    <p className="py-6 text-sm text-slate-500">{t.dashboard.loadError}</p>
                 )}
                 {!universities.loading && !universities.error && universities.items.length === 0 && (
-                    <p className="py-6 text-sm text-slate-500">No universities listed for this country yet.</p>
+                    <p className="py-6 text-sm text-slate-500">{t.dashboard.noneListed}</p>
                 )}
                 {universities.items.length > 0 && (
                     <ol className="space-y-1">
@@ -156,7 +161,7 @@ function CountryDetails({ country, universities, onClose }: CountryDetailsProps)
                 href="/universities"
                 className="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 pt-4 text-sm font-semibold text-brand hover:underline"
             >
-                Browse all universities
+                {t.dashboard.browseAll}
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
         </div>
@@ -171,6 +176,7 @@ interface CountryPanelProps {
 
 // Desktop/tablet: a card next to (lg) or under (md) the map.
 export function CountryPanel({ country, universities, onClose }: CountryPanelProps) {
+    const { t } = useI18n();
     return (
         <div className="hidden h-full rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_4px_12px_rgba(10,26,63,0.04)] md:block">
             {country ? (
@@ -180,9 +186,9 @@ export function CountryPanel({ country, universities, onClose }: CountryPanelPro
                     <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-brand">
                         <MousePointerClick aria-hidden="true" className="h-6 w-6" />
                     </span>
-                    <p className="mt-4 font-display text-base font-semibold text-ink">Pick a country</p>
+                    <p className="mt-4 font-display text-base font-semibold text-ink">{t.dashboard.pickCountry}</p>
                     <p className="mt-1 max-w-[220px] text-sm leading-relaxed text-slate-500">
-                        Click a highlighted country on the map to see its universities and scholarships.
+                        {t.dashboard.pickCountryHint}
                     </p>
                 </div>
             )}
@@ -195,6 +201,7 @@ export function CountryPanel({ country, universities, onClose }: CountryPanelPro
 // and PageTransition's transform would otherwise make `position: fixed`
 // relative to the page instead of the viewport.
 export function CountrySheet({ country, universities, onClose }: CountryPanelProps) {
+    const { t, locale } = useI18n();
     if (typeof document === "undefined") return null;
 
     return createPortal(
@@ -203,7 +210,7 @@ export function CountrySheet({ country, universities, onClose }: CountryPanelPro
                 <motion.div
                     key="country-sheet"
                     role="dialog"
-                    aria-label={`${country.name} details`}
+                    aria-label={t.dashboard.countryDetails(localizeCountry(country.name, locale))}
                     initial={{ y: "100%" }}
                     animate={{ y: 0 }}
                     exit={{ y: "100%" }}

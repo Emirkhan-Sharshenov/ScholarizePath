@@ -3,6 +3,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Heart, MapPin, Shuffle, Loader2, Sparkles } from "lucide-react";
+import { useI18n } from "@/i18n/I18nProvider";
+import { localizeCountry, localizeLocation } from "@/i18n/countries";
 
 interface LocationObject {
     country?: string;
@@ -72,6 +74,7 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
     const [togglingId, setTogglingId] = useState<string | null>(null);
     const [personalized, setPersonalized] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
+    const { t, locale } = useI18n();
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -156,19 +159,19 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
     const formatLocation = (uni: University): { text: string; country: string } => {
         if (typeof uni.location === "string") {
             const parts = uni.location.split(",").map((p) => p.trim());
-            return { text: uni.location, country: parts[parts.length - 1] || "" };
+            return { text: localizeLocation(uni.location, locale), country: parts[parts.length - 1] || "" };
         }
-        if (typeof uni.country === "string") return { text: uni.country, country: uni.country };
+        if (typeof uni.country === "string") return { text: localizeCountry(uni.country, locale), country: uni.country };
 
         const locObj = (typeof uni.location === "object" ? uni.location : uni.country) as LocationObject;
         if (locObj && typeof locObj === "object") {
             const parts = [locObj.city, locObj.country].filter(
                 (p) => typeof p === "string" && p.trim() !== ""
             );
-            if (parts.length > 0) return { text: parts.join(", "), country: locObj.country || "" };
+            if (parts.length > 0) return { text: localizeLocation(parts.join(", "), locale), country: locObj.country || "" };
         }
 
-        return { text: "Worldwide", country: "" };
+        return { text: t.dashboard.worldwide, country: "" };
     };
 
     // Real world ranking only — the API returns `ranking` ({ global, qs } or a
@@ -177,12 +180,12 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
     const formatRank = (uni: University): string | null => {
         const fromRanking =
             typeof uni.ranking === "number" ? uni.ranking : uni.ranking?.global || uni.ranking?.qs;
-        if (fromRanking && fromRanking > 0) return `#${fromRanking} World`;
+        if (fromRanking && fromRanking > 0) return t.dashboard.worldRank(fromRanking);
 
-        if (typeof uni.rank === "string" || typeof uni.rank === "number") return `#${uni.rank} World`;
+        if (typeof uni.rank === "string" || typeof uni.rank === "number") return t.dashboard.worldRank(uni.rank);
         if (typeof uni.rank === "object" && uni.rank !== null) {
             const val = uni.rank.world || uni.rank.rank;
-            if (val) return `#${val} World`;
+            if (val) return t.dashboard.worldRank(val);
         }
         return null;
     };
@@ -237,12 +240,10 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                 <div>
                     <h2 id="suggested-universities-heading" className="flex items-center gap-2 font-display text-xl font-bold tracking-tight text-ink md:text-2xl">
                         <Sparkles aria-hidden="true" className="h-5 w-5 text-amber-500" />
-                        Suggested Universities {countryName ? `in ${countryName}` : ""}
+                        {countryName ? t.dashboard.suggestedIn(localizeCountry(countryName, locale)) : t.dashboard.suggested}
                     </h2>
                     <p className="mt-1 text-sm text-slate-500">
-                        {personalized
-                            ? "Picked based on your profile preferences"
-                            : "A fresh mix from around the world — reshuffle for more"}
+                        {personalized ? t.dashboard.personalized : t.dashboard.freshMix}
                     </p>
                 </div>
                 {!countryName && (
@@ -253,7 +254,7 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                         className="flex h-10 items-center gap-2 rounded-[10px] border border-slate-200 bg-white px-4 text-sm font-semibold text-ink shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-brand disabled:opacity-50"
                     >
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shuffle className="h-4 w-4" />}
-                        Shuffle
+                        {t.dashboard.shuffle}
                     </button>
                 )}
             </div>
@@ -268,12 +269,12 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
 
             {error && !loading && universities.length === 0 && (
                 <p className="py-4 text-sm text-red-500">
-                    Couldn&apos;t find any university
+                    {t.dashboard.notFoundError}
                 </p>
             )}
 
             {!loading && !error && universities.length === 0 && (
-                <p className="py-4 text-sm text-slate-500">Universities not found</p>
+                <p className="py-4 text-sm text-slate-500">{t.dashboard.notFound}</p>
             )}
 
             {!loading && universities.length > 0 && (
@@ -306,7 +307,7 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                                             <button
                                                 type="button"
                                                 onClick={() => handleToggleFavorite(uniId)}
-                                                aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                                                aria-label={isFavorite ? t.dashboard.removeFavorite : t.dashboard.addFavorite}
                                                 aria-pressed={isFavorite}
                                                 className="flex h-8 w-8 items-center justify-center rounded-full text-slate-300 transition-colors hover:bg-rose-50 hover:text-rose-500"
                                             >
@@ -332,13 +333,13 @@ export default function TopUniversitiesCard({ countryName }: TopUniversitiesCard
                                 <div className="mt-5 flex flex-1 items-end justify-end">
                                     <div className="flex w-full items-center justify-end border-t border-slate-100 pt-3">
                                         {isFallback ? (
-                                            <span className="text-sm font-medium text-slate-300">Unavailable</span>
+                                            <span className="text-sm font-medium text-slate-300">{t.dashboard.unavailable}</span>
                                         ) : (
                                             <Link
                                                 href={`/universities/${uniId}`}
                                                 className="flex items-center gap-1 text-sm font-semibold text-brand transition-colors hover:text-[#004a9f]"
                                             >
-                                                View details
+                                                {t.dashboard.viewDetails}
                                                 <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                                             </Link>
                                         )}

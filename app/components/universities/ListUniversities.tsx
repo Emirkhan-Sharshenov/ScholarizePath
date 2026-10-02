@@ -18,6 +18,11 @@ import {
 import { flagFor } from '../profile/countryList';
 import { monogram } from '../common/detailUi';
 import { formatCheckedAt, getVerification } from '@/lib/verification';
+import { useI18n } from '@/i18n/I18nProvider';
+import { localizeCountry } from '@/i18n/countries';
+import { formatNumber, intlLocale } from '@/i18n/format';
+import type { Messages } from '@/i18n/messages';
+import type { Locale } from '@/i18n/config';
 
 interface UniversitiesListUIProps {
     filters: FilterState;
@@ -36,12 +41,7 @@ interface UniversityRow {
     verification?: unknown;
 }
 
-const SORT_OPTIONS = [
-    ['Ranking: High to Low', 'Ranking: best first'],
-    ['Ranking: Low to High', 'Ranking: lowest first'],
-    ['Tuition: Low to High', 'Tuition: low to high'],
-    ['Tuition: High to Low', 'Tuition: high to low'],
-] as const;
+const SORT_OPTIONS = ['Ranking: High to Low', 'Ranking: Low to High', 'Tuition: Low to High', 'Tuition: High to Low'] as const;
 
 const ITEMS_PER_PAGE = 5;
 
@@ -51,21 +51,22 @@ function getLocation(uni: UniversityRow): { city: string; country: string } {
 }
 
 // World rank first; a national rank is labelled as such rather than passed off as global.
-function getRank(uni: UniversityRow): { label: string; value: string } | null {
-    if (typeof uni.ranking === 'number' || (typeof uni.ranking === 'string' && uni.ranking !== 'N/A')) return { label: 'World rank', value: `#${uni.ranking}` };
+function getRank(uni: UniversityRow, u: Messages['universities']): { label: string; value: string } | null {
+    if (typeof uni.ranking === 'number' || (typeof uni.ranking === 'string' && uni.ranking !== 'N/A')) return { label: u.worldRank, value: `#${uni.ranking}` };
     const r = typeof uni.ranking === 'object' && uni.ranking ? uni.ranking : undefined;
     const world = r?.global ?? r?.qs ?? r?.world;
-    if (world && world !== 'N/A') return { label: 'World rank', value: `#${world}` };
-    if (r?.national) return { label: 'National rank', value: `#${r.national}` };
+    if (world && world !== 'N/A') return { label: u.worldRank, value: `#${world}` };
+    if (r?.national) return { label: u.nationalRank, value: `#${r.national}` };
     return null;
 }
 
-function getTuition(uni: UniversityRow): string | null {
-    if (typeof uni.tuition === 'number') return uni.tuition === 0 ? 'Free' : `$${uni.tuition.toLocaleString('en-US')}/yr`;
+function getTuition(uni: UniversityRow, u: Messages['universities'], locale: Locale): string | null {
+    const perYear = (v: number) => u.perYear(`$${formatNumber(locale, v)}`);
+    if (typeof uni.tuition === 'number') return uni.tuition === 0 ? u.free : perYear(uni.tuition);
     if (typeof uni.tuition === 'string') return uni.tuition;
     const val = uni.tuition?.bachelor ?? uni.tuition?.master ?? uni.tuition?.phd;
-    if (val === 0) return 'Free';
-    return val != null ? `$${val.toLocaleString('en-US')}/yr` : null;
+    if (val === 0) return u.free;
+    return val != null ? perYear(val) : null;
 }
 
 function UniversityCard({ uni, favorite, onToggleFavorite, favoritesReady }: {
@@ -74,9 +75,11 @@ function UniversityCard({ uni, favorite, onToggleFavorite, favoritesReady }: {
     onToggleFavorite: () => void;
     favoritesReady: boolean;
 }) {
+    const { t, locale } = useI18n();
+    const u = t.universities;
     const { city, country } = getLocation(uni);
-    const rank = getRank(uni);
-    const tuition = getTuition(uni);
+    const rank = getRank(uni, u);
+    const tuition = getTuition(uni, u, locale);
     const verification = getVerification(uni);
     const programs = (uni.programs ?? []).slice(0, 3);
 
@@ -98,11 +101,11 @@ function UniversityCard({ uni, favorite, onToggleFavorite, favoritesReady }: {
                             <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                                 {verification.isVerified && (
                                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
-                                        <BadgeCheck aria-hidden="true" className="h-3.5 w-3.5" /> Verified · {formatCheckedAt(verification.checkedAt)}
+                                        <BadgeCheck aria-hidden="true" className="h-3.5 w-3.5" /> {u.verifiedOn(formatCheckedAt(verification.checkedAt, intlLocale(locale)))}
                                     </span>
                                 )}
                                 {uni.institutionType && uni.institutionType !== 'University' && (
-                                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">{uni.institutionType}</span>
+                                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">{u.institutionTypes[uni.institutionType] ?? uni.institutionType}</span>
                                 )}
                             </div>
                         </div>
@@ -116,16 +119,16 @@ function UniversityCard({ uni, favorite, onToggleFavorite, favoritesReady }: {
                         {(city || country) && (
                             <span className="inline-flex items-center gap-1.5 text-slate-600">
                                 <MapPin aria-hidden="true" className="h-4 w-4 text-slate-400" />
-                                {[city, country].filter(Boolean).join(', ')} {flagFor(country)}
+                                {[city, localizeCountry(country, locale)].filter(Boolean).join(', ')} {flagFor(country)}
                             </span>
                         )}
                         <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${rank ? 'bg-blue-50 text-brand' : 'bg-slate-100 text-slate-500'}`}>
                             <Trophy aria-hidden="true" className="h-3.5 w-3.5" />
-                            {rank ? `${rank.label} ${rank.value}` : 'Not ranked'}
+                            {rank ? `${rank.label} ${rank.value}` : u.notRanked}
                         </span>
                         <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${tuition ? 'bg-slate-100 text-ink' : 'bg-slate-100 text-slate-500'}`}>
                             <Wallet aria-hidden="true" className="h-3.5 w-3.5" />
-                            {tuition ? `Tuition ${tuition}` : 'Tuition: No data'}
+                            {tuition ? u.tuitionValue(tuition) : u.tuitionNoData}
                         </span>
                     </div>
 
@@ -140,7 +143,7 @@ function UniversityCard({ uni, favorite, onToggleFavorite, favoritesReady }: {
                             ))}
                         </div>
                         <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand">
-                            View details <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                            {u.viewDetails} <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                         </span>
                     </div>
                 </div>
@@ -158,6 +161,8 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
     const [totalPages, setTotalPages] = useState(1);
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
     const favorites = useFavoriteIds('university');
+    const { t, locale } = useI18n();
+    const u = t.universities;
 
     const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
 
@@ -233,11 +238,11 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
     const update = (patch: Partial<FilterState>) => setFilters((prev) => ({ ...prev, ...patch }));
 
     const active: ActiveFilter[] = [];
-    if (filters.country !== initialFilters.country) active.push({ key: 'country', label: `${flagFor(filters.country)} ${filters.country}`, onRemove: () => update({ country: initialFilters.country }) });
-    if (filters.minRanking || filters.maxRanking) active.push({ key: 'rank', label: `Rank ${filters.minRanking || '1'}–${filters.maxRanking || '…'}`, onRemove: () => update({ minRanking: '', maxRanking: '' }) });
-    if (filters.minTuition || filters.maxTuition) active.push({ key: 'tuition', label: `Tuition $${filters.minTuition || '0'}–${filters.maxTuition ? `$${filters.maxTuition}` : '…'}`, onRemove: () => update({ minTuition: '', maxTuition: '' }) });
+    if (filters.country !== initialFilters.country) active.push({ key: 'country', label: `${flagFor(filters.country)} ${localizeCountry(filters.country, locale)}`, onRemove: () => update({ country: initialFilters.country }) });
+    if (filters.minRanking || filters.maxRanking) active.push({ key: 'rank', label: u.rankChip(filters.minRanking || '1', filters.maxRanking || '…'), onRemove: () => update({ minRanking: '', maxRanking: '' }) });
+    if (filters.minTuition || filters.maxTuition) active.push({ key: 'tuition', label: u.tuitionChip(`$${filters.minTuition || '0'}`, filters.maxTuition ? `$${filters.maxTuition}` : '…'), onRemove: () => update({ minTuition: '', maxTuition: '' }) });
     if (filters.programs !== initialFilters.programs) active.push({ key: 'programs', label: filters.programs, onRemove: () => update({ programs: initialFilters.programs }) });
-    if (filters.degreeLevel !== initialFilters.degreeLevel) active.push({ key: 'degree', label: filters.degreeLevel, onRemove: () => update({ degreeLevel: initialFilters.degreeLevel }) });
+    if (filters.degreeLevel !== initialFilters.degreeLevel) active.push({ key: 'degree', label: t.profile.programLevels[filters.degreeLevel] ?? filters.degreeLevel, onRemove: () => update({ degreeLevel: initialFilters.degreeLevel }) });
     const clearAll = () => setFilters(initialFilters);
 
     const showingStart = totalCount === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
@@ -254,8 +259,8 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                             type="search"
                             value={filters.search}
                             onChange={(e) => update({ search: e.target.value })}
-                            placeholder="Search by name, country, city…"
-                            aria-label="Search universities"
+                            placeholder={u.searchPlaceholder}
+                            aria-label={u.searchLabel}
                             className="h-11 w-full rounded-[10px] border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-ink placeholder:text-slate-400 focus:border-brand focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand/10"
                         />
                     </div>
@@ -264,7 +269,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                         onClick={() => setIsMobileFilterOpen(true)}
                         className="relative inline-flex h-11 shrink-0 items-center gap-2 rounded-[10px] bg-brand px-4 text-sm font-semibold text-white lg:hidden"
                     >
-                        <SlidersHorizontal aria-hidden="true" className="h-4 w-4" /> Filters
+                        <SlidersHorizontal aria-hidden="true" className="h-4 w-4" /> {u.filters}
                         {active.length > 0 && (
                             <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400 px-1 text-[11px] font-bold text-ink">{active.length}</span>
                         )}
@@ -273,15 +278,13 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
 
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                     <p className="text-sm text-slate-500">
-                        {loading ? 'Loading…' : totalCount === 0 ? 'No universities found' : (
-                            <>Showing <span className="font-semibold text-ink">{showingStart}–{showingEnd}</span> of <span className="font-semibold text-ink">{totalCount.toLocaleString('en-US')}</span> universities</>
-                        )}
+                        {loading ? u.loading : totalCount === 0 ? u.noneFound : u.showing(showingStart, showingEnd, formatNumber(locale, totalCount))}
                     </p>
                     <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-500">Sort by</span>
-                        <div className="w-52">
-                            <SelectField name="sortBy" value={sortBy} onChange={(e) => setSortBy(e.target.value)} ariaLabel="Sort universities">
-                                {SORT_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                        <span className="text-sm text-slate-500">{u.sortBy}</span>
+                        <div className="w-56">
+                            <SelectField name="sortBy" value={sortBy} onChange={(e) => setSortBy(e.target.value)} ariaLabel={u.sortLabel}>
+                                {SORT_OPTIONS.map((value) => <option key={value} value={value}>{u.sort[value]}</option>)}
                             </SelectField>
                         </div>
                     </div>
@@ -294,7 +297,7 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                 )}
             </div>
 
-            <MobileFilterDrawer open={isMobileFilterOpen} onClose={() => setIsMobileFilterOpen(false)} title="Filter universities">
+            <MobileFilterDrawer open={isMobileFilterOpen} onClose={() => setIsMobileFilterOpen(false)} title={u.filterTitle}>
                 <FilterUniversities
                     filters={filters}
                     setFilters={setFilters}
@@ -309,8 +312,8 @@ export default function ListUniversities({ filters, setFilters }: UniversitiesLi
                     Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)
                 ) : universities.length === 0 ? (
                     <EmptyState
-                        title="No universities match these filters"
-                        text="Try widening the ranking or tuition range, or choose another country."
+                        title={u.emptyTitle}
+                        text={u.emptyText}
                         onClear={active.length || filters.search ? clearAll : undefined}
                     />
                 ) : (

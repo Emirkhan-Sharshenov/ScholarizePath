@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { Check, Link2 } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nProvider';
 
 /** Copies a URL (the site root by default); falls back to the native share sheet where copying isn't available. */
 export default function CopyLinkButton({ url, className = '' }: { url?: string; className?: string }) {
     const [copied, setCopied] = useState(false);
+    const { t } = useI18n();
 
     const copy = async () => {
         const link = url ?? window.location.origin;
@@ -21,7 +23,7 @@ export default function CopyLinkButton({ url, className = '' }: { url?: string; 
     return (
         <button type="button" onClick={copy} className={className} aria-live="polite">
             {copied ? <Check aria-hidden="true" className="h-4 w-4 text-emerald-600" /> : <Link2 aria-hidden="true" className="h-4 w-4" />}
-            {copied ? 'Link copied' : 'Copy link'}
+            {copied ? t.common.linkCopied : t.common.copyLink}
         </button>
     );
 }

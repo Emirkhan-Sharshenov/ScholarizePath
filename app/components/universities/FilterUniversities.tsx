@@ -4,6 +4,9 @@ import React from 'react';
 import { SlidersHorizontal } from 'lucide-react';
 import { ChipGroup, FilterSection, SelectField, inputClass } from '@/components/common/listUi';
 import { flagFor } from '@/components/profile/countryList';
+import { useI18n } from '@/i18n/I18nProvider';
+import { localizeCountry } from '@/i18n/countries';
+import { intlLocale } from '@/i18n/format';
 
 export interface FilterState {
     search: string;
@@ -106,6 +109,11 @@ export default function FilterUniversities({
     onReset,
     isMobileModal = false,
 }: FilterUniversitiesProps) {
+    const { t, locale } = useI18n();
+    const u = t.universities;
+    const countries = COUNTRIES.map((c) => ({ value: c, label: localizeCountry(c, locale) })).sort((a, b) =>
+        a.label.localeCompare(b.label, intlLocale(locale)),
+    );
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
@@ -123,43 +131,43 @@ export default function FilterUniversities({
             {!isMobileModal && (
                 <div className="mb-5 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-ink">
-                        <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-brand" /> Filters
+                        <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-brand" /> {u.filters}
                     </h2>
                     <button type="button" onClick={handleReset} className="text-sm font-semibold text-brand hover:underline">
-                        Clear
+                        {u.clear}
                     </button>
                 </div>
             )}
 
             <div className="space-y-5">
-                <FilterSection label="Country">
-                    <SelectField name="country" value={filters.country} onChange={handleChange} ariaLabel="Country">
-                        <option value="All Countries">All countries</option>
-                        {COUNTRIES.map((c) => (
-                            <option key={c} value={c}>
-                                {flagFor(c)} {c}
+                <FilterSection label={u.country}>
+                    <SelectField name="country" value={filters.country} onChange={handleChange} ariaLabel={u.country}>
+                        <option value="All Countries">{u.allCountries}</option>
+                        {countries.map((c) => (
+                            <option key={c.value} value={c.value}>
+                                {flagFor(c.value)} {c.label}
                             </option>
                         ))}
                     </SelectField>
                 </FilterSection>
 
-                <FilterSection label="World ranking" hint="e.g. 1–100">
+                <FilterSection label={u.worldRanking} hint={u.rankingHint}>
                     <div className="grid grid-cols-2 gap-2">
-                        <input type="number" name="minRanking" aria-label="Minimum ranking" value={filters.minRanking} onChange={handleChange} placeholder="Min" className={inputClass} />
-                        <input type="number" name="maxRanking" aria-label="Maximum ranking" value={filters.maxRanking} onChange={handleChange} placeholder="Max" className={inputClass} />
+                        <input type="number" name="minRanking" aria-label={u.minRanking} value={filters.minRanking} onChange={handleChange} placeholder={u.min} className={inputClass} />
+                        <input type="number" name="maxRanking" aria-label={u.maxRanking} value={filters.maxRanking} onChange={handleChange} placeholder={u.max} className={inputClass} />
                     </div>
                 </FilterSection>
 
-                <FilterSection label="Tuition per year (USD)">
+                <FilterSection label={u.tuitionPerYear}>
                     <div className="grid grid-cols-2 gap-2">
-                        <input type="number" name="minTuition" aria-label="Minimum tuition" value={filters.minTuition} onChange={handleChange} placeholder="Min $" className={inputClass} />
-                        <input type="number" name="maxTuition" aria-label="Maximum tuition" value={filters.maxTuition} onChange={handleChange} placeholder="Max $" className={inputClass} />
+                        <input type="number" name="minTuition" aria-label={u.minTuition} value={filters.minTuition} onChange={handleChange} placeholder={u.minDollar} className={inputClass} />
+                        <input type="number" name="maxTuition" aria-label={u.maxTuition} value={filters.maxTuition} onChange={handleChange} placeholder={u.maxDollar} className={inputClass} />
                     </div>
                 </FilterSection>
 
-                <FilterSection label="Program">
-                    <SelectField name="programs" value={filters.programs} onChange={handleChange} ariaLabel="Program">
-                        <option value="All Programs">All programs</option>
+                <FilterSection label={u.program}>
+                    <SelectField name="programs" value={filters.programs} onChange={handleChange} ariaLabel={u.program}>
+                        <option value="All Programs">{u.allPrograms}</option>
                         {PROGRAMS.map((prog) => (
                             <option key={prog} value={prog}>
                                 {prog}
@@ -168,10 +176,11 @@ export default function FilterUniversities({
                     </SelectField>
                 </FilterSection>
 
-                <FilterSection label="Degree level">
+                <FilterSection label={u.degreeLevel}>
                     <ChipGroup
-                        ariaLabel="Degree level"
+                        ariaLabel={u.degreeLevel}
                         options={['Bachelor', 'Master', 'PhD']}
+                        labels={t.profile.programLevels}
                         value={filters.degreeLevel}
                         emptyValue="All Degree Levels"
                         onChange={(v) => setFilters((prev) => ({ ...prev, degreeLevel: v }))}
@@ -181,10 +190,10 @@ export default function FilterUniversities({
                 {isMobileModal && (
                     <div className="flex items-center gap-3 pt-2">
                         <button type="button" onClick={handleReset} className="h-12 rounded-[10px] px-5 text-sm font-semibold text-slate-600 hover:bg-slate-100">
-                            Reset
+                            {u.reset}
                         </button>
                         <button type="button" onClick={onApply} className="h-12 flex-1 rounded-[10px] bg-brand text-sm font-semibold text-white shadow-sm hover:bg-[#004a9f]">
-                            Show results
+                            {u.showResults}
                         </button>
                     </div>
                 )}

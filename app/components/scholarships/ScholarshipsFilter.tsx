@@ -4,6 +4,9 @@ import React from 'react';
 import { SlidersHorizontal } from 'lucide-react';
 import { ChipGroup, FilterSection, SelectField, inputClass } from '@/components/common/listUi';
 import { flagFor } from '@/components/profile/countryList';
+import { useI18n } from '@/i18n/I18nProvider';
+import { localizeCountry } from '@/i18n/countries';
+import { intlLocale } from '@/i18n/format';
 
 export interface FilterState {
   search: string;
@@ -86,6 +89,11 @@ export default function ScholarshipsFilter({
   onReset,
   isMobileModal = false,
 }: ScholarshipsFilterProps) {
+  const { t, locale } = useI18n();
+  const m = t.scholarships;
+  const countries = COUNTRIES.map((c) => ({ value: c, label: localizeCountry(c, locale) })).sort((a, b) =>
+    a.label.localeCompare(b.label, intlLocale(locale)),
+  );
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -103,51 +111,52 @@ export default function ScholarshipsFilter({
       {!isMobileModal && (
         <div className="mb-5 flex items-center justify-between">
           <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-ink">
-            <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-brand" /> Filters
+            <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-brand" /> {m.filters}
           </h2>
           <button type="button" onClick={handleReset} className="text-sm font-semibold text-brand hover:underline">
-            Clear
+            {m.clear}
           </button>
         </div>
       )}
 
       <div className="space-y-5">
-        <FilterSection label="Country">
-          <SelectField name="country" value={filters.country} onChange={handleChange} ariaLabel="Country">
-            <option value="All Countries">All countries</option>
-            {COUNTRIES.map((c) => (
-              <option key={c} value={c}>
-                {flagFor(c)} {c}
+        <FilterSection label={m.country}>
+          <SelectField name="country" value={filters.country} onChange={handleChange} ariaLabel={m.country}>
+            <option value="All Countries">{m.allCountries}</option>
+            {countries.map((c) => (
+              <option key={c.value} value={c.value}>
+                {flagFor(c.value)} {c.label}
               </option>
             ))}
           </SelectField>
         </FilterSection>
 
-        <FilterSection label="Study level">
+        <FilterSection label={m.studyLevel}>
           <ChipGroup
-            ariaLabel="Study level"
+            ariaLabel={m.studyLevel}
             options={STUDY_LEVELS}
+            labels={m.studyLevels}
             value={filters.studyLevel}
             emptyValue="All Study Levels"
             onChange={(v) => setFilters((prev) => ({ ...prev, studyLevel: v }))}
           />
         </FilterSection>
 
-        <FilterSection label="Minimum amount" hint="in the scholarship's currency">
-          <input type="number" name="minAmount" aria-label="Minimum amount" value={filters.minAmount} onChange={handleChange} placeholder="e.g. 5000" className={inputClass} />
+        <FilterSection label={m.minAmount} hint={m.minAmountHint}>
+          <input type="number" name="minAmount" aria-label={m.minAmount} value={filters.minAmount} onChange={handleChange} placeholder={m.minAmountPlaceholder} className={inputClass} />
         </FilterSection>
 
-        <FilterSection label="Deadline before">
-          <input type="date" name="maxDeadline" aria-label="Deadline before" value={filters.maxDeadline} onChange={handleChange} className={`${inputClass} cursor-pointer`} />
+        <FilterSection label={m.deadlineBefore}>
+          <input type="date" name="maxDeadline" aria-label={m.deadlineBefore} value={filters.maxDeadline} onChange={handleChange} className={`${inputClass} cursor-pointer`} />
         </FilterSection>
 
         {isMobileModal && (
           <div className="flex items-center gap-3 pt-2">
             <button type="button" onClick={handleReset} className="h-12 rounded-[10px] px-5 text-sm font-semibold text-slate-600 hover:bg-slate-100">
-              Reset
+              {m.reset}
             </button>
             <button type="button" onClick={onApply} className="h-12 flex-1 rounded-[10px] bg-brand text-sm font-semibold text-white shadow-sm hover:bg-[#004a9f]">
-              Show results
+              {m.showResults}
             </button>
           </div>
         )}

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { REGIONS_DATA } from "./mapData";
+import { useI18n } from "@/i18n/I18nProvider";
 
 interface WorldMapFilterProps {
     selectedRegionId: string | null;
@@ -16,13 +17,14 @@ export default function WorldMapFilter({
     onSelectRegion,
     onHoverRegion,
 }: WorldMapFilterProps) {
+    const { t } = useI18n();
     const chipBase =
         "flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-3.5 text-sm font-medium transition-colors";
 
     return (
         <div
             role="group"
-            aria-label="Filter by region"
+            aria-label={t.dashboard.filterByRegion}
             className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
             <button
@@ -34,7 +36,7 @@ export default function WorldMapFilter({
                     : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-ink"
                     }`}
             >
-                All
+                {t.dashboard.all}
             </button>
 
             {REGIONS_DATA.map((region) => {
@@ -59,7 +61,7 @@ export default function WorldMapFilter({
                             aria-hidden="true"
                             className={`h-2 w-2 shrink-0 rounded-full ${isSelected ? "bg-white" : region.color}`}
                         />
-                        {region.label}
+                        {t.dashboard.regions[region.id] ?? region.label}
                     </button>
                 );
             })}

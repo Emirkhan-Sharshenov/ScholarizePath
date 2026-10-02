@@ -1,3 +1,5 @@
+import { getLocale } from "@/i18n/server";
+import type { Locale } from "@/i18n/config";
 import { NextRequest, NextResponse } from "next/server";
 
 import { groq, AI_MODEL } from "@/lib/groq";
@@ -46,7 +48,11 @@ async function withRetries<T>(fn: () => Promise<T>, retries = MAX_TRANSIENT_RETR
     throw lastErr;
 }
 
-function buildSystemPrompt(): string {
+function buildSystemPrompt(locale: Locale): string {
+    const language = locale === "ru"
+        ? `\n- Write "summary", every "label" and every "explanation" in Russian. Keep the JSON keys and the
+  "verdict"/"status" values in English exactly as specified.`
+        : "";
     return `You are an eligibility-assessment assistant for ScholarizePath, a scholarship discovery platform.
 
 You will be given a scholarship's eligibility requirements and a student's profile, both as JSON.
@@ -69,7 +75,7 @@ Rules:
   doesn't, "partial" if the student's profile is missing the relevant data or it's a genuinely close call.
 - Be specific in "explanation" (max ~20 words) — cite the actual numbers/values you compared, e.g.
   "Your GPA 3.4 meets the 3.0 minimum."
-- Never fabricate scholarship requirements or student data beyond what is given below.`;
+- Never fabricate scholarship requirements or student data beyond what is given below.${language}`;
 }
 
 function isValidExplanation(value: unknown): value is EligibilityExplanation {
@@ -174,6 +180,8 @@ export async function POST(req: NextRequest) {
             2
         );
 
+        const systemPrompt = buildSystemPrompt(await getLocale());
+
         let completion;
         try {
             completion = await withRetries(() =>
@@ -182,7 +190,7 @@ export async function POST(req: NextRequest) {
                     temperature: 0.3,
                     response_format: { type: "json_object" },
                     messages: [
-                        { role: "system", content: buildSystemPrompt() },
+                        { role: "system", content: systemPrompt },
                         { role: "user", content: userMessage },
                     ],
                 })

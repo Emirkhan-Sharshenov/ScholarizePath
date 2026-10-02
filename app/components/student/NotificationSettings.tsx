@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { BellRing } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nProvider';
 
 interface NotificationSettingsProps {
     deadlineReminders: boolean;
@@ -10,6 +11,7 @@ interface NotificationSettingsProps {
 export function NotificationSettings({ deadlineReminders }: NotificationSettingsProps) {
     const [enabled, setEnabled] = useState(deadlineReminders);
     const [saving, setSaving] = useState(false);
+    const { t } = useI18n();
 
     const handleToggle = async () => {
         const next = !enabled;
@@ -41,14 +43,14 @@ export function NotificationSettings({ deadlineReminders }: NotificationSettings
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-brand">
                     <BellRing aria-hidden="true" className="h-5 w-5" />
                 </span>
-                Notifications
+                {t.student.notifications}
             </h3>
 
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <p id="deadline-reminders-label" className="font-semibold text-ink">Deadline email reminders</p>
+                    <p id="deadline-reminders-label" className="font-semibold text-ink">{t.student.reminders}</p>
                     <p className="mt-1 text-sm leading-relaxed text-slate-500">
-                        Get an email 7 days and 1 day before deadlines of your favorited scholarships and universities.
+                        {t.student.remindersText}
                     </p>
                 </div>
                 <button

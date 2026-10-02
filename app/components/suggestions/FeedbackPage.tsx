@@ -2,36 +2,32 @@
 
 import { useState, type FormEvent } from 'react';
 import { AlertCircle, Bug, CheckCircle2, Lightbulb, Loader2, Send, type LucideIcon } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nProvider';
+import { apiMessage } from '@/i18n/format';
 
 type Kind = 'bug' | 'suggestion';
 
-interface FieldConfig { name: string; label: string; placeholder: string; max: number; multiline?: boolean; rows?: number }
+// Field names match the /api/feedback body; labels and placeholders come from
+// the `feedback.forms` messages.
+interface FieldConfig { name: string; max: number; multiline?: boolean; rows?: number }
 
-const FORMS: Record<Kind, { title: string; subtitle: string; icon: LucideIcon; tone: string; submit: string; sent: string; fields: FieldConfig[] }> = {
+const FORMS: Record<Kind, { icon: LucideIcon; tone: string; fields: FieldConfig[] }> = {
     bug: {
-        title: 'Report a bug',
-        subtitle: 'Errors, wrong data or broken links.',
         icon: Bug,
         tone: 'bg-rose-50 text-rose-600',
-        submit: 'Send bug report',
-        sent: 'Thanks! Your bug report was sent.',
         fields: [
-            { name: 'title', label: 'Title', placeholder: 'Briefly describe the issue', max: 120 },
-            { name: 'description', label: 'What went wrong?', placeholder: 'What happened, and what did you expect?', max: 1000, multiline: true, rows: 4 },
-            { name: 'steps', label: 'Steps to reproduce', placeholder: '1. Go to page…\n2. Click on…', max: 1000, multiline: true, rows: 4 },
+            { name: 'title', max: 120 },
+            { name: 'description', max: 1000, multiline: true, rows: 4 },
+            { name: 'steps', max: 1000, multiline: true, rows: 4 },
         ],
     },
     suggestion: {
-        title: 'Suggest a feature',
-        subtitle: 'Tools, data or improvements that would help you.',
         icon: Lightbulb,
         tone: 'bg-amber-50 text-amber-600',
-        submit: 'Send suggestion',
-        sent: 'Thanks! Your suggestion was sent.',
         fields: [
-            { name: 'title', label: 'Title', placeholder: 'Briefly describe your idea', max: 120 },
-            { name: 'suggestion', label: 'Your idea', placeholder: 'What would you like to see?', max: 1000, multiline: true, rows: 4 },
-            { name: 'benefit', label: 'Why would it help?', placeholder: 'Who would it help, and how?', max: 1000, multiline: true, rows: 4 },
+            { name: 'title', max: 120 },
+            { name: 'suggestion', max: 1000, multiline: true, rows: 4 },
+            { name: 'benefit', max: 1000, multiline: true, rows: 4 },
         ],
     },
 };
@@ -39,6 +35,9 @@ const FORMS: Record<Kind, { title: string; subtitle: string; icon: LucideIcon; t
 const inputBase = 'w-full rounded-xl border bg-white px-3.5 text-sm text-ink placeholder:text-slate-400 transition-colors focus:outline-none focus:ring-4';
 
 function FeedbackForm({ kind }: { kind: Kind }) {
+    const { t } = useI18n();
+    const m = t.feedback;
+    const copy = m.forms[kind];
     const config = FORMS[kind];
     const empty = Object.fromEntries(config.fields.map((f) => [f.name, ''])) as Record<string, string>;
     const [values, setValues] = useState(empty);
@@ -48,7 +47,7 @@ function FeedbackForm({ kind }: { kind: Kind }) {
 
     const submit = async (e: FormEvent) => {
         e.preventDefault();
-        const missing = Object.fromEntries(config.fields.filter((f) => !values[f.name].trim()).map((f) => [f.name, `Please fill in “${f.label}”`]));
+        const missing = Object.fromEntries(config.fields.filter((f) => !values[f.name].trim()).map((f) => [f.name, m.fillIn(copy.fields[f.name].label)]));
         setErrors(missing);
         if (Object.keys(missing).length) return;
 
@@ -61,11 +60,11 @@ function FeedbackForm({ kind }: { kind: Kind }) {
                 body: JSON.stringify({ type: kind, ...Object.fromEntries(Object.entries(values).map(([k, v]) => [k, v.trim()])) }),
             });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.message || "Couldn't send — please try again.");
+            if (!res.ok) throw new Error(apiMessage(t, data.message, m.sendFailed));
             setStatus('sent');
             setValues(empty);
         } catch (err) {
-            setServerError(err instanceof Error ? err.message : "Couldn't send — please try again.");
+            setServerError(err instanceof Error ? err.message : m.sendFailed);
             setStatus('error');
         }
     };
@@ -75,23 +74,24 @@ function FeedbackForm({ kind }: { kind: Kind }) {
             <div className="flex items-start gap-3">
                 <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${config.tone}`}><config.icon aria-hidden="true" className="h-5 w-5" /></span>
                 <div>
-                    <h2 className="font-display text-xl font-bold text-ink">{config.title}</h2>
-                    <p className="text-sm text-slate-500">{config.subtitle}</p>
+                    <h2 className="font-display text-xl font-bold text-ink">{copy.title}</h2>
+                    <p className="text-sm text-slate-500">{copy.subtitle}</p>
                 </div>
             </div>
 
             {status === 'sent' ? (
                 <div role="status" className="flex flex-1 flex-col items-center justify-center py-12 text-center">
                     <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600"><CheckCircle2 aria-hidden="true" className="h-7 w-7" /></span>
-                    <p className="mt-4 font-display text-lg font-bold text-ink">{config.sent}</p>
-                    <p className="mt-1 text-sm text-slate-500">We read every message.</p>
-                    <button type="button" onClick={() => setStatus('idle')} className="mt-4 text-sm font-semibold text-brand hover:underline">Send another</button>
+                    <p className="mt-4 font-display text-lg font-bold text-ink">{copy.sent}</p>
+                    <p className="mt-1 text-sm text-slate-500">{m.weRead}</p>
+                    <button type="button" onClick={() => setStatus('idle')} className="mt-4 text-sm font-semibold text-brand hover:underline">{m.sendAnother}</button>
                 </div>
             ) : (
                 <form onSubmit={submit} noValidate className="mt-6 flex flex-1 flex-col gap-5">
                     {config.fields.map((f) => {
                         const id = `${kind}-${f.name}`;
                         const error = errors[f.name];
+                        const { label, placeholder } = copy.fields[f.name];
                         const cls = `${inputBase} ${error ? 'border-rose-400 bg-rose-50/40 focus:border-rose-500 focus:ring-rose-500/10' : 'border-slate-200 focus:border-brand focus:ring-brand/10'}`;
                         const onChange = (v: string) => {
                             setValues((prev) => ({ ...prev, [f.name]: v }));
@@ -100,13 +100,13 @@ function FeedbackForm({ kind }: { kind: Kind }) {
                         return (
                             <div key={f.name}>
                                 <div className="mb-1.5 flex items-baseline justify-between gap-3">
-                                    <label htmlFor={id} className="text-sm font-semibold text-ink">{f.label}</label>
+                                    <label htmlFor={id} className="text-sm font-semibold text-ink">{label}</label>
                                     {f.multiline && <span className="text-xs text-slate-400">{values[f.name].length}/{f.max}</span>}
                                 </div>
                                 {f.multiline ? (
-                                    <textarea id={id} rows={f.rows} maxLength={f.max} value={values[f.name]} onChange={(e) => onChange(e.target.value)} placeholder={f.placeholder} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} className={`${cls} resize-y py-3 leading-relaxed`} />
+                                    <textarea id={id} rows={f.rows} maxLength={f.max} value={values[f.name]} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} className={`${cls} resize-y py-3 leading-relaxed`} />
                                 ) : (
-                                    <input id={id} type="text" maxLength={f.max} value={values[f.name]} onChange={(e) => onChange(e.target.value)} placeholder={f.placeholder} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} className={`${cls} h-12`} />
+                                    <input id={id} type="text" maxLength={f.max} value={values[f.name]} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} className={`${cls} h-12`} />
                                 )}
                                 {error && <p id={`${id}-error`} className="mt-1.5 flex items-center gap-1 text-xs font-medium text-rose-600"><AlertCircle aria-hidden="true" className="h-3.5 w-3.5" /> {error}</p>}
                             </div>
@@ -125,7 +125,7 @@ function FeedbackForm({ kind }: { kind: Kind }) {
                         className="mt-auto inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand text-sm font-semibold text-white shadow-sm transition hover:bg-[#004a9f] disabled:opacity-70"
                     >
                         {status === 'sending' ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Send aria-hidden="true" className="h-4 w-4" />}
-                        {status === 'sending' ? 'Sending…' : config.submit}
+                        {status === 'sending' ? m.sending : copy.submit}
                     </button>
                 </form>
             )}
@@ -135,15 +135,17 @@ function FeedbackForm({ kind }: { kind: Kind }) {
 
 export default function FeedbackPage() {
     const [mobileKind, setMobileKind] = useState<Kind>('bug');
+    const { t } = useI18n();
+    const m = t.feedback;
     return (
         <div className="font-body">
             <div className="mb-5 md:mb-6">
-                <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">Feedback</h1>
-                <p className="mt-1 text-sm text-slate-500">Found a bug or have an idea? We read every message.</p>
+                <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">{m.title}</h1>
+                <p className="mt-1 text-sm text-slate-500">{m.lead}</p>
             </div>
 
             {/* Phones: one form at a time */}
-            <div role="tablist" aria-label="Feedback type" className="mb-4 grid grid-cols-2 gap-1 rounded-2xl bg-slate-200/60 p-1 md:hidden">
+            <div role="tablist" aria-label={m.type} className="mb-4 grid grid-cols-2 gap-1 rounded-2xl bg-slate-200/60 p-1 md:hidden">
                 {(['bug', 'suggestion'] as Kind[]).map((k) => (
                     <button
                         key={k}
@@ -153,7 +155,7 @@ export default function FeedbackPage() {
                         onClick={() => setMobileKind(k)}
                         className={`h-10 rounded-xl text-sm font-semibold transition-colors ${mobileKind === k ? 'bg-white text-ink shadow-sm' : 'text-slate-500'}`}
                     >
-                        {k === 'bug' ? 'Bug report' : 'Suggestion'}
+                        {k === 'bug' ? m.bugTab : m.suggestionTab}
                     </button>
                 ))}
             </div>

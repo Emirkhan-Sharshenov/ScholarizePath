@@ -11,6 +11,7 @@ import {
     saveConsent,
     subscribeConsent,
 } from '@/lib/consent';
+import { useI18n } from '@/i18n/I18nProvider';
 
 // 'pending' on the server and during hydration, so the banner never
 // flashes for visitors who already chose.
@@ -19,6 +20,7 @@ const getServerSnapshot = () => 'pending' as const;
 export default function CookieBanner() {
     const choice = useSyncExternalStore(subscribeConsent, readConsent, getServerSnapshot);
     const [reopened, setReopened] = useState(false);
+    const { t } = useI18n();
 
     useEffect(() => onOpenCookieSettings(() => setReopened(true)), []);
 
@@ -49,14 +51,12 @@ export default function CookieBanner() {
                             </span>
                             <div>
                                 <h2 id="cookie-banner-title" className="font-display text-base font-semibold text-ink">
-                                    Cookies &amp; analytics
+                                    {t.site.consent.title}
                                 </h2>
                                 <p id="cookie-banner-text" className="mt-1 text-sm leading-relaxed text-slate-600">
-                                    We use Google Analytics cookies to learn which pages help students
-                                    most. No ads, and we never sell your data. You can change this
-                                    anytime under &ldquo;Cookie settings&rdquo; in the footer.{' '}
+                                    {t.site.consent.text}{' '}
                                     <Link href="/privacy" className="font-medium text-brand underline-offset-2 hover:underline">
-                                        Privacy Policy
+                                        {t.site.consent.privacy}
                                     </Link>
                                 </p>
                             </div>
@@ -67,14 +67,14 @@ export default function CookieBanner() {
                                 onClick={() => choose('denied')}
                                 className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                             >
-                                Decline
+                                {t.site.consent.decline}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => choose('granted')}
                                 className="inline-flex h-11 items-center justify-center rounded-xl bg-brand px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#004a9f]"
                             >
-                                Accept
+                                {t.site.consent.accept}
                             </button>
                         </div>
                     </motion.div>

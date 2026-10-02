@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nProvider';
 
 interface MobileFilterDrawerProps {
     open: boolean;
@@ -18,6 +19,7 @@ interface MobileFilterDrawerProps {
 // scrollable ancestor instead of the viewport, landing below the results
 // list instead of at the bottom of the screen.
 export default function MobileFilterDrawer({ open, onClose, title, children }: MobileFilterDrawerProps) {
+    const { t } = useI18n();
     useEffect(() => {
         if (!open) return;
 
@@ -56,7 +58,7 @@ export default function MobileFilterDrawer({ open, onClose, title, children }: M
                         type="button"
                         onClick={onClose}
                         className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
-                        aria-label="Close filters"
+                        aria-label={t.common.close}
                     >
                         <X className="h-5 w-5" />
                     </button>

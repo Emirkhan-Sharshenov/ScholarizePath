@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { X, ArrowRight, type LucideIcon } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nProvider';
 
 export interface FeatureDetail {
     icon: LucideIcon | null;
@@ -24,6 +25,8 @@ interface FeatureDetailModalProps {
 }
 
 export default function FeatureDetailModal({ feature, onClose }: FeatureDetailModalProps) {
+    const { t } = useI18n();
+
     useEffect(() => {
         if (!feature) return;
 
@@ -77,7 +80,7 @@ export default function FeatureDetailModal({ feature, onClose }: FeatureDetailMo
                         <button
                             type="button"
                             onClick={onClose}
-                            aria-label="Close"
+                            aria-label={t.common.close}
                             className="absolute right-4 top-4 z-10 rounded-full p-2 text-slate-400 bg-white/80 hover:bg-slate-100 hover:text-slate-600 transition-colors"
                         >
                             <X className="w-5 h-5" />

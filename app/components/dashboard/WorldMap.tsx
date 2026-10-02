@@ -7,6 +7,8 @@ import { feature as topojsonFeature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
 import type { Feature, FeatureCollection, Geometry, Position } from "geojson";
 import { Building2, Award } from "lucide-react";
+import { useI18n } from "@/i18n/I18nProvider";
+import { localizeCountry } from "@/i18n/countries";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
     CHOROPLETH_STEPS,
@@ -142,6 +144,7 @@ export default function WorldMap({
     onSelectCountry,
     onTotalChange,
 }: WorldMapProps) {
+    const { t, locale } = useI18n();
     const [hoveredCountry, setHoveredCountry] = useState<MapCountry | null>(null);
     const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
     const [stats, setStats] = useState<MapStats | null>(null);
@@ -391,7 +394,7 @@ export default function WorldMap({
 
                 {statsError && (
                     <div className="absolute top-2 left-2 right-14 z-40 flex items-center justify-between gap-3 rounded-lg bg-white/95 px-3 py-2 text-xs text-slate-600 shadow sm:text-sm">
-                        <span>Couldn&apos;t load live university/scholarship counts.</span>
+                        <span>{t.dashboard.statsError}</span>
                         <button
                             type="button"
                             onClick={() => {
@@ -400,7 +403,7 @@ export default function WorldMap({
                             }}
                             className="shrink-0 font-semibold text-brand hover:underline cursor-pointer"
                         >
-                            Retry
+                            {t.dashboard.retry}
                         </button>
                     </div>
                 )}
@@ -408,18 +411,18 @@ export default function WorldMap({
                 {!selectedRegionId && (
                     <div className="pointer-events-none absolute bottom-2 left-2 z-30 flex items-center gap-1.5 rounded-full border border-slate-100 bg-white/90 px-2.5 py-1.5 shadow-sm backdrop-blur-sm sm:bottom-3 sm:left-3 sm:gap-2 sm:px-3 sm:py-2">
                         <span className="hidden text-[10px] font-semibold uppercase tracking-wide text-slate-400 sm:inline">
-                            Universities
+                            {t.dashboard.legendUniversities}
                         </span>
                         {CHOROPLETH_STEPS.map((step) => (
                             <span
                                 key={step.label}
-                                title={step.label}
+                                title={step.max === 0 ? t.dashboard.noData : step.label}
                                 className="h-2.5 w-4 rounded-sm sm:h-3 sm:w-5"
                                 style={{ backgroundColor: step.color }}
                             />
                         ))}
                         <span className="text-[10px] font-medium text-slate-400 sm:text-[11px]">
-                            More
+                            {t.dashboard.legendMore}
                         </span>
                     </div>
                 )}
@@ -438,19 +441,19 @@ export default function WorldMap({
                         className="max-w-[170px] rounded-2xl border border-slate-100 bg-white/95 p-3 text-[11px] shadow-xl backdrop-blur-sm pointer-coarse:hidden sm:max-w-none sm:text-xs"
                     >
                         <div className="mb-1.5 font-bold text-slate-900">
-                            {hoveredCountry.name}
+                            {localizeCountry(hoveredCountry.name, locale)}
                         </div>
                         <div className="space-y-1 text-slate-600">
                             <div className="flex items-center gap-1.5">
                                 <Building2 className="h-3.5 w-3.5 shrink-0 text-brand" />
                                 <span>
-                                    Universities: <span className="font-semibold text-slate-800">{hoveredCountry.unis}</span>
+                                    {t.dashboard.universitiesCount}: <span className="font-semibold text-slate-800">{hoveredCountry.unis}</span>
                                 </span>
                             </div>
                             <div className="flex items-center gap-1.5">
                                 <Award className="h-3.5 w-3.5 shrink-0 text-amber-500" />
                                 <span>
-                                    Scholarships: <span className="font-semibold text-slate-800">{hoveredCountry.scholarships}</span>
+                                    {t.dashboard.scholarshipsCount}: <span className="font-semibold text-slate-800">{hoveredCountry.scholarships}</span>
                                 </span>
                             </div>
                         </div>

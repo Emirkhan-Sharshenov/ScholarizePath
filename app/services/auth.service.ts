@@ -8,6 +8,7 @@ import { Resend } from "resend";
 import { connectDB } from "../lib/mongodb";
 import Users from "../models/Users";
 import VerificationEmail from "../emails/VerificationEmail";
+import { getI18n } from "@/i18n/server";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const REGISTRATION_SECRET = process.env.JWT_SECRET || "registration-secret-key";
@@ -50,13 +51,15 @@ export async function register(request: Request) {
     // Отправка письма с кодом.
     // Resend SDK не бросает исключение на ошибку API — она приходит в поле `error`.
     try {
+        const { t } = await getI18n();
         const { data, error } = await resend.emails.send({
             from: EMAIL_FROM,
             to: cleanEmail,
-            subject: "Your Verification Code - ScholarizePath",
+            subject: t.auth.verificationEmail.subject,
             react: VerificationEmail({
                 firstName,
                 code: verificationCode,
+                copy: t.auth.verificationEmail,
             }),
         });
 

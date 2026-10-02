@@ -1,6 +1,11 @@
+'use client';
+
 import { Check } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nProvider';
 
 export default function FeatureCard({ icon, iconTone = 'bg-blue-50 text-brand ring-blue-100 group-hover:bg-brand', badgeText, title, description, highlights, featured = false, onExplore }) {
+    const { t } = useI18n();
+
     return (
         <article className="group relative h-full">
             <button
@@ -46,7 +51,7 @@ export default function FeatureCard({ icon, iconTone = 'bg-blue-50 text-brand ri
                 </div>
 
                 <div aria-hidden="true" className="mt-6 flex items-center text-sm font-semibold text-brand transition-transform group-hover:translate-x-1">
-                    Explore feature <span className="ml-1.5">→</span>
+                    {t.home.featuresSection.explore} <span className="ml-1.5">→</span>
                 </div>
             </button>
         </article>

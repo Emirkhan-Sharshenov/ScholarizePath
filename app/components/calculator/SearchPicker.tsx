@@ -4,6 +4,7 @@ import { useEffect, useId, useState } from 'react';
 import { Heart, Loader2, Search, X } from 'lucide-react';
 import { monogram } from '@/components/common/detailUi';
 import type { PickerItem } from './calculatorTypes';
+import { useI18n } from '@/i18n/I18nProvider';
 
 interface SearchPickerProps {
     label: string;
@@ -26,6 +27,8 @@ export default function SearchPicker({ label, placeholder, tone, search, favorit
     const [searching, setSearching] = useState(false);
     const [active, setActive] = useState(-1);
     const listId = useId();
+    const { t } = useI18n();
+    const m = t.calculator;
 
     useEffect(() => {
         const q = query.trim();
@@ -62,8 +65,8 @@ export default function SearchPicker({ label, placeholder, tone, search, favorit
                         <p className="truncate text-sm font-semibold text-ink">{selected.name}</p>
                         {selected.subtitle && <p className="truncate text-xs text-slate-500">{selected.subtitle}</p>}
                     </div>
-                    {loadingSelected && <Loader2 aria-label="Loading" className="h-4 w-4 animate-spin text-slate-400" />}
-                    <button type="button" onClick={onClear} aria-label={`Change ${label.toLowerCase()}`} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-white hover:text-ink">
+                    {loadingSelected && <Loader2 aria-label={m.loading} className="h-4 w-4 animate-spin text-slate-400" />}
+                    <button type="button" onClick={onClear} aria-label={m.change(label)} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-white hover:text-ink">
                         <X aria-hidden="true" className="h-4 w-4" />
                     </button>
                 </div>
@@ -100,7 +103,7 @@ export default function SearchPicker({ label, placeholder, tone, search, favorit
                 {open && (
                     <ul id={listId} role="listbox" className="absolute inset-x-0 top-full z-20 mt-1.5 max-h-72 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_16px_32px_rgba(10,26,63,0.12)]">
                         {results.length === 0 ? (
-                            <li className="px-3 py-3 text-sm text-slate-500">No matches for “{query.trim()}”.</li>
+                            <li className="px-3 py-3 text-sm text-slate-500">{m.noMatches(query.trim())}</li>
                         ) : results.map((item, i) => (
                             <li key={item.id} id={`${listId}-${i}`} role="option" aria-selected={active === i}>
                                 <button
@@ -122,7 +125,7 @@ export default function SearchPicker({ label, placeholder, tone, search, favorit
             </div>
             {favorites.length > 0 && (
                 <div className="mt-3">
-                    <p className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400"><Heart aria-hidden="true" className="h-3 w-3" /> From your favourites</p>
+                    <p className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400"><Heart aria-hidden="true" className="h-3 w-3" /> {m.fromFavourites}</p>
                     <div className="flex flex-wrap gap-1.5">
                         {favorites.map((item) => (
                             <button

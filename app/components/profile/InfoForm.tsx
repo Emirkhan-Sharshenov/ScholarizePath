@@ -1,11 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, ArrowLeft, ArrowRight, Check, ChevronDown, Loader2 } from 'lucide-react';
 import { COUNTRY_LIST } from './countryList';
 import BrandLogo from '@/components/brand/BrandLogo';
+import { useI18n } from '@/i18n/I18nProvider';
+import { localizeCountry } from '@/i18n/countries';
+import { apiMessage, intlLocale } from '@/i18n/format';
+import type { Messages } from '@/i18n/messages';
 
 type EnglishTest = 'ielts' | 'toefl';
 
@@ -20,7 +24,7 @@ interface FormState {
     programLevel: string;
 }
 
-const STEPS = ['About you', 'Academics', 'Your goals'] as const;
+const STEP_COUNT = 3;
 const PROGRAM_LEVELS = ['Bachelor', 'Master', 'PhD'] as const;
 
 const inputClass = (invalid?: boolean) =>
@@ -31,16 +35,16 @@ const inputClass = (invalid?: boolean) =>
 
 // Range checks for each step — all fields stay optional (as before), but a
 // value that is filled in must make sense before moving on.
-function validateStep(step: number, f: FormState, test: EnglishTest): Partial<Record<keyof FormState, string>> {
+function validateStep(step: number, f: FormState, test: EnglishTest, m: Messages['profile']['setup']): Partial<Record<keyof FormState, string>> {
     const errors: Partial<Record<keyof FormState, string>> = {};
     const outOfRange = (v: string, min: number, max: number) => v !== '' && (Number.isNaN(Number(v)) || Number(v) < min || Number(v) > max);
 
-    if (step === 0 && outOfRange(f.age, 10, 100)) errors.age = 'Enter an age between 10 and 100';
+    if (step === 0 && outOfRange(f.age, 10, 100)) errors.age = m.ageRange;
     if (step === 1) {
-        if (outOfRange(f.gpa, 0, 4)) errors.gpa = 'Enter a value between 0 and 4';
-        if (outOfRange(f.satScore, 400, 1600)) errors.satScore = 'SAT scores range from 400 to 1600';
-        if (test === 'ielts' && outOfRange(f.englishScore, 0, 9)) errors.englishScore = 'IELTS bands range from 0 to 9';
-        if (test === 'toefl' && outOfRange(f.englishScore, 0, 120)) errors.englishScore = 'TOEFL scores range from 0 to 120';
+        if (outOfRange(f.gpa, 0, 4)) errors.gpa = m.gpaRange;
+        if (outOfRange(f.satScore, 400, 1600)) errors.satScore = m.satRange;
+        if (test === 'ielts' && outOfRange(f.englishScore, 0, 9)) errors.englishScore = m.ieltsRange;
+        if (test === 'toefl' && outOfRange(f.englishScore, 0, 120)) errors.englishScore = m.toeflRange;
     }
     return errors;
 }
@@ -53,11 +57,12 @@ function Field({ id, label, hint, error, optional, children }: {
     optional?: boolean;
     children: React.ReactNode;
 }) {
+    const { t } = useI18n();
     return (
         <div>
             <div className="mb-1.5 flex items-baseline justify-between gap-3">
                 <label htmlFor={id} className="text-sm font-semibold text-ink">
-                    {label} {optional && <span className="font-normal text-slate-400">(optional)</span>}
+                    {label} {optional && <span className="font-normal text-slate-400">{t.profile.setup.optional}</span>}
                 </label>
                 {hint && !error && <span className="text-xs text-slate-500">{hint}</span>}
             </div>
@@ -101,6 +106,17 @@ export default function AdditionalInfoForm() {
     const [error, setError] = useState<string | null>(null);
     const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormState, string>>>({});
     const [englishTestType, setEnglishTestType] = useState<EnglishTest>('ielts');
+    const { t, locale } = useI18n();
+    const m = t.profile.setup;
+    const STEPS = m.steps;
+    // Values stay the English names the data uses; only labels and order follow the UI language.
+    const countryOptions = useMemo(
+        () =>
+            COUNTRY_LIST.map((c) => ({ ...c, label: localizeCountry(c.name, locale) })).sort((a, b) =>
+                a.label.localeCompare(b.label, intlLocale(locale)),
+            ),
+        [locale],
+    );
 
     const [formData, setFormData] = useState<FormState>({
         age: '',
@@ -148,10 +164,10 @@ export default function AdditionalInfoForm() {
                 body: JSON.stringify(payload),
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Failed to submit form');
+            if (!res.ok) throw new Error(apiMessage(t, data.message, m.submitFailed));
             router.push('/dashboard');
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+            setError(err instanceof Error ? err.message : m.unexpected);
         } finally {
             setLoading(false);
         }
@@ -159,10 +175,10 @@ export default function AdditionalInfoForm() {
 
     const handleNext = (e: React.FormEvent) => {
         e.preventDefault();
-        const errors = validateStep(step, formData, englishTestType);
+        const errors = validateStep(step, formData, englishTestType, m);
         setFieldErrors(errors);
         if (Object.keys(errors).length) return;
-        if (step < STEPS.length - 1) setStep(step + 1);
+        if (step < STEP_COUNT - 1) setStep(step + 1);
         else submit();
     };
 
@@ -173,11 +189,11 @@ export default function AdditionalInfoForm() {
                     <BrandLogo className="text-[16px] sm:text-[18px]" taglineClassName="max-[399px]:hidden" />
                     <div className="w-40 sm:w-64">
                         <div className="mb-1.5 flex justify-between text-xs font-medium">
-                            <span className="hidden text-slate-500 sm:inline">Profile setup</span>
-                            <span className="ml-auto font-semibold text-brand">Step {step + 1} of {STEPS.length}</span>
+                            <span className="hidden text-slate-500 sm:inline">{m.profileSetup}</span>
+                            <span className="ml-auto font-semibold text-brand">{m.stepOf(step + 1, STEP_COUNT)}</span>
                         </div>
                         <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
-                            <div className="h-full rounded-full bg-brand transition-all duration-500" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+                            <div className="h-full rounded-full bg-brand transition-all duration-500" style={{ width: `${((step + 1) / STEP_COUNT) * 100}%` }} />
                         </div>
                     </div>
                 </div>
@@ -204,9 +220,9 @@ export default function AdditionalInfoForm() {
                         })}
                     </ol>
 
-                    <h1 className="font-display text-3xl font-bold tracking-tight sm:text-[2.25rem]">Set up your profile</h1>
+                    <h1 className="font-display text-3xl font-bold tracking-tight sm:text-[2.25rem]">{m.title}</h1>
                     <p className="mt-2 text-[15px] leading-relaxed text-slate-500">
-                        We use this to match you with universities and scholarships. You can change it later.
+                        {m.lead}
                     </p>
 
                     {error && (
@@ -224,12 +240,12 @@ export default function AdditionalInfoForm() {
                         >
                             {step === 0 && (
                                 <>
-                                    <Field id="age" label="Age" error={fieldErrors.age}>
-                                        <input id="age" type="number" inputMode="numeric" min={10} max={100} placeholder="e.g. 19" value={formData.age} onChange={(e) => set('age', e.target.value)} className={inputClass(!!fieldErrors.age)} />
+                                    <Field id="age" label={m.age} error={fieldErrors.age}>
+                                        <input id="age" type="number" inputMode="numeric" min={10} max={100} placeholder={m.agePlaceholder} value={formData.age} onChange={(e) => set('age', e.target.value)} className={inputClass(!!fieldErrors.age)} />
                                     </Field>
-                                    <Field id="nationality" label="Nationality">
-                                        <SelectBox id="nationality" value={formData.nationality} onChange={(v) => set('nationality', v)} placeholder="Select your nationality…">
-                                            {COUNTRY_LIST.map((c) => <option key={`nat-${c.name}`} value={c.name}>{c.flag} {c.name}</option>)}
+                                    <Field id="nationality" label={m.nationality}>
+                                        <SelectBox id="nationality" value={formData.nationality} onChange={(v) => set('nationality', v)} placeholder={m.nationalityPlaceholder}>
+                                            {countryOptions.map((c) => <option key={`nat-${c.name}`} value={c.name}>{c.flag} {c.label}</option>)}
                                         </SelectBox>
                                     </Field>
                                 </>
@@ -237,25 +253,25 @@ export default function AdditionalInfoForm() {
 
                             {step === 1 && (
                                 <>
-                                    <Field id="gpa" label="GPA" hint="on a 4.0 scale" error={fieldErrors.gpa}>
-                                        <input id="gpa" type="number" inputMode="decimal" step="0.01" min={0} max={4} placeholder="e.g. 3.6" value={formData.gpa} onChange={(e) => set('gpa', e.target.value)} className={inputClass(!!fieldErrors.gpa)} />
+                                    <Field id="gpa" label={m.gpa} hint={m.gpaHint} error={fieldErrors.gpa}>
+                                        <input id="gpa" type="number" inputMode="decimal" step="0.01" min={0} max={4} placeholder={m.gpaPlaceholder} value={formData.gpa} onChange={(e) => set('gpa', e.target.value)} className={inputClass(!!fieldErrors.gpa)} />
                                     </Field>
-                                    <Field id="satScore" label="SAT score" optional hint="leave empty if you haven't taken it" error={fieldErrors.satScore}>
-                                        <input id="satScore" type="number" inputMode="numeric" min={400} max={1600} placeholder="e.g. 1450" value={formData.satScore} onChange={(e) => set('satScore', e.target.value)} className={inputClass(!!fieldErrors.satScore)} />
+                                    <Field id="satScore" label={m.sat} optional hint={m.satHint} error={fieldErrors.satScore}>
+                                        <input id="satScore" type="number" inputMode="numeric" min={400} max={1600} placeholder={m.satPlaceholder} value={formData.satScore} onChange={(e) => set('satScore', e.target.value)} className={inputClass(!!fieldErrors.satScore)} />
                                     </Field>
-                                    <Field id="englishScore" label="English proficiency" error={fieldErrors.englishScore}>
+                                    <Field id="englishScore" label={m.english} error={fieldErrors.englishScore}>
                                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                            <div role="radiogroup" aria-label="English test" className="grid h-12 grid-cols-2 rounded-[10px] bg-slate-100 p-1">
-                                                {(['ielts', 'toefl'] as const).map((t) => (
+                                            <div role="radiogroup" aria-label={m.englishTest} className="grid h-12 grid-cols-2 rounded-[10px] bg-slate-100 p-1">
+                                                {(['ielts', 'toefl'] as const).map((test) => (
                                                     <button
-                                                        key={t}
+                                                        key={test}
                                                         type="button"
                                                         role="radio"
-                                                        aria-checked={englishTestType === t}
-                                                        onClick={() => handleTestTypeChange(t)}
-                                                        className={`rounded-lg text-sm font-semibold uppercase transition-colors ${englishTestType === t ? 'bg-brand text-white shadow-sm' : 'text-slate-500 hover:text-ink'}`}
+                                                        aria-checked={englishTestType === test}
+                                                        onClick={() => handleTestTypeChange(test)}
+                                                        className={`rounded-lg text-sm font-semibold uppercase transition-colors ${englishTestType === test ? 'bg-brand text-white shadow-sm' : 'text-slate-500 hover:text-ink'}`}
                                                     >
-                                                        {t}
+                                                        {test}
                                                     </button>
                                                 ))}
                                             </div>
@@ -267,7 +283,7 @@ export default function AdditionalInfoForm() {
                                                     step={englishTestType === 'ielts' ? '0.5' : '1'}
                                                     min={0}
                                                     max={englishTestType === 'ielts' ? 9 : 120}
-                                                    placeholder={englishTestType === 'ielts' ? 'e.g. 7.5' : 'e.g. 100'}
+                                                    placeholder={m.eg(englishTestType === 'ielts' ? '7.5' : '100')}
                                                     value={formData.englishScore}
                                                     onChange={(e) => set('englishScore', e.target.value)}
                                                     className={`${inputClass(!!fieldErrors.englishScore)} pr-16`}
@@ -283,16 +299,16 @@ export default function AdditionalInfoForm() {
 
                             {step === 2 && (
                                 <>
-                                    <Field id="fieldOfStudy" label="Field of study">
-                                        <input id="fieldOfStudy" type="text" placeholder="e.g. Computer Science" value={formData.fieldOfStudy} onChange={(e) => set('fieldOfStudy', e.target.value)} className={inputClass()} />
+                                    <Field id="fieldOfStudy" label={m.fieldOfStudy}>
+                                        <input id="fieldOfStudy" type="text" placeholder={m.fieldPlaceholder} value={formData.fieldOfStudy} onChange={(e) => set('fieldOfStudy', e.target.value)} className={inputClass()} />
                                     </Field>
-                                    <Field id="country" label="Target country">
-                                        <SelectBox id="country" value={formData.country} onChange={(v) => set('country', v)} placeholder="Where do you want to study?">
-                                            {COUNTRY_LIST.map((c) => <option key={`tgt-${c.name}`} value={c.name}>{c.flag} {c.name}</option>)}
+                                    <Field id="country" label={m.targetCountry}>
+                                        <SelectBox id="country" value={formData.country} onChange={(v) => set('country', v)} placeholder={m.targetPlaceholder}>
+                                            {countryOptions.map((c) => <option key={`tgt-${c.name}`} value={c.name}>{c.flag} {c.label}</option>)}
                                         </SelectBox>
                                     </Field>
                                     <fieldset>
-                                        <legend className="mb-1.5 text-sm font-semibold text-ink">Program level</legend>
+                                        <legend className="mb-1.5 text-sm font-semibold text-ink">{m.programLevel}</legend>
                                         <div className="grid grid-cols-3 gap-3">
                                             {PROGRAM_LEVELS.map((level) => {
                                                 const selected = formData.programLevel === level;
@@ -305,7 +321,7 @@ export default function AdditionalInfoForm() {
                                                         className={`flex h-12 items-center justify-center gap-1.5 rounded-[10px] border text-sm font-semibold transition-colors ${selected ? 'border-brand bg-brand text-white shadow-sm' : 'border-slate-200 bg-white text-ink hover:border-slate-300'}`}
                                                     >
                                                         {selected && <Check aria-hidden="true" className="h-4 w-4" />}
-                                                        {level}
+                                                        {t.profile.programLevels[level]}
                                                     </button>
                                                 );
                                             })}
@@ -320,7 +336,7 @@ export default function AdditionalInfoForm() {
                     <div className="fixed inset-x-0 bottom-0 z-10 flex items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur-md sm:static sm:mt-10 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
                         {step > 0 ? (
                             <button type="button" onClick={() => { setFieldErrors({}); setStep(step - 1); }} className="inline-flex h-12 items-center gap-2 rounded-[10px] px-4 text-[15px] font-semibold text-ink transition-colors hover:bg-slate-100 sm:-ml-4">
-                                <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back
+                                <ArrowLeft aria-hidden="true" className="h-4 w-4" /> {m.back}
                             </button>
                         ) : <span />}
                         <button
@@ -329,7 +345,7 @@ export default function AdditionalInfoForm() {
                             className="inline-flex h-12 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-brand px-7 text-[15px] font-semibold text-white shadow-[0_8px_20px_rgba(0,88,189,0.25)] transition-all hover:bg-[#004a9f] active:scale-[0.99] disabled:opacity-60 sm:flex-none"
                         >
                             {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : null}
-                            {step < STEPS.length - 1 ? 'Continue' : loading ? 'Saving…' : 'Finish setup'}
+                            {step < STEP_COUNT - 1 ? m.continue : loading ? m.saving : m.finish}
                             {!loading && <ArrowRight aria-hidden="true" className="h-4 w-4" />}
                         </button>
                     </div>

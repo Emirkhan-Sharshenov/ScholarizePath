@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { connectDB } from "../lib/mongodb";
 import Scholarships from "../models/Scholarship";
 import Universities from "../models/Universities";
@@ -126,3 +127,8 @@ export async function getTopStats(limit = 8) {
 
     return { topUniversities, topScholarships };
 }
+
+// The root layout reads the language cookie, which makes every page dynamic,
+// so the public homepage and /top would otherwise query MongoDB on every
+// visit. Favorite counts only need to be roughly current.
+export const getCachedTopStats = unstable_cache(getTopStats, ["top-stats"], { revalidate: 3600 });

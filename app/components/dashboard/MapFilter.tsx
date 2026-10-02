@@ -6,6 +6,7 @@ import { Globe2 } from 'lucide-react';
 import WorldMapFilter from './WorldMapFilter';
 import { CountryPanel, CountrySheet, useCountryUniversities } from './CountryPanel';
 import type { MapCountry } from './WorldMap';
+import { useI18n } from '@/i18n/I18nProvider';
 
 // MapLibre (WebGL) is only needed on this one dashboard panel — lazy
 // load the chunk instead of shipping it in the main dashboard bundle, and
@@ -21,6 +22,7 @@ function MapFilter() {
     const [hoveredRegionId, setHoveredRegionId] = useState<string | null>(null);
     const [selectedCountry, setSelectedCountry] = useState<MapCountry | null>(null);
     const [totalUniversities, setTotalUniversities] = useState<number | null>(null);
+    const { t } = useI18n();
 
     const universities = useCountryUniversities(selectedCountry?.name ?? null);
     const closeCountry = useCallback(() => setSelectedCountry(null), []);
@@ -37,8 +39,8 @@ function MapFilter() {
                 <p className="mt-3 flex items-center gap-2 px-1 text-sm text-slate-500">
                     <Globe2 aria-hidden="true" className="h-4 w-4 text-brand" />
                     {totalUniversities !== null
-                        ? `${totalUniversities.toLocaleString('en-US')} universities mapped`
-                        : 'Loading universities…'}
+                        ? t.dashboard.mapped(totalUniversities)
+                        : t.dashboard.loadingUniversities}
                 </p>
 
                 <div className="mt-3 h-[300px] sm:h-[380px] lg:h-[min(62vh,560px)]">

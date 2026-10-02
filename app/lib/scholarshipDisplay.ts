@@ -1,11 +1,11 @@
 // Display helpers shared by the scholarship detail banner and the list cards.
 
 /** Amount in the scholarship's own currency (€, HK$, CHF…), not always "$ USD". */
-export function formatAmount(value: number, currency?: string | null): string {
+export function formatAmount(value: number, currency?: string | null, intlLocale = 'en-US'): string {
     try {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'USD', maximumFractionDigits: 0 }).format(value);
+        return new Intl.NumberFormat(intlLocale, { style: 'currency', currency: currency || 'USD', maximumFractionDigits: 0 }).format(value);
     } catch {
-        return `${currency ?? ''} ${value.toLocaleString('en-US')}`.trim();
+        return `${currency ?? ''} ${value.toLocaleString(intlLocale)}`.trim();
     }
 }
 
