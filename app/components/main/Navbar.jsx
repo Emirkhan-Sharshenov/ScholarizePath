@@ -19,6 +19,19 @@ export default async function Navbar() {
 
                 <div className="flex shrink-0 items-center gap-1 sm:gap-3">
                     <LanguageSwitcher className="mr-0.5 sm:mr-0" />
+                    {/* The catalogue is public; on phones the links are in the footer. */}
+                    {[
+                        { href: '/scholarships', label: t.nav.items.scholarships.label },
+                        { href: '/universities', label: t.nav.items.universities.label },
+                    ].map((link) => (
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            className="hidden h-10 items-center rounded-[10px] px-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-ink lg:inline-flex"
+                        >
+                            {link.label}
+                        </Link>
+                    ))}
                     <Link
                         href="/top"
                         aria-label={t.nav.rankings}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useGoToLogin } from './goToLogin';
 
 type FavoriteType = 'university' | 'scholarship';
 
@@ -9,10 +10,15 @@ export function useFavorites(itemId?: string, itemType?: FavoriteType) {
     const [loading, setLoading] = useState<boolean>(true);
     const [favoriteUniversities, setFavoriteUniversities] = useState<string[]>([]);
     const [favoriteScholarships, setFavoriteScholarships] = useState<string[]>([]);
+    // Visitors without a session can browse scholarship and university pages;
+    // saving one takes them to sign in instead.
+    const [guest, setGuest] = useState(false);
+    const goToLogin = useGoToLogin();
 
     const fetchUserData = useCallback(async () => {
         try {
             const res = await fetch('/api/auth/self');
+            if (res.status === 401) setGuest(true);
             if (!res.ok) return;
 
             const data = await res.json();
@@ -61,6 +67,7 @@ export function useFavorites(itemId?: string, itemType?: FavoriteType) {
 
     const toggleFavorite = async () => {
         if (!itemId || !itemType) return;
+        if (guest) return goToLogin();
 
         const nextState = !isFavorite;
         setIsFavorite(nextState);

@@ -12,6 +12,7 @@ import home from './home';
 import nav from './nav';
 import profile from './profile';
 import scholarships from './scholarships';
+import seo from './seo';
 import site from './site';
 import student from './student';
 import tracker from './tracker';
@@ -34,6 +35,7 @@ const namespaces = {
     nav,
     profile,
     scholarships,
+    seo,
     site,
     student,
     tracker,

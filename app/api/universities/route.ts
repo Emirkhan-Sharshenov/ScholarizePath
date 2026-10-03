@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { escapeRegex } from "@/lib/escapeRegex";
 import { connectDB } from "@/lib/mongodb";
 import Universities from "@/models/Universities";
 
@@ -25,8 +26,8 @@ export async function GET(request: Request) {
 
         if (search) {
             baseMatch.$or = [
-                { name: { $regex: search, $options: "i" } },
-                { searchKeywords: { $regex: search, $options: "i" } },
+                { name: { $regex: escapeRegex(search), $options: "i" } },
+                { searchKeywords: { $regex: escapeRegex(search), $options: "i" } },
             ];
         }
 

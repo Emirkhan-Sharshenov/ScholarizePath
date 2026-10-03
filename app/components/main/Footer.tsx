@@ -26,6 +26,8 @@ function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
 export default async function Footer() {
     const { t } = await getI18n();
     const exploreLinks = [
+        { href: '/scholarships', label: t.nav.items.scholarships.label },
+        { href: '/universities', label: t.nav.items.universities.label },
         { href: '/top', label: t.site.footer.rankings },
         { href: '/login', label: t.site.footer.signIn },
         { href: '/login?mode=register', label: t.site.footer.createAccount },

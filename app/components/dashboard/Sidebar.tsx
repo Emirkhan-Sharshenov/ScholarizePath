@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Loader2, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Loader2, LogIn, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import LanguageSwitcher from "@/i18n/LanguageSwitcher";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -23,7 +23,7 @@ export default function Sidebar() {
   const { collapsed, setCollapsed } = useSidebar();
   const pathname = usePathname();
   const { logout, loggingOut } = useLogout();
-  const user = useCurrentUser();
+  const { user, guest } = useCurrentUser();
   const { t } = useI18n();
 
   const mainItems = NAV_ITEMS.filter((item) => !item.secondary);
@@ -60,7 +60,7 @@ export default function Sidebar() {
         ${collapsed ? "w-20" : "w-64"}`}
     >
       <div className="flex h-[72px] shrink-0 items-center justify-between px-3">
-        <Link href="/dashboard" className="flex min-w-0 items-center" title="ScholarizePath">
+        <Link href={guest ? "/" : "/dashboard"} className="flex min-w-0 items-center" title="ScholarizePath">
           <span className="flex h-11 w-14 shrink-0 items-center justify-center">
             <BrandLogo variant="mark" decorative className="text-[34px]" />
           </span>
@@ -92,7 +92,29 @@ export default function Sidebar() {
           </span>
         </button>
 
-        {collapsed ? (
+        {guest ? (
+          collapsed ? (
+            <Link
+              href={`/login?from=${encodeURIComponent(pathname)}`}
+              aria-label={t.nav.signIn}
+              title={t.nav.signIn}
+              className="flex h-11 w-14 items-center justify-center rounded-xl bg-brand text-white transition-colors hover:bg-[#004a9f]"
+            >
+              <LogIn className="h-5 w-5" />
+            </Link>
+          ) : (
+            <div className="rounded-xl bg-blue-50/70 p-3">
+              <p className="text-sm font-semibold text-ink">{t.nav.guestTitle}</p>
+              <p className="mt-0.5 text-xs leading-snug text-slate-500">{t.nav.guestText}</p>
+              <Link
+                href={`/login?from=${encodeURIComponent(pathname)}`}
+                className="mt-2.5 flex h-10 items-center justify-center gap-2 rounded-lg bg-brand text-sm font-semibold text-white transition-colors hover:bg-[#004a9f]"
+              >
+                <LogIn className="h-4 w-4" /> {t.nav.signIn}
+              </Link>
+            </div>
+          )
+        ) : collapsed ? (
           <button
             type="button"
             onClick={logout}

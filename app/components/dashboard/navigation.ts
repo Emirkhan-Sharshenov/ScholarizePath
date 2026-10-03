@@ -79,17 +79,21 @@ export interface CurrentUser {
 }
 
 // Name/email for the account block in the sidebar and the "More" sheet.
-// Purely cosmetic — if the request fails the block just shows a generic label.
-export function useCurrentUser(): CurrentUser | null {
-  const [user, setUser] = useState<CurrentUser | null>(null);
+// `guest` is true only once the server has said there's no session (the
+// catalogue pages are open to visitors); any other failure just shows a
+// generic label.
+export function useCurrentUser(): { user: CurrentUser | null; guest: boolean } {
+  const [state, setState] = useState<{ user: CurrentUser | null; guest: boolean }>({ user: null, guest: false });
 
   useEffect(() => {
     let cancelled = false;
 
     fetch("/api/auth/self")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!cancelled && data?.user) setUser(data.user);
+      .then(async (res) => {
+        if (cancelled) return;
+        if (res.status === 401) return setState({ user: null, guest: true });
+        const data = res.ok ? await res.json() : null;
+        if (!cancelled && data?.user) setState({ user: data.user, guest: false });
       })
       .catch(() => {});
 
@@ -98,7 +102,7 @@ export function useCurrentUser(): CurrentUser | null {
     };
   }, []);
 
-  return user;
+  return state;
 }
 
 export function userDisplayName(user: CurrentUser | null, fallback: string): string {
