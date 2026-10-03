@@ -81,8 +81,8 @@ export function getVerification(university: unknown): VerificationState {
     };
 }
 
-export function formatCheckedAt(checkedAt: string | null): string {
+export function formatCheckedAt(checkedAt: string | null, intlLocale = 'en-US'): string {
     if (!checkedAt) return '';
     const d = new Date(checkedAt);
-    return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString(intlLocale, { month: 'short', year: 'numeric' });
 }

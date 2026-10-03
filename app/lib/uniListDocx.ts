@@ -15,6 +15,11 @@ import {
     PageNumber,
     TableLayoutType,
 } from "docx";
+import type { Messages } from "@/i18n/messages";
+import type { Locale } from "@/i18n/config";
+import { localizeCountry, localizeLocation } from "@/i18n/countries";
+
+type Labels = Messages["unilist"]["docx"];
 
 // ---- Document design tokens ------------------------------------------
 // A4 page, 1" top/bottom margins, 0.75" side margins.
@@ -34,9 +39,9 @@ const MUTED = "5B6B82";
 const RULE = "C9D3E0";
 const LABEL_BG = "EDF1F7";
 
-function formatMoney(amount?: number | null, currency = "USD") {
+function formatMoney(amount: number | null | undefined, currency = "USD", intlLocale = "en-US") {
     if (amount === undefined || amount === null) return "—";
-    return `${amount.toLocaleString()} ${currency}`;
+    return `${amount.toLocaleString(intlLocale)} ${currency}`;
 }
 
 function kvRow(label: string, value?: string | number | null) {
@@ -116,18 +121,18 @@ function sectionHeading(text: string) {
     });
 }
 
-function titleBlock(uniCount: number, schCount: number) {
+function titleBlock(uniCount: number, schCount: number, l: Labels, intlLocale: string) {
     return [
         new Paragraph({
             heading: HeadingLevel.TITLE,
             spacing: { after: 80 },
-            children: [new TextRun({ text: "University & Scholarship List", font: "Georgia", bold: true, size: 52, color: NAVY })],
+            children: [new TextRun({ text: l.title, font: "Georgia", bold: true, size: 52, color: NAVY })],
         }),
         new Paragraph({
             spacing: { after: 260 },
             children: [
                 new TextRun({
-                    text: "A summary of the programs and awards you're comparing.",
+                    text: l.subtitle,
                     font: "Calibri",
                     size: 22,
                     color: MUTED,
@@ -139,7 +144,7 @@ function titleBlock(uniCount: number, schCount: number) {
             border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: NAVY, space: 6 } },
             children: [
                 new TextRun({
-                    text: `Generated ${new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}   ·   ${uniCount} ${uniCount === 1 ? "university" : "universities"}   ·   ${schCount} ${schCount === 1 ? "scholarship" : "scholarships"}`,
+                    text: l.generated(new Date().toLocaleDateString(intlLocale, { year: "numeric", month: "long", day: "numeric" }), uniCount, schCount),
                     font: "Calibri",
                     size: 19,
                     color: MUTED,
@@ -149,16 +154,17 @@ function titleBlock(uniCount: number, schCount: number) {
     ];
 }
 
-function universitySection(uni: any, index: number) {
+function universitySection(uni: any, index: number, l: Labels, locale: Locale, intlLocale: string) {
+    const money = (amount?: number | null, currency?: string) => formatMoney(amount, currency, intlLocale);
     const location = uni.location
-        ? [uni.location.city, uni.location.country].filter(Boolean).join(", ")
+        ? localizeLocation([uni.location.city, uni.location.country].filter(Boolean).join(", "), locale)
         : "—";
     const deadlines =
         (uni.applicationDeadlines || []).map((d: any) => `${d.round}: ${d.date}`).join("; ") || "—";
     const programs = (uni.programs || []).join(", ") || "—";
     const req = uni.admissionRequirements || {};
 
-    const nodes: any[] = [itemHeading(index, uni.name || "Unnamed University")];
+    const nodes: any[] = [itemHeading(index, uni.name || l.unnamedUniversity)];
 
     if (uni.description) {
         nodes.push(
@@ -171,25 +177,25 @@ function universitySection(uni: any, index: number) {
 
     nodes.push(
         buildTable([
-            kvRow("Type", uni.type),
-            kvRow("Location", location),
-            kvRow("Global rank", uni.ranking?.global != null ? `#${uni.ranking.global}` : "—"),
-            kvRow("National rank", uni.ranking?.national != null ? `#${uni.ranking.national}` : "—"),
-            kvRow("Acceptance rate", uni.acceptanceRate != null ? `${uni.acceptanceRate}%` : "—"),
-            kvRow("Tuition (bachelor)", formatMoney(uni.tuition?.bachelor, uni.tuition?.currency)),
-            kvRow("Tuition (master)", formatMoney(uni.tuition?.master, uni.tuition?.currency)),
+            kvRow(l.type, uni.type),
+            kvRow(l.location, location),
+            kvRow(l.globalRank, uni.ranking?.global != null ? `#${uni.ranking.global}` : "—"),
+            kvRow(l.nationalRank, uni.ranking?.national != null ? `#${uni.ranking.national}` : "—"),
+            kvRow(l.acceptance, uni.acceptanceRate != null ? `${uni.acceptanceRate}%` : "—"),
+            kvRow(l.tuitionBachelor, money(uni.tuition?.bachelor, uni.tuition?.currency)),
+            kvRow(l.tuitionMaster, money(uni.tuition?.master, uni.tuition?.currency)),
             kvRow(
-                "Living cost",
+                l.livingCost,
                 uni.livingCostUSD
-                    ? `${formatMoney(uni.livingCostUSD.min)} - ${formatMoney(uni.livingCostUSD.max)} / ${uni.livingCostUSD.period || "year"}`
+                    ? `${money(uni.livingCostUSD.min)} - ${money(uni.livingCostUSD.max)} / ${uni.livingCostUSD.period && locale === "en" ? uni.livingCostUSD.period : l.year}`
                     : "—"
             ),
-            kvRow("Min GPA", req.gpa?.min != null ? `${req.gpa.min} / ${req.gpa.scale || 4}` : "—"),
-            kvRow("Min IELTS", req.ielts?.min ?? "—"),
-            kvRow("Min TOEFL", req.toefl?.min ?? "—"),
-            kvRow("Programs", programs),
-            kvRow("Application deadlines", deadlines),
-            kvRow("Website", uni.website),
+            kvRow(l.minGpa, req.gpa?.min != null ? `${req.gpa.min} / ${req.gpa.scale || 4}` : "—"),
+            kvRow(l.minIelts, req.ielts?.min ?? "—"),
+            kvRow(l.minToefl, req.toefl?.min ?? "—"),
+            kvRow(l.programs, programs),
+            kvRow(l.deadlines, deadlines),
+            kvRow(l.website, uni.website),
         ])
     );
 
@@ -197,23 +203,24 @@ function universitySection(uni: any, index: number) {
     return nodes;
 }
 
-function scholarshipSection(sch: any, index: number) {
+function scholarshipSection(sch: any, index: number, l: Labels, locale: Locale, intlLocale: string) {
+    const money = (amount?: number | null, currency?: string) => formatMoney(amount, currency, intlLocale);
     const studyLevel = (sch.studyLevel || []).join(", ") || "—";
     const deadlines = (sch.deadlines || []).map((d: any) => `${d.name}: ${d.date}`).join("; ") || "—";
     const award = sch.award || {};
     const req = sch.requirements || {};
     const coverage =
         [
-            award.tuition && "Tuition",
-            award.stipend && "Stipend",
-            award.travel && "Travel",
-            award.insurance && "Insurance",
-            award.arrivalAllowance && "Arrival allowance",
+            award.tuition && l.coverageItems.tuition,
+            award.stipend && l.coverageItems.stipend,
+            award.travel && l.coverageItems.travel,
+            award.insurance && l.coverageItems.insurance,
+            award.arrivalAllowance && l.coverageItems.arrivalAllowance,
         ]
             .filter(Boolean)
             .join(", ") || "—";
 
-    const nodes: any[] = [itemHeading(index, sch.scholarshipName || "Unnamed Scholarship")];
+    const nodes: any[] = [itemHeading(index, sch.scholarshipName || l.unnamedScholarship)];
 
     if (sch.description) {
         nodes.push(
@@ -226,25 +233,25 @@ function scholarshipSection(sch: any, index: number) {
 
     nodes.push(
         buildTable([
-            kvRow("Provider", sch.provider?.name || sch.fundingOrganization),
-            kvRow("Country", sch.country),
-            kvRow("Field of study", sch.fieldOfStudy),
-            kvRow("Study level", studyLevel),
-            kvRow("Award type", award.type),
-            kvRow("Coverage", coverage),
+            kvRow(l.provider, sch.provider?.name || sch.fundingOrganization),
+            kvRow(l.country, sch.country ? localizeCountry(sch.country, locale) : sch.country),
+            kvRow(l.field, sch.fieldOfStudy),
+            kvRow(l.studyLevel, studyLevel),
+            kvRow(l.awardType, award.type),
+            kvRow(l.coverage, coverage),
             kvRow(
-                "Estimated value",
+                l.estimatedValue,
                 award.estimatedValue
-                    ? `${formatMoney(award.estimatedValue.min, award.estimatedValue.currency)} - ${formatMoney(award.estimatedValue.max, award.estimatedValue.currency)}`
+                    ? `${money(award.estimatedValue.min, award.estimatedValue.currency)} - ${money(award.estimatedValue.max, award.estimatedValue.currency)}`
                     : "—"
             ),
-            kvRow("Min GPA", req.gpa?.minimum ?? req.gpa?.description ?? "—"),
-            kvRow("Language requirement", req.language?.test),
-            kvRow("Eligible nationalities", req.nationality?.eligibleCountries),
-            kvRow("Number of awards", sch.numberOfAwards),
-            kvRow("Status", sch.status),
-            kvRow("Deadlines", deadlines),
-            kvRow("Official website", sch.officialWebsite),
+            kvRow(l.minGpa, req.gpa?.minimum ?? req.gpa?.description ?? "—"),
+            kvRow(l.language, req.language?.test),
+            kvRow(l.nationalities, req.nationality?.eligibleCountries),
+            kvRow(l.awards, sch.numberOfAwards),
+            kvRow(l.status, sch.status),
+            kvRow(l.scholarshipDeadlines, deadlines),
+            kvRow(l.officialWebsite, sch.officialWebsite),
         ])
     );
 
@@ -261,17 +268,23 @@ function scholarshipSection(sch: any, index: number) {
  * normal file over the network, which is what makes mobile downloads and
  * previews reliable.
  */
-export async function buildUniListDocxBuffer(universities: any[], scholarships: any[]): Promise<Buffer> {
-    const children: any[] = [...titleBlock(universities.length, scholarships.length)];
+export async function buildUniListDocxBuffer(
+    universities: any[],
+    scholarships: any[],
+    labels: Labels,
+    locale: Locale,
+    intlLocale: string,
+): Promise<Buffer> {
+    const children: any[] = [...titleBlock(universities.length, scholarships.length, labels, intlLocale)];
 
     if (universities.length > 0) {
-        children.push(sectionHeading("Universities"));
-        universities.forEach((uni, i) => children.push(...universitySection(uni, i + 1)));
+        children.push(sectionHeading(labels.universities));
+        universities.forEach((uni, i) => children.push(...universitySection(uni, i + 1, labels, locale, intlLocale)));
     }
 
     if (scholarships.length > 0) {
-        children.push(sectionHeading("Scholarships"));
-        scholarships.forEach((sch, i) => children.push(...scholarshipSection(sch, i + 1)));
+        children.push(sectionHeading(labels.scholarships));
+        scholarships.forEach((sch, i) => children.push(...scholarshipSection(sch, i + 1, labels, locale, intlLocale)));
     }
 
     const doc = new Document({

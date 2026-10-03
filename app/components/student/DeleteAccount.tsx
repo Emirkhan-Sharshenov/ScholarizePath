@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Loader2, Trash2, X } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nProvider';
+import { apiMessage } from '@/i18n/format';
 
 interface DeleteAccountProps {
     email: string;
@@ -13,18 +15,13 @@ interface DeleteAccountProps {
 // Saved on this device only; cleared too so nothing of the account is left behind.
 const LOCAL_KEYS = ['compare_universities', 'compare_scholarships', 'unilist:docx-list'];
 
-const WHAT_GOES = [
-    'Your profile and academic scores',
-    'Saved universities and scholarships',
-    'Everything in your application tracker, including notes',
-    'Deadline reminder emails',
-];
-
 export function DeleteAccount({ email, authProvider }: DeleteAccountProps) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState('');
     const [deleting, setDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { t } = useI18n();
+    const m = t.student;
 
     // Google accounts have no password, so they confirm by typing their email.
     const usesEmail = authProvider === 'google';
@@ -59,7 +56,7 @@ export function DeleteAccount({ email, authProvider }: DeleteAccountProps) {
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok || !data.success) {
-                setError(data.message ?? "Couldn't delete your account. Please try again.");
+                setError(apiMessage(t, data.message, m.deleteFailed));
                 setDeleting(false);
                 return;
             }
@@ -70,7 +67,7 @@ export function DeleteAccount({ email, authProvider }: DeleteAccountProps) {
             // replace so Back doesn't return to the deleted profile.
             window.location.replace(window.location.origin);
         } catch {
-            setError("Couldn't reach the server. Check your connection and try again.");
+            setError(m.unreachable);
             setDeleting(false);
         }
     };
@@ -83,10 +80,8 @@ export function DeleteAccount({ email, authProvider }: DeleteAccountProps) {
                         <Trash2 aria-hidden="true" className="h-5 w-5" />
                     </span>
                     <div>
-                        <h3 className="font-display text-lg font-semibold text-ink">Delete account</h3>
-                        <p className="mt-1 text-sm leading-relaxed text-slate-500">
-                            Permanently remove your account and all of its data. This can&rsquo;t be undone.
-                        </p>
+                        <h3 className="font-display text-lg font-semibold text-ink">{m.deleteTitle}</h3>
+                        <p className="mt-1 text-sm leading-relaxed text-slate-500">{m.deleteText}</p>
                     </div>
                 </div>
                 <button
@@ -94,7 +89,7 @@ export function DeleteAccount({ email, authProvider }: DeleteAccountProps) {
                     onClick={() => setOpen(true)}
                     className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-white px-5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
                 >
-                    Delete account
+                    {m.deleteButton}
                 </button>
             </div>
 
@@ -129,7 +124,7 @@ export function DeleteAccount({ email, authProvider }: DeleteAccountProps) {
                                     <button
                                         type="button"
                                         onClick={close}
-                                        aria-label="Close"
+                                        aria-label={m.close}
                                         className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-ink"
                                     >
                                         <X aria-hidden="true" className="h-4 w-4" />
@@ -137,11 +132,11 @@ export function DeleteAccount({ email, authProvider }: DeleteAccountProps) {
                                 </div>
 
                                 <h2 id="delete-account-title" className="mt-4 font-display text-xl font-bold text-ink">
-                                    Delete your account?
+                                    {m.deleteDialog}
                                 </h2>
-                                <p className="mt-1 text-sm text-slate-500">This permanently deletes:</p>
+                                <p className="mt-1 text-sm text-slate-500">{m.deletes}</p>
                                 <ul className="mt-3 space-y-1.5 text-sm text-slate-600">
-                                    {WHAT_GOES.map((item) => (
+                                    {m.whatGoes.map((item) => (
                                         <li key={item} className="flex gap-2">
                                             <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
                                             {item}
@@ -152,9 +147,9 @@ export function DeleteAccount({ email, authProvider }: DeleteAccountProps) {
                                 <label className="mt-5 block">
                                     <span className="text-sm font-semibold text-ink">
                                         {usesEmail ? (
-                                            <>Type <span className="font-mono text-[13px]">{email}</span> to confirm</>
+                                            <>{m.type} <span className="font-mono text-[13px]">{email}</span> {m.typeEmail}</>
                                         ) : (
-                                            'Enter your password to confirm'
+                                            m.enterPassword
                                         )}
                                     </span>
                                     <input
@@ -184,7 +179,7 @@ export function DeleteAccount({ email, authProvider }: DeleteAccountProps) {
                                         disabled={deleting}
                                         className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
                                     >
-                                        Cancel
+                                        {m.cancel}
                                     </button>
                                     <button
                                         type="submit"
@@ -192,7 +187,7 @@ export function DeleteAccount({ email, authProvider }: DeleteAccountProps) {
                                         className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-red-600 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
                                     >
                                         {deleting && <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />}
-                                        Delete forever
+                                        {m.deleteForever}
                                     </button>
                                 </div>
                             </motion.form>

@@ -2,6 +2,9 @@
 
 import { ChevronDown, SlidersHorizontal } from 'lucide-react';
 import { COUNTRY_LIST, flagFor } from '@/components/profile/countryList';
+import { useI18n } from '@/i18n/I18nProvider';
+import { localizeCountry } from '@/i18n/countries';
+import { intlLocale } from '@/i18n/format';
 
 interface PersonalPreferencesProps {
     firstName: string;
@@ -21,12 +24,13 @@ const inputClass =
     'h-12 w-full rounded-[10px] border border-slate-200 bg-white px-4 text-[15px] text-ink shadow-sm focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10';
 
 function Row({ label, value, children, isEditing }: { label: string; value: React.ReactNode; children: React.ReactNode; isEditing: boolean }) {
+    const { t } = useI18n();
     return (
         <div>
             <p className="mb-1.5 text-sm font-medium text-slate-500">{label}</p>
             {isEditing ? children : (
                 <p className="flex h-12 items-center rounded-[10px] bg-slate-50 px-4 text-[15px] font-medium text-ink">
-                    {value || <span className="font-normal text-slate-400">Not added</span>}
+                    {value || <span className="font-normal text-slate-400">{t.student.notAdded}</span>}
                 </p>
             )}
         </div>
@@ -34,11 +38,16 @@ function Row({ label, value, children, isEditing }: { label: string; value: Reac
 }
 
 function CountrySelect({ value, onChange, label }: { value: string; onChange: (v: string) => void; label: string }) {
+    const { t, locale } = useI18n();
+    // Values stay the English names the data uses; labels and order follow the UI language.
+    const options = COUNTRY_LIST.map((c) => ({ ...c, label: localizeCountry(c.name, locale) })).sort((a, b) =>
+        a.label.localeCompare(b.label, intlLocale(locale)),
+    );
     return (
         <div className="relative">
             <select aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} className={`${inputClass} appearance-none pr-10`}>
-                <option value="">Select…</option>
-                {COUNTRY_LIST.map((c) => <option key={c.name} value={c.name}>{c.flag} {c.name}</option>)}
+                <option value="">{t.student.select}</option>
+                {options.map((c) => <option key={c.name} value={c.name}>{c.flag} {c.label}</option>)}
             </select>
             <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         </div>
@@ -46,45 +55,47 @@ function CountrySelect({ value, onChange, label }: { value: string; onChange: (v
 }
 
 export function PersonalPreferences({ firstName, lastName, age, nationality, preferredField, preferredCountry, programLevel, isEditing, onChange }: PersonalPreferencesProps) {
+    const { t, locale } = useI18n();
+    const m = t.student;
     return (
         <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_4px_12px_rgba(10,26,63,0.04)] sm:p-6">
             <h3 className="mb-5 flex items-center gap-3 font-display text-lg font-semibold text-ink">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-brand">
                     <SlidersHorizontal aria-hidden="true" className="h-5 w-5" />
                 </span>
-                Personal &amp; preferences
+                {m.preferences}
             </h3>
 
             <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                    <Row label="First name" value={firstName} isEditing={isEditing}>
-                        <input aria-label="First name" value={firstName} onChange={(e) => onChange('firstName', e.target.value)} className={inputClass} />
+                    <Row label={m.firstName} value={firstName} isEditing={isEditing}>
+                        <input aria-label={m.firstName} value={firstName} onChange={(e) => onChange('firstName', e.target.value)} className={inputClass} />
                     </Row>
-                    <Row label="Last name" value={lastName} isEditing={isEditing}>
-                        <input aria-label="Last name" value={lastName} onChange={(e) => onChange('lastName', e.target.value)} className={inputClass} />
+                    <Row label={m.lastName} value={lastName} isEditing={isEditing}>
+                        <input aria-label={m.lastName} value={lastName} onChange={(e) => onChange('lastName', e.target.value)} className={inputClass} />
                     </Row>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                    <Row label="Age" value={age ? String(age) : ''} isEditing={isEditing}>
-                        <input aria-label="Age" type="number" min={10} max={100} value={age ?? ''} onChange={(e) => onChange('profile.age', e.target.value === '' ? null : Number(e.target.value))} className={inputClass} />
+                    <Row label={m.age} value={age ? String(age) : ''} isEditing={isEditing}>
+                        <input aria-label={m.age} type="number" min={10} max={100} value={age ?? ''} onChange={(e) => onChange('profile.age', e.target.value === '' ? null : Number(e.target.value))} className={inputClass} />
                     </Row>
-                    <Row label="Nationality" value={nationality ? `${flagFor(nationality)} ${nationality}` : ''} isEditing={isEditing}>
-                        <CountrySelect label="Nationality" value={nationality ?? ''} onChange={(v) => onChange('profile.nationality', v || null)} />
+                    <Row label={m.nationality} value={nationality ? `${flagFor(nationality)} ${localizeCountry(nationality, locale)}` : ''} isEditing={isEditing}>
+                        <CountrySelect label={m.nationality} value={nationality ?? ''} onChange={(v) => onChange('profile.nationality', v || null)} />
                     </Row>
                 </div>
 
-                <Row label="Preferred field" value={preferredField} isEditing={isEditing}>
-                    <input aria-label="Preferred field" placeholder="e.g. Computer Science" value={preferredField ?? ''} onChange={(e) => onChange('profile.preferredField', e.target.value)} className={inputClass} />
+                <Row label={m.preferredField} value={preferredField} isEditing={isEditing}>
+                    <input aria-label={m.preferredField} placeholder={m.fieldPlaceholder} value={preferredField ?? ''} onChange={(e) => onChange('profile.preferredField', e.target.value)} className={inputClass} />
                 </Row>
 
-                <Row label="Target country" value={preferredCountry ? `${flagFor(preferredCountry)} ${preferredCountry}` : ''} isEditing={isEditing}>
-                    <CountrySelect label="Target country" value={preferredCountry ?? ''} onChange={(v) => onChange('profile.preferredCountry', v || null)} />
+                <Row label={m.targetCountry} value={preferredCountry ? `${flagFor(preferredCountry)} ${localizeCountry(preferredCountry, locale)}` : ''} isEditing={isEditing}>
+                    <CountrySelect label={m.targetCountry} value={preferredCountry ?? ''} onChange={(v) => onChange('profile.preferredCountry', v || null)} />
                 </Row>
 
                 <div>
-                    <p className="mb-1.5 text-sm font-medium text-slate-500">Program level</p>
-                    <div className="grid grid-cols-3 gap-2" role={isEditing ? 'radiogroup' : undefined} aria-label="Program level">
+                    <p className="mb-1.5 text-sm font-medium text-slate-500">{m.programLevel}</p>
+                    <div className="grid grid-cols-3 gap-2" role={isEditing ? 'radiogroup' : undefined} aria-label={m.programLevel}>
                         {PROGRAM_LEVELS.map((level) => {
                             const selected = programLevel === level;
                             return (
@@ -96,7 +107,7 @@ export function PersonalPreferences({ firstName, lastName, age, nationality, pre
                                     onClick={() => onChange('profile.programLevel', level)}
                                     className={`h-11 rounded-[10px] text-sm font-semibold transition-colors ${selected ? 'bg-brand text-white shadow-sm' : 'bg-slate-50 text-slate-600'} ${isEditing && !selected ? 'hover:bg-slate-100' : ''} disabled:cursor-default`}
                                 >
-                                    {level}
+                                    {t.profile.programLevels[level] ?? level}
                                 </button>
                             );
                         })}

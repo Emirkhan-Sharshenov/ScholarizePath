@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import BrandLogo from '@/components/brand/BrandLogo'
+import LanguageSwitcher from '@/i18n/LanguageSwitcher'
+import { useI18n } from '@/i18n/I18nProvider'
+import { apiMessage } from '@/i18n/format'
 import {
     ArrowLeft,
     ArrowRight,
@@ -24,39 +27,11 @@ import {
     type LucideIcon,
 } from 'lucide-react'
 
-const GOOGLE_ERROR_MESSAGES: Record<string, string> = {
-    google_not_configured: "Google sign-in isn't available right now.",
-    google_auth_failed: "Google sign-in failed. Please try again.",
-    google_email_unverified: "Your Google email isn't verified.",
-}
-
-// Copy for the brand panel on the left (desktop only), per mode.
-const PANEL_CONTENT: Record<'login' | 'register', {
-    badge: string
-    title: string
-    subtitle: string
-    points: { icon: LucideIcon; title: string; text: string }[]
-}> = {
-    login: {
-        badge: 'Personalized student portal',
-        title: 'Welcome back',
-        subtitle: 'Your saved universities, scholarships, and applications are waiting.',
-        points: [
-            { icon: Heart, title: 'Your favorites', text: 'Universities and scholarships you saved, in one place.' },
-            { icon: ClipboardList, title: 'Application tracker', text: 'Keep every application and deadline on track.' },
-            { icon: Bot, title: 'AI assistant', text: 'Pick up your conversation where you left off.' },
-        ],
-    },
-    register: {
-        badge: 'Universities · Scholarships · AI tools',
-        title: 'Start your journey abroad',
-        subtitle: 'Create an account to get personalized matches and AI help with every application.',
-        points: [
-            { icon: GraduationCap, title: '1,500+ universities', text: 'Filter by country, budget, and requirements.' },
-            { icon: Award, title: '120+ scholarships', text: 'Fully funded and partial awards with deadlines.' },
-            { icon: TrendingUp, title: 'Personalized odds', text: 'See your estimated chances for each program.' },
-        ],
-    },
+// Icons for the brand panel's three points on the left (desktop only), per
+// mode; the copy comes from the `auth.panel` messages, in the same order.
+const PANEL_ICONS: Record<'login' | 'register', LucideIcon[]> = {
+    login: [Heart, ClipboardList, Bot],
+    register: [GraduationCap, Award, TrendingUp],
 }
 
 const inputClass =
@@ -86,10 +61,11 @@ function GoogleButton({ label }: { label: string }) {
 }
 
 function OrDivider() {
+    const { t } = useI18n()
     return (
         <div className="flex w-full items-center gap-3 text-xs font-medium uppercase tracking-wider text-slate-400">
             <span className="h-px flex-1 bg-slate-200" />
-            or with email
+            {t.auth.orWithEmail}
             <span className="h-px flex-1 bg-slate-200" />
         </div>
     )
@@ -129,6 +105,7 @@ function Field({
 
 function PasswordInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
     const [visible, setVisible] = useState(false)
+    const { t } = useI18n()
 
     return (
         <>
@@ -136,7 +113,7 @@ function PasswordInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
             <button
                 type="button"
                 onClick={() => setVisible((v) => !v)}
-                aria-label={visible ? 'Hide password' : 'Show password'}
+                aria-label={visible ? t.auth.hidePassword : t.auth.showPassword}
                 aria-pressed={visible}
                 className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
             >
@@ -169,7 +146,8 @@ function SubmitButton({ loading, label, loadingLabel }: { loading: boolean; labe
 }
 
 function BrandPanel({ mode }: { mode: 'login' | 'register' }) {
-    const content = PANEL_CONTENT[mode]
+    const { t } = useI18n()
+    const content = t.auth.panel[mode]
 
     return (
         <aside className="relative hidden overflow-hidden bg-gradient-to-br from-brand via-[#0a4aa6] to-ink text-white lg:flex lg:flex-col lg:justify-between lg:p-12 xl:p-16">
@@ -198,7 +176,9 @@ function BrandPanel({ mode }: { mode: 'login' | 'register' }) {
                 <p className="mt-4 text-lg leading-relaxed text-blue-100/85">{content.subtitle}</p>
 
                 <ul className="mt-10 space-y-3">
-                    {content.points.map(({ icon: Icon, title, text }) => (
+                    {content.points.map(({ title, text }, i) => {
+                        const Icon = PANEL_ICONS[mode][i]
+                        return (
                         <li key={title} className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.07] p-4 backdrop-blur-sm">
                             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15">
                                 <Icon aria-hidden="true" className="h-5 w-5" />
@@ -208,7 +188,8 @@ function BrandPanel({ mode }: { mode: 'login' | 'register' }) {
                                 <span className="mt-0.5 block text-sm leading-snug text-blue-100/75">{text}</span>
                             </span>
                         </li>
-                    ))}
+                        )
+                    })}
                 </ul>
             </motion.div>
 
@@ -237,6 +218,7 @@ export default function LoginForm() {
 
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { t } = useI18n()
 
     const mode = isLogin ? 'register' : 'login'
 
@@ -250,9 +232,9 @@ export default function LoginForm() {
             // Leaves isLogin as-is (defaults to the Sign In panel) — Google
             // sign-in is reachable from both panels, but errors most often
             // come from someone trying to sign in, not register.
-            setError(GOOGLE_ERROR_MESSAGES[googleError] || "Something went wrong. Please try again.")
+            setError(t.auth.googleErrors[googleError] || t.auth.genericError)
         }
-    }, [searchParams])
+    }, [searchParams, t])
 
     const handleToggleMode = (status: boolean) => {
         setError("")
@@ -265,12 +247,12 @@ export default function LoginForm() {
         setError("")
 
         if (!firstName.trim() || !lastName.trim() || !registerEmail.trim() || !registerPassword) {
-            setError("Please fill in all fields")
+            setError(t.auth.fillAll)
             return
         }
 
         if (registerPassword.length < 8) {
-            setError("Password must be at least 8 characters")
+            setError(t.auth.passwordTooShort)
             return
         }
 
@@ -293,10 +275,10 @@ export default function LoginForm() {
             if (data.success) {
                 setIsVerifying(true)
             } else {
-                setError(data.message || "Registration failed")
+                setError(apiMessage(t, data.message, t.auth.registrationFailed))
             }
         } catch {
-            setError("An error occurred during registration.")
+            setError(t.auth.registrationError)
         } finally {
             setLoading(false)
         }
@@ -307,7 +289,7 @@ export default function LoginForm() {
         setError("")
 
         if (!verificationCode.trim() || verificationCode.length !== 6) {
-            setError("Please enter a valid 6-digit code")
+            setError(t.auth.invalidCode)
             return
         }
 
@@ -327,10 +309,10 @@ export default function LoginForm() {
             if (data.success) {
                 router.push("/profile/setup")
             } else {
-                setError(data.message || "Invalid or expired code")
+                setError(apiMessage(t, data.message, t.auth.codeExpired))
             }
         } catch {
-            setError("An error occurred during verification.")
+            setError(t.auth.verificationError)
         } finally {
             setLoading(false)
         }
@@ -341,7 +323,7 @@ export default function LoginForm() {
         setError("")
 
         if (!loginEmail.trim() || !loginPassword) {
-            setError("Please fill in all fields")
+            setError(t.auth.fillAll)
             return
         }
 
@@ -362,10 +344,10 @@ export default function LoginForm() {
             if (data.success) {
                 router.push("/dashboard")
             } else {
-                setError(data.message || "Invalid email or password")
+                setError(apiMessage(t, data.message, t.auth.invalidLogin))
             }
         } catch {
-            setError("An error occurred during login.")
+            setError(t.auth.loginError)
         } finally {
             setLoading(false)
         }
@@ -382,11 +364,14 @@ export default function LoginForm() {
                         className="inline-flex h-10 items-center gap-2 rounded-[10px] px-2 -mx-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-ink"
                     >
                         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-                        Back to home
+                        {t.auth.backHome}
                     </Link>
-                    <Link href="/" className="lg:hidden">
-                        <BrandLogo className="text-[15px] sm:text-[17px]" taglineClassName="max-[399px]:hidden" />
-                    </Link>
+                    <div className="flex items-center gap-3">
+                        <Link href="/" className="lg:hidden">
+                            <BrandLogo className="text-[15px] sm:text-[17px]" taglineClassName="hidden sm:block" nameClassName="max-[459px]:hidden" />
+                        </Link>
+                        <LanguageSwitcher />
+                    </div>
                 </div>
 
                 <div className="flex flex-1 items-center justify-center py-8 sm:py-12">
@@ -402,15 +387,15 @@ export default function LoginForm() {
                                 <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-brand">
                                     <MailCheck aria-hidden="true" className="h-6 w-6" />
                                 </span>
-                                <h1 className="mt-5 font-display text-2xl font-bold tracking-tight sm:text-[1.75rem]">Check your email</h1>
+                                <h1 className="mt-5 font-display text-2xl font-bold tracking-tight sm:text-[1.75rem]">{t.auth.checkEmail}</h1>
                                 <p className="mt-2 text-[15px] leading-relaxed text-slate-500">
-                                    We sent a 6-digit code to <span className="font-semibold text-ink break-words">{registerEmail}</span>
+                                    {t.auth.sentCodeTo} <span className="font-semibold text-ink break-words">{registerEmail}</span>
                                 </p>
 
                                 <form onSubmit={handleVerifyCode} className="mt-7 flex flex-col gap-4">
                                     {error && <ErrorMessage message={error} />}
                                     <div className="flex flex-col gap-1.5">
-                                        <label htmlFor="verification-code" className="text-sm font-medium text-ink">Verification code</label>
+                                        <label htmlFor="verification-code" className="text-sm font-medium text-ink">{t.auth.codeLabel}</label>
                                         <input
                                             type="text"
                                             id="verification-code"
@@ -424,61 +409,61 @@ export default function LoginForm() {
                                             className="h-14 w-full rounded-[10px] border border-slate-200 bg-white text-center font-display text-2xl font-bold tracking-[0.5em] text-ink placeholder:text-slate-300 shadow-sm transition-colors focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10"
                                         />
                                     </div>
-                                    <SubmitButton loading={loading} label="Verify & continue" loadingLabel="Verifying..." />
+                                    <SubmitButton loading={loading} label={t.auth.verify} loadingLabel={t.auth.verifying} />
                                     <button
                                         type="button"
                                         onClick={() => setIsVerifying(false)}
                                         className="mx-auto inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-slate-500 transition-colors hover:text-ink"
                                     >
                                         <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />
-                                        Back to registration
+                                        {t.auth.backToRegistration}
                                     </button>
                                 </form>
                             </>
                         ) : mode === 'register' ? (
                             <>
-                                <h1 className="font-display text-2xl font-bold tracking-tight sm:text-[1.75rem]">Create your account</h1>
+                                <h1 className="font-display text-2xl font-bold tracking-tight sm:text-[1.75rem]">{t.auth.createTitle}</h1>
                                 <p className="mt-2 text-[15px] text-slate-500">
-                                    Already have an account?{' '}
+                                    {t.auth.haveAccount}{' '}
                                     <button type="button" onClick={() => handleToggleMode(false)} className="font-semibold text-brand hover:underline">
-                                        Sign in
+                                        {t.auth.signIn}
                                     </button>
                                 </p>
 
                                 <div className="mt-7 flex flex-col gap-5">
-                                    <GoogleButton label="Sign up with Google" />
+                                    <GoogleButton label={t.auth.signUpGoogle} />
                                     <OrDivider />
                                 </div>
 
                                 <form onSubmit={handleRegister} className="mt-5 flex flex-col gap-4">
                                     {error && <ErrorMessage message={error} />}
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <Field id="register-first-name" label="First name" icon={User}>
+                                        <Field id="register-first-name" label={t.auth.firstName} icon={User}>
                                             <input
                                                 type="text"
                                                 id="register-first-name"
                                                 name="given-name"
                                                 autoComplete="given-name"
-                                                placeholder="Alex"
+                                                placeholder={t.auth.firstNamePlaceholder}
                                                 value={firstName}
                                                 onChange={(e) => setFirstName(e.target.value)}
                                                 className={inputClass}
                                             />
                                         </Field>
-                                        <Field id="register-last-name" label="Last name" icon={User}>
+                                        <Field id="register-last-name" label={t.auth.lastName} icon={User}>
                                             <input
                                                 type="text"
                                                 id="register-last-name"
                                                 name="family-name"
                                                 autoComplete="family-name"
-                                                placeholder="Chen"
+                                                placeholder={t.auth.lastNamePlaceholder}
                                                 value={lastName}
                                                 onChange={(e) => setLastName(e.target.value)}
                                                 className={inputClass}
                                             />
                                         </Field>
                                     </div>
-                                    <Field id="register-email" label="Email" icon={Mail}>
+                                    <Field id="register-email" label={t.auth.email} icon={Mail}>
                                         <input
                                             type="email"
                                             id="register-email"
@@ -491,40 +476,40 @@ export default function LoginForm() {
                                         />
                                     </Field>
                                     <div className="flex flex-col gap-1.5">
-                                        <Field id="register-password" label="Password" icon={Lock}>
+                                        <Field id="register-password" label={t.auth.password} icon={Lock}>
                                             <PasswordInput
                                                 id="register-password"
                                                 name="new-password"
                                                 autoComplete="new-password"
-                                                placeholder="At least 8 characters"
+                                                placeholder={t.auth.passwordPlaceholderNew}
                                                 aria-describedby="register-password-hint"
                                                 value={registerPassword}
                                                 onChange={(e) => setRegisterPassword(e.target.value)}
                                             />
                                         </Field>
-                                        <p id="register-password-hint" className="text-xs text-slate-500">Use at least 8 characters.</p>
+                                        <p id="register-password-hint" className="text-xs text-slate-500">{t.auth.passwordHint}</p>
                                     </div>
-                                    <SubmitButton loading={loading} label="Create account" loadingLabel="Sending code..." />
+                                    <SubmitButton loading={loading} label={t.auth.createAccount} loadingLabel={t.auth.sendingCode} />
                                 </form>
                             </>
                         ) : (
                             <>
-                                <h1 className="font-display text-2xl font-bold tracking-tight sm:text-[1.75rem]">Sign in to your account</h1>
+                                <h1 className="font-display text-2xl font-bold tracking-tight sm:text-[1.75rem]">{t.auth.signInTitle}</h1>
                                 <p className="mt-2 text-[15px] text-slate-500">
-                                    New here?{' '}
+                                    {t.auth.newHere}{' '}
                                     <button type="button" onClick={() => handleToggleMode(true)} className="font-semibold text-brand hover:underline">
-                                        Create an account
+                                        {t.auth.createAnAccount}
                                     </button>
                                 </p>
 
                                 <div className="mt-7 flex flex-col gap-5">
-                                    <GoogleButton label="Continue with Google" />
+                                    <GoogleButton label={t.auth.continueGoogle} />
                                     <OrDivider />
                                 </div>
 
                                 <form onSubmit={handleLogin} className="mt-5 flex flex-col gap-4">
                                     {error && <ErrorMessage message={error} />}
-                                    <Field id="login-email" label="Email" icon={Mail}>
+                                    <Field id="login-email" label={t.auth.email} icon={Mail}>
                                         <input
                                             type="email"
                                             id="login-email"
@@ -536,17 +521,17 @@ export default function LoginForm() {
                                             className={inputClass}
                                         />
                                     </Field>
-                                    <Field id="login-password" label="Password" icon={Lock}>
+                                    <Field id="login-password" label={t.auth.password} icon={Lock}>
                                         <PasswordInput
                                             id="login-password"
                                             name="password"
-                                            placeholder="Enter your password"
+                                            placeholder={t.auth.passwordPlaceholder}
                                             autoComplete="current-password"
                                             value={loginPassword}
                                             onChange={(e) => setLoginPassword(e.target.value)}
                                         />
                                     </Field>
-                                    <SubmitButton loading={loading} label="Sign In" loadingLabel="Signing in..." />
+                                    <SubmitButton loading={loading} label={t.auth.signInButton} loadingLabel={t.auth.signingIn} />
                                 </form>
                             </>
                         )}

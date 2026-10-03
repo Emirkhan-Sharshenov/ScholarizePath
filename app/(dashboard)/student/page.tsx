@@ -9,6 +9,7 @@ import { AcademicScores } from '@/components/student/AcademicScores';
 import { PersonalPreferences } from '@/components/student/PersonalPreferences';
 import { NotificationSettings } from '@/components/student/NotificationSettings';
 import { DeleteAccount } from '@/components/student/DeleteAccount';
+import { useI18n } from '@/i18n/I18nProvider';
 
 export interface ProfileData {
     _id: string;
@@ -55,6 +56,8 @@ export default function ProfilePage() {
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
     const [savedToast, setSavedToast] = useState(false);
+    const { t } = useI18n();
+    const m = t.student;
 
     useEffect(() => {
         fetch('/api/auth/self', {
@@ -110,7 +113,7 @@ export default function ProfilePage() {
             setSavedToast(true);
         } catch (err) {
             console.error('Failed to update:', err);
-            setSaveError("Couldn't save your changes. Please try again.");
+            setSaveError(m.saveError);
         } finally {
             setSaving(false);
         }
@@ -119,11 +122,11 @@ export default function ProfilePage() {
     if (loading) {
         return (
             <div className="flex min-h-[60vh] items-center justify-center gap-2 font-body text-slate-500">
-                <Loader2 className="h-5 w-5 animate-spin" /> Loading profile…
+                <Loader2 className="h-5 w-5 animate-spin" /> {m.loading}
             </div>
         );
     }
-    if (!formData) return <div className="p-8 text-center font-body text-red-600">Failed to load user profile.</div>;
+    if (!formData) return <div className="p-8 text-center font-body text-red-600">{m.loadFailed}</div>;
 
     const profile = formData.profile ?? {};
     const hasChanges = JSON.stringify(formData) !== JSON.stringify(data);
@@ -131,7 +134,7 @@ export default function ProfilePage() {
     return (
         <main className={`min-h-screen bg-[#f7f9fc] px-4 pt-5 font-body text-ink sm:px-6 md:px-10 md:pt-8 ${isEditing ? 'pb-40 md:pb-28' : 'pb-12'}`}>
             <div className="mx-auto max-w-5xl space-y-5">
-                <h1 className="font-display text-2xl font-bold tracking-tight md:text-4xl">Student profile</h1>
+                <h1 className="font-display text-2xl font-bold tracking-tight md:text-4xl">{m.title}</h1>
 
                 <ProfileHeader
                     firstName={formData.firstName}
@@ -188,11 +191,11 @@ export default function ProfilePage() {
                         <div className="flex items-center justify-between gap-4">
                             <p className="hidden items-center gap-2 text-sm text-slate-600 sm:flex">
                                 <span className={`h-2 w-2 rounded-full ${saveError ? 'bg-red-500' : hasChanges ? 'bg-amber-500' : 'bg-slate-300'}`} />
-                                {saveError ?? (hasChanges ? 'You have unsaved changes.' : 'No changes yet.')}
+                                {saveError ?? (hasChanges ? m.unsaved : m.noChanges)}
                             </p>
                             <div className="flex flex-1 gap-2 sm:flex-none">
                                 <button type="button" onClick={cancelEditing} className="h-11 flex-1 rounded-[10px] px-5 text-sm font-semibold text-slate-600 hover:bg-slate-100 sm:flex-none">
-                                    Cancel
+                                    {m.cancel}
                                 </button>
                                 <button
                                     type="button"
@@ -201,7 +204,7 @@ export default function ProfilePage() {
                                     className="inline-flex h-11 flex-[2] items-center justify-center gap-2 rounded-[10px] bg-brand px-6 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#004a9f] disabled:opacity-50 sm:flex-none"
                                 >
                                     {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                                    Save changes
+                                    {m.saveChanges}
                                 </button>
                             </div>
                         </div>
@@ -219,7 +222,7 @@ export default function ProfilePage() {
                         exit={{ y: -12, opacity: 0 }}
                         className="fixed right-4 top-20 z-40 font-body flex items-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-emerald-700 shadow-lg md:top-6"
                     >
-                        <CheckCircle2 className="h-5 w-5" /> Profile saved
+                        <CheckCircle2 className="h-5 w-5" /> {m.saved}
                     </motion.div>
                 )}
             </AnimatePresence>

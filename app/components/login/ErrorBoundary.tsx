@@ -1,6 +1,23 @@
 "use client";
 
 import React from "react";
+import { useI18n } from "@/i18n/I18nProvider";
+
+function DefaultFallback({ onReload }: { onReload: () => void }) {
+    const { t } = useI18n();
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-[#f7f9fc] text-ink gap-4 px-6 text-center font-body">
+            <h1 className="font-display text-2xl font-bold">{t.ui.errorTitle}</h1>
+            <p className="text-sm text-slate-500 max-w-sm">{t.ui.extensionHint}</p>
+            <button
+                onClick={onReload}
+                className="h-11 px-6 rounded-[10px] bg-brand text-white hover:bg-[#004a9f] transition font-semibold"
+            >
+                {t.ui.reload}
+            </button>
+        </div>
+    );
+}
 
 type Props = {
     children: React.ReactNode;
@@ -33,22 +50,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
     render() {
         if (this.state.hasError) {
             return (
-                this.props.fallback ?? (
-                    <div className="flex flex-col items-center justify-center min-h-screen bg-[#f7f9fc] text-ink gap-4 px-6 text-center font-body">
-                        <h1 className="font-display text-2xl font-bold">Something went wrong</h1>
-                        <p className="text-sm text-slate-500 max-w-sm">
-                            This is sometimes caused by a browser extension (like a password
-                            manager) conflicting with the page. Try reloading, or disabling
-                            extensions for this site.
-                        </p>
-                        <button
-                            onClick={this.handleReload}
-                            className="h-11 px-6 rounded-[10px] bg-brand text-white hover:bg-[#004a9f] transition font-semibold"
-                        >
-                            Reload page
-                        </button>
-                    </div>
-                )
+                this.props.fallback ?? <DefaultFallback onReload={this.handleReload} />
             );
         }
 

@@ -19,6 +19,12 @@ import {
     type CheckStatus, type ProfileState, type StudentProfile,
 } from '@/components/common/detailUi';
 import UnverifiedTag from './UnverifiedTag';
+import { useI18n } from '@/i18n/I18nProvider';
+import { localizeCountry } from '@/i18n/countries';
+import { formatNumber, intlLocale } from '@/i18n/format';
+import type { Messages } from '@/i18n/messages';
+
+type D = Messages['universities']['detail'];
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- university documents are schemaless (strict: false) */
 
@@ -36,7 +42,7 @@ interface EligibilityRow {
     unverified: boolean;
 }
 
-function buildEligibility(uni: any, profile: StudentProfile | null, isUnverified: (f: KeyField) => boolean): EligibilityRow[] {
+function buildEligibility(uni: any, profile: StudentProfile | null, isUnverified: (f: KeyField) => boolean, d: D): EligibilityRow[] {
     const req = uni.admissionRequirements ?? {};
     const rows: EligibilityRow[] = [];
     const signedIn = profile !== null;
@@ -47,12 +53,12 @@ function buildEligibility(uni: any, profile: StudentProfile | null, isUnverified
     const userGpa = num(profile?.gpa);
     let gpa: [CheckStatus, string] = ['none', ''];
     if (gpaMin !== null && signedIn) {
-        if (scale !== 4) gpa = ['check', 'Different scale'];
-        else if (userGpa === null) gpa = ['unknown', 'Add to profile'];
-        else gpa = userGpa >= gpaMin ? ['met', 'Meets minimum'] : ['below', 'Below minimum'];
+        if (scale !== 4) gpa = ['check', d.differentScale];
+        else if (userGpa === null) gpa = ['unknown', d.addToProfile];
+        else gpa = userGpa >= gpaMin ? ['met', d.meetsMinimum] : ['below', d.belowMinimum];
     }
     rows.push({
-        key: 'gpa', label: 'GPA',
+        key: 'gpa', label: d.gpa,
         required: gpaMin !== null ? `${gpaMin} / ${scale}` : <NoData />,
         yours: userGpa !== null ? `${userGpa} / 4.0` : '—',
         status: gpa[0], statusLabel: gpa[1],
@@ -67,12 +73,12 @@ function buildEligibility(uni: any, profile: StudentProfile | null, isUnverified
     let english: [CheckStatus, string] = ['none', ''];
     if ((ielts !== null || toefl !== null) && signedIn) {
         const needed = test === 'IELTS' ? ielts : test === 'TOEFL' ? toefl : null;
-        if (!test || score === null) english = ['unknown', 'Add to profile'];
-        else if (needed === null) english = ['check', `No ${test} minimum`];
-        else english = score >= needed ? ['met', 'Meets minimum'] : ['below', 'Below minimum'];
+        if (!test || score === null) english = ['unknown', d.addToProfile];
+        else if (needed === null) english = ['check', d.noTestMinimum(test)];
+        else english = score >= needed ? ['met', d.meetsMinimum] : ['below', d.belowMinimum];
     }
     rows.push({
-        key: 'english', label: 'English (IELTS / TOEFL)',
+        key: 'english', label: d.english,
         required: [ielts !== null && `IELTS ${ielts}`, toefl !== null && `TOEFL ${toefl}`].filter(Boolean).join(' · ') || <NoData />,
         yours: test && score !== null ? `${test} ${score}` : '—',
         status: english[0], statusLabel: english[1],
@@ -86,12 +92,12 @@ function buildEligibility(uni: any, profile: StudentProfile | null, isUnverified
         const userSat = num(profile?.sat);
         let sat: [CheckStatus, string] = ['none', ''];
         if (signedIn) {
-            if (userSat === null) sat = ['unknown', 'Add to profile'];
-            else if (satMax !== null) sat = userSat >= satMax ? ['met', 'Above range'] : userSat >= satMin ? ['met', 'In range'] : ['below', 'Below range'];
-            else sat = userSat >= satMin ? ['met', 'Meets minimum'] : ['below', 'Below minimum'];
+            if (userSat === null) sat = ['unknown', d.addToProfile];
+            else if (satMax !== null) sat = userSat >= satMax ? ['met', d.aboveRange] : userSat >= satMin ? ['met', d.inRange] : ['below', d.belowRange];
+            else sat = userSat >= satMin ? ['met', d.meetsMinimum] : ['below', d.belowMinimum];
         }
         rows.push({
-            key: 'sat', label: satMax !== null ? 'SAT (middle 50%)' : 'SAT',
+            key: 'sat', label: satMax !== null ? d.satMiddle : d.sat,
             required: satMax !== null ? `${satMin}–${satMax}` : `${satMin}+`,
             yours: userSat !== null ? String(userSat) : '—',
             status: sat[0], statusLabel: sat[1],
@@ -103,9 +109,9 @@ function buildEligibility(uni: any, profile: StudentProfile | null, isUnverified
     const actMax = num(req.act?.max);
     if (actMin !== null) {
         rows.push({
-            key: 'act', label: actMax !== null ? 'ACT (middle 50%)' : 'ACT',
+            key: 'act', label: actMax !== null ? d.actMiddle : d.act,
             required: actMax !== null ? `${actMin}–${actMax}` : `${actMin}+`,
-            yours: signedIn ? 'Not in profile' : '—',
+            yours: signedIn ? d.notInProfile : '—',
             status: 'none', statusLabel: '', unverified: false,
         });
     }
@@ -115,13 +121,13 @@ function buildEligibility(uni: any, profile: StudentProfile | null, isUnverified
 type Outlook = { level: 'reach' | 'target' | 'likely'; reason: string };
 
 /** A rough category, not a probability: selectivity plus whether the student meets the published figures. */
-function admissionOutlook(acceptanceRate: number | null, rows: EligibilityRow[]): Outlook | null {
+function admissionOutlook(acceptanceRate: number | null, rows: EligibilityRow[], d: D): Outlook | null {
     const checked = rows.filter((r) => r.status === 'met' || r.status === 'below');
     if (acceptanceRate === null || checked.length === 0) return null;
-    if (checked.some((r) => r.status === 'below')) return { level: 'reach', reason: "You're below at least one published figure." };
-    if (acceptanceRate < 20) return { level: 'reach', reason: `Highly selective (${acceptanceRate}% admitted) — most qualified applicants aren't admitted.` };
-    if (acceptanceRate < 50) return { level: 'target', reason: `You meet the published figures; ${acceptanceRate}% of applicants are admitted.` };
-    return { level: 'likely', reason: `You meet the published figures and ${acceptanceRate}% of applicants are admitted.` };
+    if (checked.some((r) => r.status === 'below')) return { level: 'reach', reason: d.outlookBelow };
+    if (acceptanceRate < 20) return { level: 'reach', reason: d.outlookSelective(acceptanceRate) };
+    if (acceptanceRate < 50) return { level: 'target', reason: d.outlookTarget(acceptanceRate) };
+    return { level: 'likely', reason: d.outlookLikely(acceptanceRate) };
 }
 
 function Ring({ met, total }: { met: number; total: number }) {
@@ -140,22 +146,24 @@ function Ring({ met, total }: { met: number; total: number }) {
 }
 
 const OUTLOOK_STEPS = [
-    { level: 'reach', label: 'Reach', active: 'bg-rose-500', text: 'text-rose-600' },
-    { level: 'target', label: 'Target', active: 'bg-brand', text: 'text-brand' },
-    { level: 'likely', label: 'Likely', active: 'bg-emerald-500', text: 'text-emerald-600' },
+    { level: 'reach', active: 'bg-rose-500', text: 'text-rose-600' },
+    { level: 'target', active: 'bg-brand', text: 'text-brand' },
+    { level: 'likely', active: 'bg-emerald-500', text: 'text-emerald-600' },
 ] as const;
 
 function FitPanel({ state, rows, outlook, rateUnverified }: { state: ProfileState; rows: EligibilityRow[]; outlook: Outlook | null; rateUnverified: boolean }) {
+    const { t } = useI18n();
+    const d = t.universities.detail;
     const box = 'rounded-2xl border border-slate-200/80 bg-slate-50/60 p-5';
     if (state.status === 'loading') {
-        return <div className={`${box} flex items-center justify-center py-10`}><Loader2 aria-label="Loading your profile" className="h-5 w-5 animate-spin text-slate-400" /></div>;
+        return <div className={`${box} flex items-center justify-center py-10`}><Loader2 aria-label={d.loadingProfile} className="h-5 w-5 animate-spin text-slate-400" /></div>;
     }
     if (state.status === 'guest') {
         return (
             <div className={box}>
-                <p className="font-display text-base font-bold text-ink">See how you compare</p>
-                <p className="mt-1 text-sm text-slate-500">Sign in to compare your GPA, English and SAT scores with this university&apos;s published figures.</p>
-                <Link href="/login" className={`${buttonClass.primary} mt-4 h-10`}>Sign in</Link>
+                <p className="font-display text-base font-bold text-ink">{d.compareTitle}</p>
+                <p className="mt-1 text-sm text-slate-500">{d.compareText}</p>
+                <Link href="/login" className={`${buttonClass.primary} mt-4 h-10`}>{d.signIn}</Link>
             </div>
         );
     }
@@ -165,13 +173,11 @@ function FitPanel({ state, rows, outlook, rateUnverified }: { state: ProfileStat
         const universityHasFigures = rows.some((r) => r.status !== 'none');
         return (
             <div className={box}>
-                <p className="font-display text-base font-bold text-ink">Your fit</p>
+                <p className="font-display text-base font-bold text-ink">{d.yourFit}</p>
                 <p className="mt-1 text-sm text-slate-500">
-                    {universityHasFigures
-                        ? 'Add your GPA and test scores to your profile to see how you compare.'
-                        : "This university hasn't published minimum scores we can compare against."}
+                    {universityHasFigures ? d.addScores : d.noFigures}
                 </p>
-                {universityHasFigures && <Link href="/student" className={`${buttonClass.secondary} mt-4 h-10`}>Update profile</Link>}
+                {universityHasFigures && <Link href="/student" className={`${buttonClass.secondary} mt-4 h-10`}>{d.updateProfile}</Link>}
             </div>
         );
     }
@@ -180,17 +186,17 @@ function FitPanel({ state, rows, outlook, rateUnverified }: { state: ProfileStat
             <div className="flex items-center gap-4">
                 <Ring met={met} total={checked.length} />
                 <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Eligibility</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{d.eligibility}</p>
                     <p className={`font-display text-base font-bold ${met === checked.length ? 'text-emerald-600' : 'text-amber-600'}`}>
-                        {met === checked.length ? 'Meets all checked figures' : `Meets ${met} of ${checked.length}`}
+                        {met === checked.length ? d.meetsAll : d.meetsSome(met, checked.length)}
                     </p>
-                    <p className="text-xs text-slate-500">Based on your profile</p>
+                    <p className="text-xs text-slate-500">{d.basedOnProfile}</p>
                 </div>
             </div>
             <div>
                 <div className="flex items-center justify-between">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Admission outlook</p>
-                    <span title="A rough guide from the acceptance rate and the published figures, not a prediction." className="text-slate-400">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{d.outlook}</p>
+                    <span title={d.outlookHint} className="text-slate-400">
                         <Info aria-hidden="true" className="h-3.5 w-3.5" />
                     </span>
                 </div>
@@ -200,16 +206,16 @@ function FitPanel({ state, rows, outlook, rateUnverified }: { state: ProfileStat
                             {OUTLOOK_STEPS.map((s) => (
                                 <div key={s.level}>
                                     <div className={`h-1.5 rounded-full ${outlook.level === s.level ? s.active : 'bg-slate-200'}`} />
-                                    <p className={`mt-1.5 text-center text-xs font-semibold ${outlook.level === s.level ? s.text : 'text-slate-400'}`}>{s.label}</p>
+                                    <p className={`mt-1.5 text-center text-xs font-semibold ${outlook.level === s.level ? s.text : 'text-slate-400'}`}>{d[s.level]}</p>
                                 </div>
                             ))}
                         </div>
                         <p className="mt-2 text-xs leading-relaxed text-slate-500">
-                            {outlook.reason}{rateUnverified && ' The acceptance rate is unverified.'}
+                            {outlook.reason}{rateUnverified && d.rateUnverified}
                         </p>
                     </>
                 ) : (
-                    <p className="mt-1 text-xs text-slate-500">Not enough data — the acceptance rate isn&apos;t published.</p>
+                    <p className="mt-1 text-xs text-slate-500">{d.notEnough}</p>
                 )}
             </div>
         </div>
@@ -218,17 +224,20 @@ function FitPanel({ state, rows, outlook, rateUnverified }: { state: ProfileStat
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
+// Second item: the profile's programLevel value for that tuition key.
 const LEVELS = [['bachelor', 'Bachelor'], ['master', 'Master'], ['phd', 'PhD']] as const;
 type Level = (typeof LEVELS)[number][0];
 const PROGRAMS_PREVIEW = 12;
 
 export default function UniversityDetailsPage({ university }: { university: any }) {
     const router = useRouter();
+    const { t, locale } = useI18n();
+    const d = t.universities.detail;
     const { addToCompare, compareList } = useCompare();
     const { toggleInList, isInList } = useUniList();
 
     const uniId = String(university?._id ?? '');
-    const name: string = university?.name || 'Unknown university';
+    const name: string = university?.name || d.unknown;
     const { isFavorite, toggleFavorite, loading: favLoading } = useFavorites(uniId, 'university');
     const inList = isInList(uniId, 'university');
     const isCompared = compareList.some((item) => (item.id || item._id) === uniId);
@@ -238,7 +247,7 @@ export default function UniversityDetailsPage({ university }: { university: any 
 
     const verification = getVerification(university);
     const unverified = verification.isUnverified;
-    const checkedLabel = verification.checkedAt ? formatCheckedAt(verification.checkedAt) : null;
+    const checkedLabel = verification.checkedAt ? formatCheckedAt(verification.checkedAt, intlLocale(locale)) : null;
 
     const city: string = university?.location?.city ?? '';
     const country: string = university?.location?.country ?? '';
@@ -259,10 +268,15 @@ export default function UniversityDetailsPage({ university }: { university: any 
     const otherExams: string[] = Array.isArray(university?.admissionRequirements?.otherExams) ? university.admissionRequirements.otherExams : [];
     const deadlines = Array.isArray(university?.applicationDeadlines) ? university.applicationDeadlines : [];
     const admissionsUrl: string | null = university?.applicationLink || university?.website || null;
-    const institution = [university?.type, (university?.institutionType || 'University').toLowerCase()].filter(Boolean).join(' ');
+    const instType: string = university?.institutionType || 'University';
+    const institution = locale === 'en'
+        ? [university?.type, instType.toLowerCase()].filter(Boolean).join(' ')
+        : instType === 'University'
+            ? [university?.type && (d.ownership[university.type] ?? university.type), d.university].filter(Boolean).join(' ')
+            : t.universities.institutionTypes[instType] ?? instType;
 
-    const rows = buildEligibility(university, profile, unverified);
-    const outlook = admissionOutlook(acceptanceRate, rows);
+    const rows = buildEligibility(university, profile, unverified, d);
+    const outlook = admissionOutlook(acceptanceRate, rows, d);
 
     // Cost — tuition per degree level; default to the level in the student's profile.
     const tuitionOf = (l: Level) => num(university?.tuition?.[l]);
@@ -276,7 +290,7 @@ export default function UniversityDetailsPage({ university }: { university: any 
     const original = university?.tuition?.original;
     const livingMin = num(university?.livingCostUSD?.min);
     const livingMax = num(university?.livingCostUSD?.max);
-    const money = (v: number) => formatAmount(v, currency);
+    const money = (v: number) => formatAmount(v, currency, intlLocale(locale));
     const range = (a: number, b: number) => (a === b ? money(a) : `${money(a)} – ${money(b)}`);
 
     const [programQuery, setProgramQuery] = useState('');
@@ -299,23 +313,23 @@ export default function UniversityDetailsPage({ university }: { university: any 
         <button
             type="button"
             onClick={toggleFavorite}
-            aria-label={isFavorite ? 'Remove from saved' : 'Save'}
+            aria-label={isFavorite ? d.removeSaved : d.save}
             aria-pressed={isFavorite}
             className={compact ? (isFavorite ? buttonClass.savedIcon : buttonClass.icon) : isFavorite ? `${buttonClass.secondary} border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-50` : buttonClass.secondary}
         >
             {favLoading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Heart aria-hidden="true" className={`h-4 w-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />}
-            {!compact && (isFavorite ? 'Saved' : 'Save')}
+            {!compact && (isFavorite ? d.saved : d.save)}
         </button>
     );
     const listButton = (
         <button type="button" onClick={handleAddToList} className={`${inList ? buttonClass.success : buttonClass.secondary} flex-1 md:flex-none`}>
             {inList ? <Check aria-hidden="true" className="h-4 w-4" /> : <Plus aria-hidden="true" className="h-4 w-4" />}
-            {inList ? 'In your list' : 'Add to List'}
+            {inList ? d.inList : d.addToList}
         </button>
     );
     const compareButton = (
         <button type="button" onClick={handleCompare} className={`${isCompared ? buttonClass.success : buttonClass.primary} flex-1 md:flex-none`}>
-            <Scale aria-hidden="true" className="h-4 w-4" /> {isCompared ? 'In comparison' : 'Compare'}
+            <Scale aria-hidden="true" className="h-4 w-4" /> {isCompared ? d.inComparison : d.compare}
         </button>
     );
 
@@ -324,7 +338,7 @@ export default function UniversityDetailsPage({ university }: { university: any 
             <div className="mx-auto max-w-6xl">
                 <DetailTopBar
                     backHref="/universities"
-                    backLabel="Universities"
+                    backLabel={d.back}
                     title={name}
                     actions={<>{listButton}{saveButton(false)}{compareButton}</>}
                     mobileActions={saveButton(true)}
@@ -343,8 +357,8 @@ export default function UniversityDetailsPage({ university }: { university: any 
                                     <div className="mt-2 flex flex-wrap items-center gap-1.5">
                                         {verification.isVerified && checkedLabel && (
                                             <VerifiedPill
-                                                label={`Verified · ${checkedLabel}`}
-                                                title="Every key figure on this page was checked against the university's official sources on this date. Rechecked yearly."
+                                                label={t.universities.verifiedOn(checkedLabel)}
+                                                title={d.verifiedTitle}
                                             />
                                         )}
                                         {institution && <Chip>{institution}</Chip>}
@@ -357,20 +371,20 @@ export default function UniversityDetailsPage({ university }: { university: any 
                                     <span className="inline-flex items-center gap-1.5">
                                         <MapPin aria-hidden="true" className="h-4 w-4 text-slate-400" />
                                         {mapHref ? (
-                                            <a href={mapHref} target="_blank" rel="noopener noreferrer" className="hover:text-brand hover:underline">{[city, country].filter(Boolean).join(', ')}</a>
-                                        ) : [city, country].filter(Boolean).join(', ')}
+                                            <a href={mapHref} target="_blank" rel="noopener noreferrer" className="hover:text-brand hover:underline">{[city, localizeCountry(country, locale)].filter(Boolean).join(', ')}</a>
+                                        ) : [city, localizeCountry(country, locale)].filter(Boolean).join(', ')}
                                         {' '}{flagFor(country)}
                                     </span>
                                 )}
                                 {worldRank !== null ? (
                                     <Chip className="bg-amber-50 text-amber-800">
-                                        <Trophy aria-hidden="true" className="h-3.5 w-3.5" /> World rank #{worldRank}{rankYear && ` · QS ${rankYear}`}
+                                        <Trophy aria-hidden="true" className="h-3.5 w-3.5" /> {d.worldRankChip(worldRank)}{rankYear && ` · QS ${rankYear}`}
                                         <UnverifiedTag show={unverified('ranking.global')} />
                                     </Chip>
                                 ) : nationalRank !== null ? (
-                                    <Chip className="bg-blue-50 text-brand"><Trophy aria-hidden="true" className="h-3.5 w-3.5" /> National rank #{nationalRank}</Chip>
+                                    <Chip className="bg-blue-50 text-brand"><Trophy aria-hidden="true" className="h-3.5 w-3.5" /> {d.nationalRankChip(nationalRank)}</Chip>
                                 ) : (
-                                    <Chip className="bg-slate-100 text-slate-500"><Trophy aria-hidden="true" className="h-3.5 w-3.5" /> Not ranked</Chip>
+                                    <Chip className="bg-slate-100 text-slate-500"><Trophy aria-hidden="true" className="h-3.5 w-3.5" /> {t.universities.notRanked}</Chip>
                                 )}
                             </div>
 
@@ -379,12 +393,12 @@ export default function UniversityDetailsPage({ university }: { university: any 
                             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
                                 {university?.website && (
                                     <a href={university.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-brand hover:underline">
-                                        <Globe2 aria-hidden="true" className="h-4 w-4" /> Official website <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
+                                        <Globe2 aria-hidden="true" className="h-4 w-4" /> {d.website} <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
                                     </a>
                                 )}
                                 {university?.applicationLink && university.applicationLink !== university.website && (
                                     <a href={university.applicationLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-brand hover:underline">
-                                        <ClipboardCheck aria-hidden="true" className="h-4 w-4" /> Admissions <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
+                                        <ClipboardCheck aria-hidden="true" className="h-4 w-4" /> {d.admissions} <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
                                     </a>
                                 )}
                             </div>
@@ -398,22 +412,22 @@ export default function UniversityDetailsPage({ university }: { university: any 
 
                 {/* Key facts */}
                 <div className="mt-5 grid grid-cols-2 gap-3 md:mt-6 md:gap-4 lg:grid-cols-4">
-                    <FactTile icon={Percent} tone="violet" label="Acceptance rate">
+                    <FactTile icon={Percent} tone="violet" label={d.acceptanceRate}>
                         {acceptanceRate !== null ? <>{acceptanceRate}%<UnverifiedTag show={unverified('acceptanceRate')} /></> : <NoData />}
                     </FactTile>
-                    <FactTile icon={Users} tone="sky" label="Students">
-                        {totalStudents !== null ? <>{totalStudents.toLocaleString('en-US')}<UnverifiedTag show={unverified('students.total')} /></> : <NoData />}
+                    <FactTile icon={Users} tone="sky" label={d.students}>
+                        {totalStudents !== null ? <>{formatNumber(locale, totalStudents)}<UnverifiedTag show={unverified('students.total')} /></> : <NoData />}
                     </FactTile>
-                    <FactTile icon={Globe2} tone="emerald" label="International">
+                    <FactTile icon={Globe2} tone="emerald" label={d.international}>
                         {intlStudents !== null ? (
                             <>
-                                {intlStudents.toLocaleString('en-US')}
+                                {formatNumber(locale, intlStudents)}
                                 {totalStudents ? <span className="ml-1 text-xs font-medium text-slate-400">({Math.round((intlStudents / totalStudents) * 100)}%)</span> : null}
                                 <UnverifiedTag show={unverified('students.international')} />
                             </>
                         ) : <NoData />}
                     </FactTile>
-                    <FactTile icon={Languages} tone="amber" label={languages.length > 1 ? 'Languages' : 'Language'}>
+                    <FactTile icon={Languages} tone="amber" label={languages.length > 1 ? d.languages : d.language}>
                         {languages.length ? <span className="text-sm">{languages.join(', ')}</span> : <NoData />}
                     </FactTile>
                 </div>
@@ -424,27 +438,27 @@ export default function UniversityDetailsPage({ university }: { university: any 
                         <DetailCard
                             icon={ClipboardList}
                             tone="blue"
-                            title="Your eligibility"
-                            subtitle="Your profile against the university's published figures"
+                            title={d.eligibilityTitle}
+                            subtitle={d.eligibilitySubtitle}
                             defaultOpen
                             className="order-1 lg:order-none"
                         >
                             <div className="overflow-hidden rounded-2xl border border-slate-200/80 text-sm">
                                 <div aria-hidden="true" className="hidden grid-cols-[1.3fr_1fr_1fr_auto] gap-4 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-400 sm:grid">
-                                    <span>Criterion</span><span>Required</span><span>Your score</span><span className="w-32 text-right">Status</span>
+                                    <span>{d.criterion}</span><span>{d.required}</span><span>{d.yourScore}</span><span className="w-44 text-right">{d.status}</span>
                                 </div>
                                 <ul className="divide-y divide-slate-100">
                                     {rows.map((row) => (
                                         <li key={row.key} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-0.5 px-4 py-3 sm:grid-cols-[1.3fr_1fr_1fr_auto] sm:gap-4 sm:py-3.5">
                                             <span className="font-semibold text-ink">{row.label}</span>
                                             <span className="col-start-1 text-slate-600 sm:col-start-auto">
-                                                <span className="text-xs text-slate-400 sm:hidden">Required </span>{row.required}
+                                                <span className="text-xs text-slate-400 sm:hidden">{d.required} </span>{row.required}
                                                 <UnverifiedTag show={row.unverified} />
                                             </span>
                                             <span className="col-start-1 text-slate-600 sm:col-start-auto">
-                                                <span className="text-xs text-slate-400 sm:hidden">You </span>{row.yours}
+                                                <span className="text-xs text-slate-400 sm:hidden">{d.you} </span>{row.yours}
                                             </span>
-                                            <span className="col-start-2 row-span-3 row-start-1 text-right sm:col-start-auto sm:row-span-1 sm:row-start-auto sm:w-32">
+                                            <span className="col-start-2 row-span-3 row-start-1 text-right sm:col-start-auto sm:row-span-1 sm:row-start-auto sm:w-44">
                                                 <StatusPill status={row.status} label={row.statusLabel} />
                                             </span>
                                         </li>
@@ -453,30 +467,30 @@ export default function UniversityDetailsPage({ university }: { university: any 
                             </div>
                             <p className="mt-3 flex gap-2 text-xs leading-relaxed text-slate-500">
                                 <Info aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                                Minimums differ between programmes. Figures tagged Unverified haven&apos;t been checked against official sources yet.
+                                {d.eligibilityNote}
                             </p>
                         </DetailCard>
 
                         <DetailCard
                             icon={BookOpen}
                             tone="violet"
-                            title="Programs"
-                            subtitle={programs.length ? `${programs.length} listed${degreeLevels.length ? ` · ${degreeLevels.join(', ')}` : ''}` : undefined}
+                            title={d.programs}
+                            subtitle={programs.length ? `${d.listed(programs.length)}${degreeLevels.length ? ` · ${degreeLevels.map((l) => t.profile.programLevels[l] ?? l).join(', ')}` : ''}` : undefined}
                             className="order-3 lg:order-none"
                         >
                             {programs.length === 0 ? (
-                                <NoData>No programmes listed yet</NoData>
+                                <NoData>{d.noPrograms}</NoData>
                             ) : (
                                 <>
                                     {programs.length > PROGRAMS_PREVIEW && (
                                         <label className="relative mb-4 block">
-                                            <span className="sr-only">Search programmes</span>
+                                            <span className="sr-only">{d.searchPrograms}</span>
                                             <Search aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                             <input
                                                 type="search"
                                                 value={programQuery}
                                                 onChange={(e) => setProgramQuery(e.target.value)}
-                                                placeholder="Search programmes"
+                                                placeholder={d.searchPrograms}
                                                 className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3.5 text-sm text-ink placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10"
                                             />
                                         </label>
@@ -488,17 +502,17 @@ export default function UniversityDetailsPage({ university }: { university: any 
                                             </li>
                                         ))}
                                     </ul>
-                                    {filteredPrograms.length === 0 && <p className="text-sm text-slate-500">No programmes match “{programQuery}”.</p>}
+                                    {filteredPrograms.length === 0 && <p className="text-sm text-slate-500">{d.noMatch(programQuery)}</p>}
                                     {!programQuery && programs.length > PROGRAMS_PREVIEW && (
                                         <button type="button" onClick={() => setShowAllPrograms((s) => !s)} className="mt-3 w-full rounded-xl bg-blue-50 py-2.5 text-sm font-semibold text-brand hover:bg-blue-100">
-                                            {showAllPrograms ? 'Show fewer' : `Show all ${programs.length} programmes`}
+                                            {showAllPrograms ? d.showFewer : d.showAll(programs.length)}
                                         </button>
                                     )}
                                 </>
                             )}
                         </DetailCard>
 
-                        <DetailCard icon={ClipboardCheck} tone="emerald" title="Application requirements" className="order-4 lg:order-none">
+                        <DetailCard icon={ClipboardCheck} tone="emerald" title={d.requirements} className="order-4 lg:order-none">
                             {otherExams.length > 0 && (
                                 <ul className="mb-4 space-y-2">
                                     {otherExams.map((exam) => (
@@ -511,26 +525,26 @@ export default function UniversityDetailsPage({ university }: { university: any 
                             )}
                             <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
                                 <p className="text-sm text-slate-500">
-                                    Documents (transcripts, essays, recommendations) vary by programme and aren&apos;t in our database yet.
+                                    {d.documentsNote}
                                 </p>
                                 {admissionsUrl && (
                                     <a href={admissionsUrl} target="_blank" rel="noopener noreferrer" className={`${buttonClass.secondary} h-10 shrink-0`}>
-                                        Admissions page <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
+                                        {d.admissionsPage} <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
                                     </a>
                                 )}
                             </div>
                         </DetailCard>
 
-                        <DetailCard icon={CalendarDays} tone="rose" title="Application deadlines" className="order-5 lg:order-none">
-                            <DeadlineTimeline items={deadlines} emptyText="Dates not announced — deadlines change every year, check the admissions page." />
+                        <DetailCard icon={CalendarDays} tone="rose" title={d.deadlines} className="order-5 lg:order-none">
+                            <DeadlineTimeline items={deadlines} emptyText={d.deadlinesEmpty} />
                         </DetailCard>
                     </div>
 
                     <div className="contents lg:sticky lg:top-6 lg:col-span-4 lg:flex lg:flex-col lg:gap-6">
-                        <DetailCard icon={Wallet} tone="amber" title="Cost of attendance" subtitle="Estimated, per year" defaultOpen className="order-2 lg:order-none">
+                        <DetailCard icon={Wallet} tone="amber" title={d.cost} subtitle={d.costSubtitle} defaultOpen className="order-2 lg:order-none">
                             {availableLevels.length > 1 && (
-                                <div role="tablist" aria-label="Degree level" className="mb-4 grid grid-flow-col gap-1 rounded-xl bg-slate-100 p-1">
-                                    {availableLevels.map(([l, label]) => (
+                                <div role="tablist" aria-label={d.degreeLevel} className="mb-4 grid grid-flow-col gap-1 rounded-xl bg-slate-100 p-1">
+                                    {availableLevels.map(([l]) => (
                                         <button
                                             key={l}
                                             type="button"
@@ -539,21 +553,21 @@ export default function UniversityDetailsPage({ university }: { university: any 
                                             onClick={() => setPickedLevel(l)}
                                             className={`rounded-lg py-1.5 text-xs font-semibold transition-colors ${level === l ? 'bg-white text-ink shadow-sm' : 'text-slate-500 hover:text-ink'}`}
                                         >
-                                            {label}
+                                            {d.levels[l]}
                                         </button>
                                     ))}
                                 </div>
                             )}
                             <dl className="space-y-3 text-sm">
                                 <div className="flex items-baseline justify-between gap-3">
-                                    <dt className="text-slate-600">Tuition</dt>
+                                    <dt className="text-slate-600">{d.tuition}</dt>
                                     <dd className="text-right font-display text-lg font-bold text-brand">
-                                        {tuition === null ? <NoData /> : tuition === 0 ? 'Free' : money(tuition)}
+                                        {tuition === null ? <NoData /> : tuition === 0 ? t.universities.free : money(tuition)}
                                         <UnverifiedTag show={unverified(`tuition.${level}` as KeyField)} />
                                     </dd>
                                 </div>
                                 <div className="flex items-baseline justify-between gap-3">
-                                    <dt className="text-slate-600">Living costs</dt>
+                                    <dt className="text-slate-600">{d.living}</dt>
                                     <dd className="text-right font-semibold text-ink">
                                         {livingMin !== null && livingMax !== null ? range(livingMin, livingMax) : <NoData />}
                                         <UnverifiedTag show={unverified('livingCostUSD.min') || unverified('livingCostUSD.max')} />
@@ -561,25 +575,25 @@ export default function UniversityDetailsPage({ university }: { university: any 
                                 </div>
                             </dl>
                             <div className="mt-4 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 rounded-2xl bg-blue-50/70 px-4 py-3.5">
-                                <span className="text-sm font-semibold text-ink">Estimated total</span>
+                                <span className="text-sm font-semibold text-ink">{d.total}</span>
                                 <span className="ml-auto whitespace-nowrap text-right font-display text-lg font-bold text-ink">
                                     {tuition !== null && livingMin !== null && livingMax !== null ? range(tuition + livingMin, tuition + livingMax) : <NoData />}
                                 </span>
                             </div>
                             {original?.amount && original?.currency && (
                                 <p className="mt-3 text-xs leading-relaxed text-slate-500">
-                                    Converted from {formatAmount(original.amount, original.currency)}{original.per ? ` per ${original.per}` : ''}
+                                    {d.convertedFrom(formatAmount(original.amount, original.currency, intlLocale(locale)))}{original.per ? d.per(original.per) : ''}
                                     {original.rateSource && ` · ${original.rateSource}`}{original.rateDate && `, ${original.rateDate}`}.
                                 </p>
                             )}
-                            <p className="mt-3 text-xs leading-relaxed text-slate-500">Figures are estimates — confirm with the university before planning your budget.</p>
+                            <p className="mt-3 text-xs leading-relaxed text-slate-500">{d.estimatesNote}</p>
                         </DetailCard>
 
                         <div className="order-6 lg:order-none">
                             <DataSourcesCard
                                 checkedLabel={checkedLabel}
                                 sources={sources}
-                                emptyText="No sources recorded for this university yet. Figures tagged Unverified may be out of date."
+                                emptyText={d.sourcesEmpty}
                             />
                         </div>
                     </div>

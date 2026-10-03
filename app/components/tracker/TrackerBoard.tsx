@@ -9,6 +9,7 @@ import TrackerCard from './TrackerCard';
 import AddApplicationModal, { AvailableFavorite } from './AddApplicationModal';
 import EditApplicationPanel, { type ApplicationChanges } from './EditApplicationPanel';
 import { STATUS_COLUMNS, TrackedApplication, ApplicationStatus, daysUntil, isDueSoon } from './trackerConstants';
+import { useI18n } from '@/i18n/I18nProvider';
 
 /** Nearest deadline first; applications without one go last. */
 const byDeadline = (a: TrackedApplication, b: TrackedApplication) => {
@@ -32,6 +33,8 @@ export default function TrackerBoard() {
     const [mobileStatus, setMobileStatus] = useState<ApplicationStatus | null>(null);
     const [dragOver, setDragOver] = useState<ApplicationStatus | null>(null);
     const isClient = useIsClient();
+    const { t } = useI18n();
+    const m = t.tracker;
 
     const loadApplications = useCallback(async () => {
         const res = await fetch('/api/tracker').catch(() => null);
@@ -190,7 +193,7 @@ export default function TrackerBoard() {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-24">
-                <Loader2 aria-label="Loading applications" className="h-6 w-6 animate-spin text-brand" />
+                <Loader2 aria-label={m.loading} className="h-6 w-6 animate-spin text-brand" />
             </div>
         );
     }
@@ -199,9 +202,9 @@ export default function TrackerBoard() {
         return (
             <div className="mx-auto mt-6 flex max-w-lg flex-col items-center rounded-3xl border border-slate-200/80 bg-white px-6 py-14 text-center">
                 <span className={`flex h-14 w-14 items-center justify-center rounded-2xl ${TONES.blue}`}><ClipboardList aria-hidden="true" className="h-6 w-6" /></span>
-                <h1 className="mt-4 font-display text-lg font-bold text-ink">Sign in to use the tracker</h1>
-                <p className="mt-1 text-sm text-slate-500">Your applications are kept in your account.</p>
-                <Link href="/login" className={`${buttonClass.primary} mt-5`}>Sign in</Link>
+                <h1 className="mt-4 font-display text-lg font-bold text-ink">{m.signInTitle}</h1>
+                <p className="mt-1 text-sm text-slate-500">{m.signInText}</p>
+                <Link href="/login" className={`${buttonClass.primary} mt-5`}>{m.signIn}</Link>
             </div>
         );
     }
@@ -210,14 +213,14 @@ export default function TrackerBoard() {
         return (
             <div className="mx-auto mt-6 flex max-w-lg flex-col items-center rounded-3xl border border-slate-200/80 bg-white px-6 py-14 text-center">
                 <span className={`flex h-14 w-14 items-center justify-center rounded-2xl ${TONES.rose}`}><ClipboardList aria-hidden="true" className="h-6 w-6" /></span>
-                <h1 className="mt-4 font-display text-lg font-bold text-ink">Couldn&apos;t load your applications</h1>
-                <p className="mt-1 text-sm text-slate-500">Check your connection and try again.</p>
+                <h1 className="mt-4 font-display text-lg font-bold text-ink">{m.loadFailed}</h1>
+                <p className="mt-1 text-sm text-slate-500">{m.checkConnection}</p>
                 <button
                     type="button"
                     onClick={() => { setLoading(true); loadApplications().finally(() => setLoading(false)); }}
                     className={`${buttonClass.primary} mt-5`}
                 >
-                    Try again
+                    {m.tryAgain}
                 </button>
             </div>
         );
@@ -234,25 +237,21 @@ export default function TrackerBoard() {
             <div className="mb-5 flex flex-wrap items-start justify-between gap-4 md:mb-6">
                 <div>
                     <h1 className="flex flex-wrap items-center gap-3 font-display text-2xl font-bold text-ink sm:text-3xl">
-                        Application Tracker
+                        {m.title}
                         {dueSoon.length > 0 && (
                             <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 font-body text-xs font-semibold text-red-600">
-                                <AlarmClock aria-hidden="true" className="h-3.5 w-3.5" /> {dueSoon.length} due this week
+                                <AlarmClock aria-hidden="true" className="h-3.5 w-3.5" /> {m.dueThisWeek(dueSoon.length)}
                             </span>
                         )}
                     </h1>
                     <p className="mt-1 text-sm text-slate-500">
-                        {applications.length === 0
-                            ? 'Track every university and scholarship you apply to, in one board.'
-                            : dueSoon.length > 0
-                                ? `${dueSoon.length} application${dueSoon.length > 1 ? 's' : ''} due within a week.`
-                                : 'All caught up — no deadlines in the next 7 days.'}
+                        {applications.length === 0 ? m.leadEmpty : dueSoon.length > 0 ? m.leadDue(dueSoon.length) : m.leadClear}
                     </p>
                 </div>
                 {/* Phones use the floating button instead */}
                 <div className="hidden md:block">
                     <button type="button" onClick={handleOpenModal} className={buttonClass.primary}>
-                        <Plus aria-hidden="true" className="h-4 w-4" /> Add application
+                        <Plus aria-hidden="true" className="h-4 w-4" /> {m.addApplication}
                     </button>
                 </div>
             </div>
@@ -260,10 +259,10 @@ export default function TrackerBoard() {
             {applications.length === 0 ? (
                 <div className="flex flex-col items-center rounded-3xl border border-slate-200/80 bg-white px-6 py-16 text-center">
                     <span className={`flex h-14 w-14 items-center justify-center rounded-2xl ${TONES.blue}`}><ClipboardList aria-hidden="true" className="h-6 w-6" /></span>
-                    <h2 className="mt-4 font-display text-lg font-bold text-ink">Nothing tracked yet</h2>
-                    <p className="mt-1 max-w-sm text-sm text-slate-500">Save a university or scholarship, then add it here to follow its status.</p>
+                    <h2 className="mt-4 font-display text-lg font-bold text-ink">{m.emptyTitle}</h2>
+                    <p className="mt-1 max-w-sm text-sm text-slate-500">{m.emptyText}</p>
                     <button type="button" onClick={handleOpenModal} className={`${buttonClass.primary} mt-5`}>
-                        <Plus aria-hidden="true" className="h-4 w-4" /> Add your first application
+                        <Plus aria-hidden="true" className="h-4 w-4" /> {m.addFirst}
                     </button>
                 </div>
             ) : (
@@ -272,7 +271,7 @@ export default function TrackerBoard() {
                     <div className="mb-5 hidden grid-cols-3 gap-3 md:grid xl:grid-cols-6">
                         {STATUS_COLUMNS.map((col) => (
                             <div key={col.id} className="flex items-center justify-between rounded-2xl border border-slate-200/80 bg-white px-4 py-3 shadow-[0_2px_8px_rgba(10,26,63,0.03)]">
-                                <span className="flex items-center gap-2 text-sm text-slate-600"><span className={`h-2 w-2 rounded-full ${col.dotClass}`} /> {col.label}</span>
+                                <span className="flex items-center gap-2 text-sm text-slate-600"><span className={`h-2 w-2 rounded-full ${col.dotClass}`} /> {m.status[col.id]}</span>
                                 <span className="font-display text-lg font-bold text-ink">{counts[col.id]}</span>
                             </div>
                         ))}
@@ -281,11 +280,11 @@ export default function TrackerBoard() {
                     {dueSoon.length > 0 && (
                         <div className="mb-4 flex items-start gap-3 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700 md:hidden">
                             <AlarmClock aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
-                            <span><span className="font-semibold">{dueSoon.length} due this week:</span> {dueSoon.map((a) => a.itemName).join(', ')}</span>
+                            <span><span className="font-semibold">{m.dueThisWeek(dueSoon.length)}:</span> {dueSoon.map((a) => a.itemName).join(', ')}</span>
                         </div>
                     )}
 
-                    <div role="tablist" aria-label="Application status" className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden">
+                    <div role="tablist" aria-label={m.statusLabel} className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden">
                         {STATUS_COLUMNS.map((col) => {
                             const selected = activeStatus === col.id;
                             return (
@@ -298,7 +297,7 @@ export default function TrackerBoard() {
                                     className={`flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors ${selected ? col.activeClass : 'border border-slate-200 bg-white text-slate-600'}`}
                                 >
                                     {!selected && <span className={`h-2 w-2 rounded-full ${col.dotClass}`} />}
-                                    {col.label}
+                                    {m.status[col.id]}
                                     <span className={`rounded-full px-1.5 text-xs ${selected ? 'bg-white/25' : 'bg-slate-100 text-slate-500'}`}>{counts[col.id]}</span>
                                 </button>
                             );
@@ -306,13 +305,13 @@ export default function TrackerBoard() {
                     </div>
 
                     {/* Phones: the selected status as a list */}
-                    <div role="tabpanel" aria-label={activeColumn.label} className="space-y-3 md:hidden">
+                    <div role="tabpanel" aria-label={m.status[activeColumn.id]} className="space-y-3 md:hidden">
                         {applications.filter((a) => a.status === activeStatus).sort(byDeadline).map((app) => (
                             <TrackerCard key={app._id} application={app} onOpen={setEditing} />
                         ))}
                         {counts[activeStatus] === 0 && (
                             <p className="rounded-2xl border border-dashed border-slate-200 bg-white/60 px-4 py-8 text-center text-sm text-slate-500">
-                                Nothing in “{activeColumn.label}”.
+                                {m.nothingIn(m.status[activeColumn.id])}
                             </p>
                         )}
                     </div>
@@ -324,7 +323,7 @@ export default function TrackerBoard() {
                             return (
                                 <section
                                     key={col.id}
-                                    aria-label={col.label}
+                                    aria-label={m.status[col.id]}
                                     onDragOver={(e) => { e.preventDefault(); setDragOver(col.id); }}
                                     onDragLeave={() => setDragOver((d) => (d === col.id ? null : d))}
                                     onDrop={(e) => {
@@ -336,13 +335,13 @@ export default function TrackerBoard() {
                                     className={`flex w-[272px] shrink-0 flex-col rounded-3xl p-3 transition-colors ${dragOver === col.id ? 'bg-blue-50 ring-2 ring-brand/30' : 'bg-slate-100/70'}`}
                                 >
                                     <h2 className="mb-3 flex items-center gap-2 px-1.5 pt-1 text-sm font-semibold text-slate-700">
-                                        <span className={`h-2 w-2 rounded-full ${col.dotClass}`} /> {col.label}
+                                        <span className={`h-2 w-2 rounded-full ${col.dotClass}`} /> {m.status[col.id]}
                                         <span className="rounded-full bg-white px-2 text-xs text-slate-500">{items.length}</span>
                                     </h2>
                                     <div className="min-h-[96px] flex-1 space-y-2.5">
                                         {items.map((app) => <TrackerCard key={app._id} application={app} onOpen={setEditing} draggable />)}
                                         {items.length === 0 && (
-                                            <p className="rounded-2xl border border-dashed border-slate-300/70 px-3 py-6 text-center text-xs text-slate-400">Drop an application here</p>
+                                            <p className="rounded-2xl border border-dashed border-slate-300/70 px-3 py-6 text-center text-xs text-slate-400">{m.dropHere}</p>
                                         )}
                                     </div>
                                 </section>
@@ -357,7 +356,7 @@ export default function TrackerBoard() {
                 <button
                     type="button"
                     onClick={handleOpenModal}
-                    aria-label="Add application"
+                    aria-label={m.addApplication}
                     className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-[0_12px_24px_rgba(0,88,189,0.35)] transition active:scale-95 md:hidden"
                 >
                     <Plus aria-hidden="true" className="h-6 w-6" />

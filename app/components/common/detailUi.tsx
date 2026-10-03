@@ -10,6 +10,8 @@ import {
     CircleDashed, Database, ExternalLink, Flag, HelpCircle, Lock, type LucideIcon,
 } from 'lucide-react';
 import { daysUntil, toIsoDate } from '@/lib/scholarshipDisplay';
+import { useI18n } from '@/i18n/I18nProvider';
+import { intlLocale } from '@/i18n/format';
 
 export const TONES = {
     blue: 'bg-blue-50 text-brand',
@@ -33,8 +35,9 @@ export function monogram(name: string): string {
     return (picked.length ? picked : [name]).slice(0, 3).map((w) => w[0]).join('').toUpperCase();
 }
 
-export function NoData({ children = 'No data' }: { children?: React.ReactNode }) {
-    return <span className="text-sm font-normal italic text-slate-400">{children}</span>;
+export function NoData({ children }: { children?: React.ReactNode }) {
+    const { t } = useI18n();
+    return <span className="text-sm font-normal italic text-slate-400">{children ?? t.ui.noData}</span>;
 }
 
 export function VerifiedPill({ label, title }: { label: string; title: string }) {
@@ -126,13 +129,14 @@ export function FactTile({ icon: Icon, tone, label, children }: { icon: LucideIc
 /** Description that shows two lines with a "Read more" toggle when it's long. */
 export function ExpandableText({ text, className = '' }: { text: string; className?: string }) {
     const [expanded, setExpanded] = useState(false);
+    const { t } = useI18n();
     const long = text.length > 180;
     return (
         <div className={className}>
             <p className={`text-sm leading-relaxed text-slate-600 ${long && !expanded ? 'line-clamp-2' : ''}`}>{text}</p>
             {long && (
                 <button type="button" onClick={() => setExpanded((e) => !e)} className="mt-1 text-sm font-semibold text-brand hover:underline">
-                    {expanded ? 'Show less' : 'Read more'}
+                    {expanded ? t.ui.showLess : t.ui.readMore}
                 </button>
             )}
         </div>
@@ -147,9 +151,10 @@ export function DetailTopBar({ backHref, backLabel, title, actions, mobileAction
     actions: React.ReactNode;
     mobileActions?: React.ReactNode;
 }) {
+    const { t } = useI18n();
     return (
         <div className="mb-5 flex items-center justify-between gap-4 md:mb-6">
-            <nav aria-label="Breadcrumb" className="hidden min-w-0 items-center gap-2 text-sm text-slate-500 md:flex">
+            <nav aria-label={t.ui.breadcrumb} className="hidden min-w-0 items-center gap-2 text-sm text-slate-500 md:flex">
                 <Link href={backHref} className="shrink-0 transition-colors hover:text-brand">{backLabel}</Link>
                 <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-slate-300" />
                 <span className="truncate font-semibold text-ink">{title}</span>
@@ -198,6 +203,7 @@ export interface DeadlineItem { name?: string; round?: string; date?: unknown }
 
 /** One row per dated entry: upcoming / closed / opens / estimated (free-text dates). */
 export function DeadlineTimeline({ items, emptyText }: { items: DeadlineItem[]; emptyText: string }) {
+    const { t, locale } = useI18n();
     if (items.length === 0) {
         return (
             <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-3.5 text-sm text-slate-500">
@@ -207,37 +213,37 @@ export function DeadlineTimeline({ items, emptyText }: { items: DeadlineItem[]; 
     }
 
     const rows = items.map((item) => {
-        const name = item.name || item.round || 'Deadline';
+        const name = item.name || item.round || t.ui.deadline;
         const iso = toIsoDate(item.date);
         const opening = /open/i.test(name);
         if (!iso) {
             const text = typeof item.date === 'string' ? item.date : '';
-            return { name, sortKey: '9999', dateText: text ? `≈ ${text}` : 'Date not announced', estimated: Boolean(text), status: null as null | { label: string; className: string; icon: LucideIcon } };
+            return { name, sortKey: '9999', dateText: text ? `≈ ${text}` : t.ui.dateNotAnnounced, estimated: Boolean(text), closed: false, status: null as null | { label: string; className: string; icon: LucideIcon } };
         }
         const days = daysUntil(iso);
-        const dateText = new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+        const dateText = new Date(iso).toLocaleDateString(intlLocale(locale), { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
         let status: { label: string; className: string; icon: LucideIcon };
         if (opening) {
             status = days > 0
-                ? { label: `Opens in ${days} day${days === 1 ? '' : 's'}`, className: 'bg-sky-50 text-sky-700', icon: CalendarClock }
-                : { label: 'Open', className: 'bg-emerald-50 text-emerald-700', icon: CheckCircle2 };
+                ? { label: t.ui.opensIn(days), className: 'bg-sky-50 text-sky-700', icon: CalendarClock }
+                : { label: t.ui.open, className: 'bg-emerald-50 text-emerald-700', icon: CheckCircle2 };
         } else if (days < 0) {
-            status = { label: 'Closed', className: 'bg-slate-100 text-slate-500', icon: Lock };
+            status = { label: t.ui.closed, className: 'bg-slate-100 text-slate-500', icon: Lock };
         } else {
             status = {
-                label: days === 0 ? 'Closes today' : `In ${days} day${days === 1 ? '' : 's'}`,
+                label: days === 0 ? t.ui.closesToday : t.ui.inDays(days),
                 className: days < 30 ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-brand',
                 icon: CalendarClock,
             };
         }
-        return { name, sortKey: iso, dateText, estimated: false, status };
+        return { name, sortKey: iso, dateText, estimated: false, closed: !opening && days < 0, status };
     }).sort((a, b) => a.sortKey.localeCompare(b.sortKey));
 
     return (
         <ol className="relative space-y-3 before:absolute before:bottom-3 before:left-[7px] before:top-3 before:w-px before:bg-slate-200">
             {rows.map((row, i) => (
                 <li key={i} className="relative flex gap-4">
-                    <span className={`relative z-10 mt-4 h-[15px] w-[15px] shrink-0 rounded-full border-[3px] border-white ring-1 ${row.status?.label === 'Closed' ? 'bg-slate-300 ring-slate-200' : row.estimated ? 'bg-amber-400 ring-amber-200' : 'bg-brand ring-blue-200'}`} />
+                    <span className={`relative z-10 mt-4 h-[15px] w-[15px] shrink-0 rounded-full border-[3px] border-white ring-1 ${row.closed ? 'bg-slate-300 ring-slate-200' : row.estimated ? 'bg-amber-400 ring-amber-200' : 'bg-brand ring-blue-200'}`} />
                     <div className={`flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2 rounded-2xl px-4 py-3 ${row.estimated ? 'border border-dashed border-amber-300 bg-amber-50/40' : 'border border-slate-200/80 bg-slate-50/60'}`}>
                         <div className="min-w-0">
                             <p className="text-sm font-semibold text-ink">{row.name}</p>
@@ -248,7 +254,7 @@ export function DeadlineTimeline({ items, emptyText }: { items: DeadlineItem[]; 
                                 <row.status.icon aria-hidden="true" className="h-3.5 w-3.5" /> {row.status.label}
                             </span>
                         ) : row.estimated ? (
-                            <span title="Estimated, not an official date" className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">Estimated</span>
+                            <span title={t.ui.estimatedTitle} className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">{t.ui.estimated}</span>
                         ) : null}
                     </div>
                 </li>
@@ -276,13 +282,14 @@ export function DataSourcesCard({ checkedLabel, sources, emptyText }: {
     sources: string[];
     emptyText: string;
 }) {
+    const { t } = useI18n();
     const unique = [...new Set(sources.filter(Boolean))].map(parseSource);
     return (
         <DetailCard
             icon={Database}
             tone="slate"
-            title="Data sources"
-            subtitle={checkedLabel ? `Last checked ${checkedLabel}` : 'Not yet checked against official sources'}
+            title={t.ui.dataSources}
+            subtitle={checkedLabel ? t.ui.lastChecked(checkedLabel) : t.ui.notChecked}
         >
             {unique.length > 0 ? (
                 <ul className="space-y-2">
@@ -303,7 +310,7 @@ export function DataSourcesCard({ checkedLabel, sources, emptyText }: {
                 <p className="text-sm text-slate-500">{emptyText}</p>
             )}
             <Link href="/support" className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-brand">
-                <Flag aria-hidden="true" className="h-3.5 w-3.5" /> Report an error
+                <Flag aria-hidden="true" className="h-3.5 w-3.5" /> {t.ui.reportError}
             </Link>
         </DetailCard>
     );

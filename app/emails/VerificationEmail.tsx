@@ -9,32 +9,32 @@ import {
     Text,
 } from "@react-email/components";
 import * as React from "react";
+import type { Messages } from "@/i18n/messages";
 
 interface VerificationEmailProps {
     firstName: string;
     code: string;
+    /** In the language the visitor was using when they signed up. */
+    copy: Messages["auth"]["verificationEmail"];
 }
 
 export default function VerificationEmail({
     firstName,
     code,
+    copy,
 }: VerificationEmailProps) {
     return (
         <Html>
             <Head />
-            <Preview>Ваш код подтверждения для ScholarizePath</Preview>
+            <Preview>{copy.preview}</Preview>
             <Body style={main}>
                 <Container style={container}>
-                    <Heading style={h1}>Добро пожаловать, {firstName}!</Heading>
-                    <Text style={text}>
-                        Спасибо за регистрацию в ScholarizePath. Для подтверждения электронной почты введите следующий 6-значный код. Он действителен в течение 15 минут:
-                    </Text>
+                    <Heading style={h1}>{copy.welcome(firstName)}</Heading>
+                    <Text style={text}>{copy.body}</Text>
                     <Section style={codeContainer}>
                         <Text style={codeText}>{code}</Text>
                     </Section>
-                    <Text style={footerText}>
-                        Если вы не создавали аккаунт на ScholarizePath, просто проигнорируйте это письмо.
-                    </Text>
+                    <Text style={footerText}>{copy.ignore}</Text>
                 </Container>
             </Body>
         </Html>

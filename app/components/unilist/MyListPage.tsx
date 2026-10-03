@@ -8,31 +8,21 @@ import {
 } from 'lucide-react';
 import { useUniList, type UniListItem, type UniListItemType } from '@/lib/useUniList';
 import { buttonClass, MobileActionBar, monogram, TONES, useIsClient } from '@/components/common/detailUi';
+import { useI18n } from '@/i18n/I18nProvider';
+import { localizeCountry, localizeLocation } from '@/i18n/countries';
+import { formatDate } from '@/i18n/format';
 
 const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 const FILENAME = 'unilist-report.docx';
-
-/** What the generated report contains — kept in sync with lib/uniListDocx.ts. */
-const REPORT_SECTIONS = [
-    'Overview & world ranking',
-    'Tuition & living costs',
-    'GPA and language test minimums',
-    'Application deadlines',
-    'Official website links',
-];
 
 function canShareFiles(): boolean {
     if (typeof navigator.canShare !== 'function') return false;
     return navigator.canShare({ files: [new File([''], FILENAME, { type: DOCX_MIME })] });
 }
 
-const formatAdded = (iso: string) => {
-    const d = new Date(iso);
-    return Number.isNaN(d.getTime()) ? '' : `Added ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-};
-
 /** City/country or provider for each row — the list itself only stores id, type and name. */
 function useSubtitles(list: UniListItem[]): Record<string, string> {
+    const { locale } = useI18n();
     const key = list.map((i) => `${i.type}:${i.id}`).join(',');
     const [subtitles, setSubtitles] = useState<Record<string, string>>({});
     useEffect(() => {
@@ -50,13 +40,13 @@ function useSubtitles(list: UniListItem[]): Record<string, string> {
             docs.forEach((doc, i) => {
                 if (!doc) return;
                 next[items[i]] = items[i].startsWith('university:')
-                    ? [doc.location?.city, doc.location?.country].filter(Boolean).join(', ')
-                    : [doc.provider?.name, doc.country].filter(Boolean).join(' · ');
+                    ? localizeLocation([doc.location?.city, doc.location?.country].filter(Boolean).join(', '), locale)
+                    : [doc.provider?.name, doc.country && localizeCountry(doc.country, locale)].filter(Boolean).join(' · ');
             });
             setSubtitles((prev) => ({ ...prev, ...next }));
         });
         return () => { cancelled = true; };
-    }, [key]);
+    }, [key, locale]);
     return subtitles;
 }
 
@@ -69,6 +59,11 @@ function ListGroup({ title, icon: Icon, tone, items, type, subtitles, onRemove }
     subtitles: Record<string, string>;
     onRemove: (item: UniListItem) => void;
 }) {
+    const { t, locale } = useI18n();
+    const formatAdded = (iso: string) => {
+        const date = formatDate(locale, iso, { month: 'short', day: 'numeric' });
+        return date ? t.unilist.added(date) : '';
+    };
     if (items.length === 0) return null;
     return (
         <section>
@@ -94,12 +89,12 @@ function ListGroup({ title, icon: Icon, tone, items, type, subtitles, onRemove }
                                 </p>
                             </div>
                             <Link href={`/${type === 'university' ? 'universities' : 'scholarships'}/${item.id}`} className="hidden items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-brand hover:bg-blue-50 sm:inline-flex">
-                                View <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                                {t.unilist.view} <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
                             </Link>
                             <button
                                 type="button"
                                 onClick={() => onRemove(item)}
-                                aria-label={`Remove ${item.name} from your list`}
+                                aria-label={t.unilist.removeItem(item.name)}
                                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
                             >
                                 <Trash2 aria-hidden="true" className="h-4 w-4" />
@@ -120,6 +115,8 @@ export default function MyListPage() {
     const [error, setError] = useState<string | null>(null);
     // File sharing exists on most phones but not on desktop browsers; checked after hydration.
     const canShare = useIsClient() && canShareFiles();
+    const { t } = useI18n();
+    const m = t.unilist;
 
     const total = list.length;
     const reportHref = useMemo(() => {
@@ -146,7 +143,7 @@ export default function MyListPage() {
             a.click();
             setTimeout(() => URL.revokeObjectURL(url), 10_000);
         } catch {
-            setError("Couldn't generate the report. Please try again.");
+            setError(m.reportError);
         } finally {
             setBusy(null);
         }
@@ -158,9 +155,9 @@ export default function MyListPage() {
         setError(null);
         try {
             const file = new File([await fetchReport()], FILENAME, { type: DOCX_MIME });
-            await navigator.share({ files: [file], title: 'My university & scholarship list' });
+            await navigator.share({ files: [file], title: m.shareTitle });
         } catch (err) {
-            if ((err as Error)?.name !== 'AbortError') setError("Couldn't share the file. Use Download instead.");
+            if ((err as Error)?.name !== 'AbortError') setError(m.shareError);
         } finally {
             setBusy(null);
         }
@@ -169,7 +166,7 @@ export default function MyListPage() {
     const downloadButton = (className: string) => (
         <button type="button" onClick={handleDownload} disabled={!reportHref || busy !== null} className={`${buttonClass.primary} disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none ${className}`}>
             {busy === 'download' ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Download aria-hidden="true" className="h-4 w-4" />}
-            {busy === 'download' ? 'Preparing report…' : `Download DOCX${total ? ` (${total})` : ''}`}
+            {busy === 'download' ? m.preparing : m.download(total)}
         </button>
     );
 
@@ -177,8 +174,8 @@ export default function MyListPage() {
         <div className="min-h-screen bg-[#f7f9fc] px-4 pb-28 pt-5 font-body md:px-8 md:pb-10 md:pt-8">
             <div className="mx-auto max-w-6xl">
                 <div className="mb-5 md:mb-6">
-                    <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">My List</h1>
-                    <p className="mt-1 text-sm text-slate-500">Collect the universities and scholarships you&apos;re considering and download them as one Word report.</p>
+                    <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">{m.title}</h1>
+                    <p className="mt-1 text-sm text-slate-500">{m.lead}</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 lg:items-start lg:gap-6">
@@ -187,8 +184,8 @@ export default function MyListPage() {
                         <div className="flex items-start gap-3">
                             <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${TONES.blue}`}><ListPlus aria-hidden="true" className="h-5 w-5" /></span>
                             <div className="min-w-0 flex-1">
-                                <h2 className="font-display text-lg font-bold text-ink">Your list</h2>
-                                <p className="text-sm text-slate-500">{total ? `${total} item${total === 1 ? '' : 's'} · saved on this device` : 'Saved on this device'}</p>
+                                <h2 className="font-display text-lg font-bold text-ink">{m.yourList}</h2>
+                                <p className="text-sm text-slate-500">{total ? m.itemsOnDevice(total) : m.savedOnDevice}</p>
                             </div>
                         </div>
 
@@ -197,29 +194,29 @@ export default function MyListPage() {
                         ) : total === 0 ? (
                             <div className="mt-5 flex flex-col items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-12 text-center">
                                 <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${TONES.blue}`}><ListPlus aria-hidden="true" className="h-6 w-6" /></span>
-                                <h3 className="mt-3 font-display text-base font-bold text-ink">Your list is empty</h3>
-                                <p className="mt-1 max-w-sm text-sm text-slate-500">Use <span className="font-semibold text-ink">Add to List</span> on any university or scholarship page.</p>
+                                <h3 className="mt-3 font-display text-base font-bold text-ink">{m.emptyTitle}</h3>
+                                <p className="mt-1 max-w-sm text-sm text-slate-500">{m.emptyBefore} <span className="font-semibold text-ink">{m.emptyButton}</span> {m.emptyAfter}</p>
                                 <div className="mt-5 flex flex-wrap justify-center gap-3">
-                                    <Link href="/universities" className={buttonClass.primary}>Browse universities</Link>
-                                    <Link href="/scholarships" className={buttonClass.secondary}>Browse scholarships</Link>
+                                    <Link href="/universities" className={buttonClass.primary}>{m.browseUniversities}</Link>
+                                    <Link href="/scholarships" className={buttonClass.secondary}>{m.browseScholarships}</Link>
                                 </div>
                             </div>
                         ) : (
                             <>
                                 <div className="mt-5 space-y-6">
-                                    <ListGroup title="Universities" icon={Building2} tone="blue" type="university" items={universities} subtitles={subtitles} onRemove={(i) => removeFromList(i.id, i.type)} />
-                                    <ListGroup title="Scholarships" icon={Award} tone="violet" type="scholarship" items={scholarships} subtitles={subtitles} onRemove={(i) => removeFromList(i.id, i.type)} />
+                                    <ListGroup title={m.universities} icon={Building2} tone="blue" type="university" items={universities} subtitles={subtitles} onRemove={(i) => removeFromList(i.id, i.type)} />
+                                    <ListGroup title={m.scholarships} icon={Award} tone="violet" type="scholarship" items={scholarships} subtitles={subtitles} onRemove={(i) => removeFromList(i.id, i.type)} />
                                 </div>
                                 <div className="mt-5 flex justify-end border-t border-slate-100 pt-4">
                                     {confirmClear ? (
-                                        <div role="alertdialog" aria-label="Clear the whole list" className="flex flex-wrap items-center justify-end gap-3 rounded-2xl border border-rose-100 bg-rose-50/60 px-4 py-2.5 text-sm">
-                                            <span className="inline-flex items-center gap-1.5 font-medium text-rose-700"><AlertTriangle aria-hidden="true" className="h-4 w-4" /> Remove all {total} items?</span>
-                                            <button type="button" onClick={() => setConfirmClear(false)} className="font-semibold text-slate-600 hover:text-ink">Cancel</button>
-                                            <button type="button" onClick={() => { clearList(); setConfirmClear(false); }} className="rounded-lg bg-rose-600 px-3 py-1.5 font-semibold text-white hover:bg-rose-700">Clear</button>
+                                        <div role="alertdialog" aria-label={m.clearDialog} className="flex flex-wrap items-center justify-end gap-3 rounded-2xl border border-rose-100 bg-rose-50/60 px-4 py-2.5 text-sm">
+                                            <span className="inline-flex items-center gap-1.5 font-medium text-rose-700"><AlertTriangle aria-hidden="true" className="h-4 w-4" /> {m.removeAll(total)}</span>
+                                            <button type="button" onClick={() => setConfirmClear(false)} className="font-semibold text-slate-600 hover:text-ink">{m.cancel}</button>
+                                            <button type="button" onClick={() => { clearList(); setConfirmClear(false); }} className="rounded-lg bg-rose-600 px-3 py-1.5 font-semibold text-white hover:bg-rose-700">{m.clear}</button>
                                         </div>
                                     ) : (
                                         <button type="button" onClick={() => setConfirmClear(true)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-rose-600">
-                                            <Trash2 aria-hidden="true" className="h-4 w-4" /> Clear all
+                                            <Trash2 aria-hidden="true" className="h-4 w-4" /> {m.clearAll}
                                         </button>
                                     )}
                                 </div>
@@ -231,14 +228,14 @@ export default function MyListPage() {
                     <aside className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_4px_12px_rgba(10,26,63,0.04)] sm:p-6 lg:sticky lg:top-6 lg:col-span-4">
                         <div className="flex items-start justify-between gap-3">
                             <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${TONES.amber}`}><FileText aria-hidden="true" className="h-5 w-5" /></span>
-                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">Word · .docx</span>
+                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{m.format}</span>
                         </div>
-                        <h2 className="mt-4 font-display text-lg font-bold text-ink">Report</h2>
-                        <p className="mt-1 text-sm leading-relaxed text-slate-500">One Word document with the details of every item in your list — easy to edit, print or send to a counsellor.</p>
+                        <h2 className="mt-4 font-display text-lg font-bold text-ink">{m.report}</h2>
+                        <p className="mt-1 text-sm leading-relaxed text-slate-500">{m.reportLead}</p>
                         <div className="mt-4 rounded-2xl bg-slate-50 p-4">
-                            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Included</p>
+                            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{m.included}</p>
                             <ul className="mt-2.5 space-y-2">
-                                {REPORT_SECTIONS.map((s) => (
+                                {m.reportSections.map((s) => (
                                     <li key={s} className="flex items-center gap-2 text-sm text-slate-700">
                                         <CheckCircle2 aria-hidden="true" className="h-4 w-4 shrink-0 text-emerald-600" /> {s}
                                     </li>
@@ -250,11 +247,11 @@ export default function MyListPage() {
                             {downloadButton('w-full')}
                             {canShare && (
                                 <button type="button" onClick={handleShare} disabled={!reportHref || busy !== null} className={`${buttonClass.secondary} w-full disabled:opacity-50`}>
-                                    {busy === 'share' ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Share2 aria-hidden="true" className="h-4 w-4" />} Share file
+                                    {busy === 'share' ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Share2 aria-hidden="true" className="h-4 w-4" />} {m.shareFile}
                                 </button>
                             )}
                         </div>
-                        {!reportHref && ready && <p className="mt-3 text-xs text-slate-400">Add items to your list to generate a report.</p>}
+                        {!reportHref && ready && <p className="mt-3 text-xs text-slate-400">{m.addItemsHint}</p>}
                     </aside>
                 </div>
             </div>
@@ -262,7 +259,7 @@ export default function MyListPage() {
             <MobileActionBar>
                 {downloadButton('flex-1')}
                 {canShare && (
-                    <button type="button" onClick={handleShare} disabled={!reportHref || busy !== null} aria-label="Share report" className={`${buttonClass.icon} disabled:opacity-50`}>
+                    <button type="button" onClick={handleShare} disabled={!reportHref || busy !== null} aria-label={m.shareReport} className={`${buttonClass.icon} disabled:opacity-50`}>
                         {busy === 'share' ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Share2 aria-hidden="true" className="h-4 w-4" />}
                     </button>
                 )}

@@ -5,35 +5,31 @@ import Navbar from '@/components/main/Navbar';
 import FeatureGrid from '@/components/main/FeatureGrid';
 import TopRankingsSection from '@/components/main/TopRankingsSection';
 import Footer from '@/components/main/Footer';
-import { getTopStats } from '@/services/stats.service';
+import { getCachedTopStats } from '@/services/stats.service';
+import { getI18n } from '@/i18n/server';
 
-// The homepage now bakes in favorite counts (via getTopStats) — without this,
-// Next statically renders it once at build time and the "most favorited"
-// teaser would never update again until the next deploy.
-export const revalidate = 3600;
-
-export const metadata: Metadata = {
-  title: 'ScholarizePath — Find Universities & Scholarships Worldwide',
-  description:
-    'Explore 1,500+ universities and 120+ scholarships worldwide. Get AI-powered university matching, admissions requirements, and personalized acceptance odds — all in one place.',
-  alternates: {
-    canonical: '/',
-  },
-  openGraph: {
-    title: 'ScholarizePath — Find Universities & Scholarships Worldwide',
-    description:
-      'Data-driven university matching and scholarship discovery for students planning to study abroad.',
-    url: '/',
-    siteName: 'ScholarizePath',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'ScholarizePath — Find Universities & Scholarships Worldwide',
-    description:
-      'Explore 1,500+ universities and 120+ scholarships worldwide with AI-powered matching.',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return {
+    title: t.home.meta.title,
+    description: t.home.meta.description,
+    alternates: {
+      canonical: '/',
+    },
+    openGraph: {
+      title: t.home.meta.title,
+      description: t.home.meta.ogDescription,
+      url: '/',
+      siteName: 'ScholarizePath',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t.home.meta.title,
+      description: t.home.meta.twitterDescription,
+    },
+  };
+}
 
 const organizationJsonLd = {
   '@context': 'https://schema.org',
@@ -45,105 +41,17 @@ const organizationJsonLd = {
   logo: 'https://scholarizepath.xyz/images/logo.png',
 };
 
-const features = [
-  {
-    icon: 'GraduationCap' as const,
-    badgeText: '1500+ Institutions',
-    title: 'Global Universities',
-    description: 'Explore over 1,500 top-ranked universities worldwide tailored to your academic profile.',
-    longDescription:
-      "Browse a constantly growing catalog of universities from every major study destination — filter by country, ranking, tuition, and program to zero in on schools that actually fit your profile, not just the famous names.",
-    highlights: [
-      'Detailed profiles: rankings, tuition, acceptance rates, and campus life',
-      'Filter by country, field of study, budget, and academic requirements',
-      'Save favorites and compare institutions side by side',
-    ],
-    href: '/universities',
-    ctaLabel: 'Browse universities',
-  },
-  {
-    icon: 'Award' as const,
-    badgeText: '120+ Grants',
-    title: 'Scholarship Finder',
-    description: 'Discover fully funded and partial scholarships matching your target field and criteria.',
-    longDescription:
-      'Search a curated database of scholarships and grants — from full-ride awards to field-specific grants — and instantly see which ones you qualify for based on your nationality, GPA, and program of interest.',
-    highlights: [
-      'Fully funded and partial scholarships from 120+ programs',
-      'Eligibility criteria and deadlines at a glance',
-      'Matches refined by your academic and financial profile',
-    ],
-    href: '/scholarships',
-    ctaLabel: 'Find scholarships',
-  },
-  {
-    icon: 'Bot' as const,
-    badgeText: 'AI Powered',
-    title: 'Smart Assistant',
-    description: 'Leverage interactive AI tools to streamline, draft, and automate your entire application process.',
-    longDescription:
-      'Chat with an AI assistant trained to help with every stage of studying abroad — from shortlisting universities to drafting essays — and get personalized recommendations based on the details you share.',
-    highlights: [
-      'Conversational AI that answers questions about universities and scholarships',
-      'Personalized university and scholarship recommendations',
-      'Drafting help for essays and application documents',
-    ],
-    href: '/aibot',
-    ctaLabel: 'Try the assistant',
-  },
-  {
-    icon: 'SlidersHorizontal' as const,
-    badgeText: 'Algorithmic',
-    title: 'List Generator',
-    description: 'Generate highly curated university lists matched precisely to your budget and preferences.',
-    longDescription:
-      'Turn your preferences — budget, location, field of study, and academic scores — into a ready-to-use, exportable list of universities worth applying to, so you spend less time searching and more time applying.',
-    highlights: [
-      'Curated shortlist based on your budget and preferences',
-      'Export your list as a document to share or keep for reference',
-      'Balanced mix of reach, match, and safety schools',
-    ],
-    href: '/unilist',
-    ctaLabel: 'Generate a list',
-  },
-  {
-    icon: 'FileCheck2' as const,
-    badgeText: 'Requirements',
-    title: 'Admissions Details',
-    description: 'Access complete admissions criteria, required document checklists, and key deadlines.',
-    longDescription:
-      "Every university page breaks down exactly what's required to apply — test scores, required documents, application deadlines — so nothing catches you off guard late in the process.",
-    highlights: [
-      'Required test scores (SAT, IELTS/TOEFL, and more) per university',
-      'Document checklists for each application',
-      'Key deadlines so you never miss a submission window',
-    ],
-    href: '/universities',
-    ctaLabel: 'View requirements',
-  },
-  {
-    icon: 'TrendingUp' as const,
-    badgeText: 'Analytics',
-    title: 'Personalized Odds',
-    description: 'Evaluate your target programs with an algorithmic estimate of your acceptance chances.',
-    longDescription:
-      'Based on your GPA, test scores, and profile compared against each university\'s historical admissions data, get an estimated acceptance chance for every program you\'re considering — so you can build a balanced list with confidence.',
-    highlights: [
-      'Acceptance-chance estimates tailored to your academic profile',
-      'Benchmarks against real historical admissions data',
-      'Helps you balance reach, match, and safety schools',
-    ],
-    href: '/universities',
-    ctaLabel: 'Check your odds',
-  },
+// Icon and link per feature; the copy comes from the `home.features` messages,
+// in the same order.
+const FEATURE_LINKS = [
+  { icon: 'GraduationCap' as const, href: '/universities' },
+  { icon: 'Award' as const, href: '/scholarships' },
+  { icon: 'Bot' as const, href: '/aibot' },
+  { icon: 'SlidersHorizontal' as const, href: '/unilist' },
+  { icon: 'FileCheck2' as const, href: '/universities' },
+  { icon: 'TrendingUp' as const, href: '/universities' },
 ];
 
-const stats = [
-  { icon: GraduationCap, value: '1,500+', label: 'Universities', tone: 'bg-blue-50 text-brand' },
-  { icon: Award, value: '120+', label: 'Scholarships', tone: 'bg-amber-50 text-amber-600' },
-  { icon: Bot, value: 'AI', label: 'Application assistant', tone: 'bg-violet-50 text-violet-600' },
-  { icon: TrendingUp, value: 'Odds', label: 'Personalized estimates', tone: 'bg-emerald-50 text-emerald-600' },
-];
 
 function PreviewCard({
   href,
@@ -186,7 +94,25 @@ function PreviewCard({
 }
 
 export default async function Home() {
-  const { topUniversities, topScholarships } = await getTopStats(4);
+  const { t } = await getI18n();
+  const { topUniversities, topScholarships } = await getCachedTopStats(4);
+
+  const features = t.home.features.map((copy, i) => ({
+    ...FEATURE_LINKS[i],
+    badgeText: copy.badge,
+    title: copy.title,
+    description: copy.description,
+    longDescription: copy.longDescription,
+    highlights: copy.highlights,
+    ctaLabel: copy.cta,
+  }));
+
+  const stats = [
+    { icon: GraduationCap, value: t.home.stats.universitiesValue, label: t.home.stats.universities, tone: 'bg-blue-50 text-brand' },
+    { icon: Award, value: '120+', label: t.home.stats.scholarships, tone: 'bg-amber-50 text-amber-600' },
+    { icon: Bot, value: t.home.stats.aiValue, label: t.home.stats.ai, tone: 'bg-violet-50 text-violet-600' },
+    { icon: TrendingUp, value: t.home.stats.oddsValue, label: t.home.stats.odds, tone: 'bg-emerald-50 text-emerald-600' },
+  ];
   const featuredUniversity = topUniversities[0];
   const featuredScholarship = topScholarships[0];
 
@@ -217,22 +143,21 @@ export default async function Home() {
             <div className="flex min-w-0 flex-col items-start lg:col-span-7">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-white px-3 py-1 text-xs font-semibold text-brand shadow-sm">
                 <Sparkles aria-hidden="true" className="h-3.5 w-3.5 text-amber-500" />
-                Universities · Scholarships · AI tools
+                {t.home.hero.eyebrow}
               </span>
 
               <h1
                 id="hero-heading"
                 className="mt-5 font-display text-[2.25rem] font-bold leading-[1.12] tracking-tight text-ink sm:text-5xl lg:text-[3.5rem]"
               >
-                Find your best fit:{' '}
+                {t.home.hero.titleStart}{' '}
                 <span className="bg-gradient-to-r from-brand to-[#2f7cf6] bg-clip-text text-transparent">
-                  explore global opportunities
+                  {t.home.hero.titleAccent}
                 </span>
               </h1>
 
               <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-                Explore 1,500+ universities and 120+ scholarships, get AI help with your
-                applications, and see your personalized admission odds — all in one place.
+                {t.home.hero.lead}
               </p>
 
               <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
@@ -240,14 +165,14 @@ export default async function Home() {
                   href="/login?mode=register"
                   className="group inline-flex h-12 items-center justify-center gap-2 rounded-[10px] bg-brand px-6 text-[15px] font-semibold text-white shadow-[0_8px_20px_rgba(0,88,189,0.25)] transition-all hover:bg-[#004a9f] active:scale-[0.98]"
                 >
-                  Get started
+                  {t.home.hero.getStarted}
                   <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
                 <Link
                   href="#features"
                   className="inline-flex h-12 items-center justify-center rounded-[10px] border border-slate-200 bg-white px-6 text-[15px] font-semibold text-ink shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50/50"
                 >
-                  Explore features
+                  {t.home.hero.exploreFeatures}
                 </Link>
               </div>
             </div>
@@ -264,12 +189,12 @@ export default async function Home() {
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75 motion-reduce:animate-none" />
                       <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                     </span>
-                    Most favorited right now
+                    {t.home.hero.mostFavorited}
                   </p>
                   {featuredUniversity && (
                     <PreviewCard
                       href={`/universities/${featuredUniversity.id}`}
-                      eyebrow="University"
+                      eyebrow={t.home.hero.university}
                       title={featuredUniversity.name}
                       place={featuredUniversity.location}
                       icon={GraduationCap}
@@ -280,7 +205,7 @@ export default async function Home() {
                   {featuredScholarship && (
                     <PreviewCard
                       href={`/scholarships/${featuredScholarship.id}`}
-                      eyebrow="Scholarship"
+                      eyebrow={t.home.hero.scholarship}
                       title={featuredScholarship.name}
                       place={featuredScholarship.country}
                       icon={Award}
@@ -294,7 +219,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section aria-label="Platform at a glance" className="relative z-10 mx-auto -mt-6 w-full max-w-7xl px-4 sm:-mt-8 sm:px-6 lg:px-8">
+        <section aria-label={t.home.stats.label} className="relative z-10 mx-auto -mt-6 w-full max-w-7xl px-4 sm:-mt-8 sm:px-6 lg:px-8">
           <ul className="grid grid-cols-2 gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_10px_30px_rgba(10,26,63,0.06)] sm:gap-4 sm:p-4 lg:grid-cols-4">
             {stats.map(({ icon: Icon, value, label, tone }) => (
               <li key={label} className="flex items-center gap-3 rounded-xl p-2 sm:p-3">
@@ -316,12 +241,12 @@ export default async function Home() {
           aria-labelledby="features-heading"
         >
           <div className="mb-10 max-w-2xl sm:mb-12">
-            <p className="text-xs font-semibold uppercase tracking-wider text-brand">Platform features</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-brand">{t.home.featuresSection.eyebrow}</p>
             <h2 id="features-heading" className="mt-2 font-display text-2xl font-bold tracking-tight text-ink sm:text-4xl">
-              Everything you need to apply abroad
+              {t.home.featuresSection.title}
             </h2>
             <p className="mt-3 text-base leading-relaxed text-slate-500 sm:text-lg">
-              Data-driven insights, AI automation, and curated scholarship matching — tap any card to learn more.
+              {t.home.featuresSection.lead}
             </p>
           </div>
           <FeatureGrid features={features} />
@@ -333,7 +258,7 @@ export default async function Home() {
         >
           <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
             <h2 id="top-rankings-heading" className="sr-only">
-              Most favorited universities and scholarships
+              {t.home.rankingsHeading}
             </h2>
             <TopRankingsSection
               topUniversities={topUniversities}
@@ -355,24 +280,24 @@ export default async function Home() {
             />
             <div className="relative mx-auto max-w-2xl">
               <h2 id="cta-heading" className="font-display text-2xl font-bold tracking-tight text-white sm:text-4xl">
-                Your path to studying abroad starts here
+                {t.home.cta.title}
               </h2>
               <p className="mt-4 text-base leading-relaxed text-blue-100/80 sm:text-lg">
-                Save universities and scholarships, build your list, and track every application in one place.
+                {t.home.cta.lead}
               </p>
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                 <Link
                   href="/login?mode=register"
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-[10px] bg-white px-6 text-[15px] font-semibold text-ink transition-all hover:bg-blue-50 active:scale-[0.98]"
                 >
-                  Create your account
+                  {t.home.cta.create}
                   <ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </Link>
                 <Link
                   href="/login"
                   className="inline-flex h-12 items-center justify-center rounded-[10px] border border-white/20 px-6 text-[15px] font-semibold text-white transition-colors hover:bg-white/10"
                 >
-                  Sign in
+                  {t.home.cta.signIn}
                 </Link>
               </div>
             </div>

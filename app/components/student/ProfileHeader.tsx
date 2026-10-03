@@ -2,6 +2,8 @@
 
 import { GraduationCap, Mail, Pencil, X } from 'lucide-react';
 import { flagFor } from '@/components/profile/countryList';
+import { useI18n } from '@/i18n/I18nProvider';
+import { localizeCountry } from '@/i18n/countries';
 
 interface ProfileHeaderProps {
     firstName: string;
@@ -15,6 +17,8 @@ interface ProfileHeaderProps {
 }
 
 export function ProfileHeader({ firstName, lastName, email, preferredCountry, programLevel, isEditing, onEdit, onCancel }: ProfileHeaderProps) {
+    const { t, locale } = useI18n();
+    const m = t.student;
     const initials = [firstName, lastName].filter(Boolean).map((p) => p.trim()[0]?.toUpperCase()).join('') || '?';
 
     return (
@@ -26,11 +30,11 @@ export function ProfileHeader({ firstName, lastName, email, preferredCountry, pr
             <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                     <h2 className="truncate font-display text-xl font-bold tracking-tight text-ink sm:text-2xl">
-                        {[firstName, lastName].filter(Boolean).join(' ') || 'Your name'}
+                        {[firstName, lastName].filter(Boolean).join(' ') || m.yourName}
                     </h2>
                     {preferredCountry && (
                         <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-brand">
-                            {flagFor(preferredCountry)} {preferredCountry}
+                            {flagFor(preferredCountry)} {localizeCountry(preferredCountry, locale)}
                         </span>
                     )}
                 </div>
@@ -42,7 +46,7 @@ export function ProfileHeader({ firstName, lastName, email, preferredCountry, pr
                     {programLevel && (
                         <span className="inline-flex items-center gap-1.5">
                             <GraduationCap aria-hidden="true" className="h-4 w-4 shrink-0" />
-                            {programLevel} applicant
+                            {m.applicant(t.profile.programLevels[programLevel] ?? programLevel)}
                         </span>
                     )}
                 </div>
@@ -50,11 +54,11 @@ export function ProfileHeader({ firstName, lastName, email, preferredCountry, pr
 
             {isEditing ? (
                 <button type="button" onClick={onCancel} className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] border border-slate-200 px-5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50">
-                    <X aria-hidden="true" className="h-4 w-4" /> Cancel editing
+                    <X aria-hidden="true" className="h-4 w-4" /> {m.cancelEditing}
                 </button>
             ) : (
                 <button type="button" onClick={onEdit} className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-blue-50 px-5 text-sm font-semibold text-brand transition-colors hover:bg-blue-100">
-                    <Pencil aria-hidden="true" className="h-4 w-4" /> Edit profile
+                    <Pencil aria-hidden="true" className="h-4 w-4" /> {m.editProfile}
                 </button>
             )}
         </section>

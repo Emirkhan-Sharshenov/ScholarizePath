@@ -18,6 +18,9 @@ import {
 } from '../common/listUi';
 import { flagFor } from '../profile/countryList';
 import { formatAmount } from '@/lib/scholarshipDisplay';
+import { useI18n } from '@/i18n/I18nProvider';
+import { localizeCountry } from '@/i18n/countries';
+import { formatDate, formatNumber, intlLocale } from '@/i18n/format';
 
 interface ScholarshipsListProps {
     filters: FilterState;
@@ -40,20 +43,15 @@ interface ScholarshipRow {
     deadlines?: Array<{ name?: string; date?: unknown }>;
 }
 
-const SORT_OPTIONS = [
-    ['Deadline (Earliest)', 'Deadline: earliest'],
-    ['Deadline (Latest)', 'Deadline: latest'],
-    ['Amount (Highest)', 'Amount: highest'],
-    ['Amount (Lowest)', 'Amount: lowest'],
-] as const;
+const SORT_OPTIONS = ['Deadline (Earliest)', 'Deadline (Latest)', 'Amount (Highest)', 'Amount (Lowest)'] as const;
 
 const ITEMS_PER_PAGE = 5;
 
-function amountText(s: ScholarshipRow): string | null {
+function amountText(s: ScholarshipRow, loc: string): string | null {
     const v = s.award?.estimatedValue;
     if (v && (v.min || v.max)) {
-        if (v.min && v.max && v.min !== v.max) return `${formatAmount(v.min, v.currency)} – ${formatAmount(v.max, v.currency)}`;
-        return formatAmount((v.max || v.min) as number, v.currency);
+        if (v.min && v.max && v.min !== v.max) return `${formatAmount(v.min, v.currency, loc)} – ${formatAmount(v.max, v.currency, loc)}`;
+        return formatAmount((v.max || v.min) as number, v.currency, loc);
     }
     return s.award?.amount || s.amount || null;
 }
@@ -64,7 +62,9 @@ function ScholarshipCard({ s, favorite, onToggleFavorite, favoritesReady }: {
     onToggleFavorite: () => void;
     favoritesReady: boolean;
 }) {
-    const amount = amountText(s);
+    const { t, locale } = useI18n();
+    const m = t.scholarships;
+    const amount = amountText(s, intlLocale(locale));
     const levels = (Array.isArray(s.studyLevel) ? s.studyLevel : s.studyLevel ? [s.studyLevel] : []).slice(0, 4);
     const provider = s.provider?.name;
 
@@ -86,18 +86,18 @@ function ScholarshipCard({ s, favorite, onToggleFavorite, favoritesReady }: {
                 </Link>
             </h3>
             <p className="mt-1 text-sm text-slate-500">
-                {[provider, s.country].filter(Boolean).join(' · ')} {flagFor(s.country)}
+                {[provider, s.country && localizeCountry(s.country, locale)].filter(Boolean).join(' · ')} {flagFor(s.country)}
             </p>
 
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl bg-slate-50 px-4 py-3">
                 <span className="inline-flex items-center gap-2 text-sm">
                     <Coins aria-hidden="true" className="h-4 w-4 text-brand" />
-                    {amount ? <span className="font-semibold text-ink">{amount}</span> : <span className="italic text-slate-500">See official website</span>}
+                    {amount ? <span className="font-semibold text-ink">{amount}</span> : <span className="italic text-slate-500">{m.seeWebsite}</span>}
                 </span>
                 {levels.length > 0 && (
                     <span className="flex flex-wrap gap-1.5">
                         {levels.map((l) => (
-                            <span key={l} className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-600">{l}</span>
+                            <span key={l} className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-600">{m.studyLevels[l] ?? l}</span>
                         ))}
                     </span>
                 )}
@@ -105,7 +105,7 @@ function ScholarshipCard({ s, favorite, onToggleFavorite, favoritesReady }: {
 
             <div className="mt-4 flex justify-end">
                 <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand">
-                    View details <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                    {m.viewDetails} <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </span>
             </div>
         </article>
@@ -121,6 +121,8 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
     const [totalPages, setTotalPages] = useState(1);
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
     const favorites = useFavoriteIds('scholarship');
+    const { t, locale } = useI18n();
+    const m = t.scholarships;
 
     const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
     useEffect(() => {
@@ -189,10 +191,10 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
     const update = (patch: Partial<FilterState>) => setFilters((prev) => ({ ...prev, ...patch }));
 
     const active: ActiveFilter[] = [];
-    if (filters.country !== initialFilters.country) active.push({ key: 'country', label: `${flagFor(filters.country)} ${filters.country}`, onRemove: () => update({ country: initialFilters.country }) });
-    if (filters.studyLevel !== initialFilters.studyLevel) active.push({ key: 'level', label: filters.studyLevel, onRemove: () => update({ studyLevel: initialFilters.studyLevel }) });
-    if (filters.minAmount) active.push({ key: 'amount', label: `Min ${Number(filters.minAmount).toLocaleString('en-US')}`, onRemove: () => update({ minAmount: '' }) });
-    if (filters.maxDeadline) active.push({ key: 'deadline', label: `Deadline before ${filters.maxDeadline}`, onRemove: () => update({ maxDeadline: '' }) });
+    if (filters.country !== initialFilters.country) active.push({ key: 'country', label: `${flagFor(filters.country)} ${localizeCountry(filters.country, locale)}`, onRemove: () => update({ country: initialFilters.country }) });
+    if (filters.studyLevel !== initialFilters.studyLevel) active.push({ key: 'level', label: m.studyLevels[filters.studyLevel] ?? filters.studyLevel, onRemove: () => update({ studyLevel: initialFilters.studyLevel }) });
+    if (filters.minAmount) active.push({ key: 'amount', label: m.minChip(formatNumber(locale, Number(filters.minAmount))), onRemove: () => update({ minAmount: '' }) });
+    if (filters.maxDeadline) active.push({ key: 'deadline', label: m.deadlineChip(formatDate(locale, `${filters.maxDeadline}T00:00:00Z`, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })), onRemove: () => update({ maxDeadline: '' }) });
     const clearAll = () => setFilters(initialFilters);
 
     const showingStart = totalCount === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
@@ -208,8 +210,8 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
                             type="search"
                             value={filters.search}
                             onChange={(e) => update({ search: e.target.value })}
-                            placeholder="Search by name, provider…"
-                            aria-label="Search scholarships"
+                            placeholder={m.searchPlaceholder}
+                            aria-label={m.searchLabel}
                             className="h-11 w-full rounded-[10px] border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm text-ink placeholder:text-slate-400 focus:border-brand focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand/10"
                         />
                     </div>
@@ -218,7 +220,7 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
                         onClick={() => setIsMobileFilterOpen(true)}
                         className="relative inline-flex h-11 shrink-0 items-center gap-2 rounded-[10px] bg-brand px-4 text-sm font-semibold text-white lg:hidden"
                     >
-                        <SlidersHorizontal aria-hidden="true" className="h-4 w-4" /> Filters
+                        <SlidersHorizontal aria-hidden="true" className="h-4 w-4" /> {m.filters}
                         {active.length > 0 && (
                             <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400 px-1 text-[11px] font-bold text-ink">{active.length}</span>
                         )}
@@ -227,15 +229,13 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
 
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                     <p className="text-sm text-slate-500">
-                        {loading ? 'Loading…' : totalCount === 0 ? 'No scholarships found' : (
-                            <>Showing <span className="font-semibold text-ink">{showingStart}–{showingEnd}</span> of <span className="font-semibold text-ink">{totalCount.toLocaleString('en-US')}</span> scholarships</>
-                        )}
+                        {loading ? m.loading : totalCount === 0 ? m.noneFound : m.showing(showingStart, showingEnd, formatNumber(locale, totalCount))}
                     </p>
                     <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-500">Sort by</span>
-                        <div className="w-48">
-                            <SelectField name="sortBy" value={sortBy} onChange={(e) => setSortBy(e.target.value)} ariaLabel="Sort scholarships">
-                                {SORT_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                        <span className="text-sm text-slate-500">{m.sortBy}</span>
+                        <div className="w-56">
+                            <SelectField name="sortBy" value={sortBy} onChange={(e) => setSortBy(e.target.value)} ariaLabel={m.sortLabel}>
+                                {SORT_OPTIONS.map((value) => <option key={value} value={value}>{m.sort[value]}</option>)}
                             </SelectField>
                         </div>
                     </div>
@@ -248,7 +248,7 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
                 )}
             </div>
 
-            <MobileFilterDrawer open={isMobileFilterOpen} onClose={() => setIsMobileFilterOpen(false)} title="Filter scholarships">
+            <MobileFilterDrawer open={isMobileFilterOpen} onClose={() => setIsMobileFilterOpen(false)} title={m.filterTitle}>
                 <ScholarshipsFilter
                     filters={filters}
                     setFilters={setFilters}
@@ -263,8 +263,8 @@ export default function ScholarshipsListUI({ filters, setFilters }: Scholarships
                     Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)
                 ) : scholarships.length === 0 ? (
                     <EmptyState
-                        title="No scholarships match these filters"
-                        text="Try another study level or country, or remove the amount and deadline limits."
+                        title={m.emptyTitle}
+                        text={m.emptyText}
                         onClear={active.length || filters.search ? clearAll : undefined}
                     />
                 ) : (

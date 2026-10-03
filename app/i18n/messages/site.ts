@@ -1,0 +1,121 @@
+import { defineMessages } from '../define';
+
+// Footer, cookie banner and the public Support page.
+export default defineMessages({
+    en: {
+        footer: {
+            tagline: 'Helping students find universities and scholarships worldwide — with data-driven matching and AI support at every step.',
+            explore: 'Explore',
+            contact: 'Contact',
+            rankings: 'Rankings',
+            signIn: 'Sign In',
+            createAccount: 'Create account',
+            supportUs: 'Support us',
+            rights: 'All rights reserved.',
+            privacy: 'Privacy Policy',
+        },
+        consent: {
+            title: 'Cookies & analytics',
+            text: 'We use Google Analytics cookies to learn which pages help students most. No ads, and we never sell your data. You can change this anytime under “Cookie settings” in the footer.',
+            privacy: 'Privacy Policy',
+            decline: 'Decline',
+            accept: 'Accept',
+            settings: 'Cookie settings',
+        },
+        support: {
+            metaTitle: 'Support ScholarizePath',
+            metaDescription:
+                'Help fund a bigger AI budget for ScholarizePath so more students can get AI-powered university and scholarship guidance every day.',
+            funded: [
+                {
+                    title: 'More AI messages per day',
+                    description: 'Every student gets a small daily AI quota — your support raises that ceiling for everyone.',
+                },
+                {
+                    title: 'Faster, higher-capacity model',
+                    description: 'Upgrading our AI provider plan means fewer "please slow down" messages during busy hours.',
+                },
+                {
+                    title: 'New AI features',
+                    description: 'Essay feedback, deeper eligibility checks, and more — the AI budget is what unlocks these.',
+                },
+            ],
+            heroTitle: 'Help more students get AI guidance',
+            heroLead: 'ScholarizePath is student-run and self-funded. Donations go straight into the AI budget so every student gets more help each day.',
+            donate: 'Donate via DonationAlerts',
+            opensNewTab: 'Opens DonationAlerts in a new tab',
+            soon: 'Donations opening soon',
+            whereEyebrow: 'Where it goes',
+            whereTitle: 'What your support funds',
+            involvedEyebrow: 'Get involved',
+            involvedTitle: 'Other ways to help',
+            involvedLead: "Money isn't the only way to make a difference.",
+            shareTitle: 'Share with a friend',
+            shareText: 'Know someone looking for a university or scholarship? Send them the link.',
+            bugTitle: 'Report a bug or suggest a feature',
+            bugText: 'Spotted wrong tuition, an outdated deadline or have an idea? Tell us.',
+            sendFeedback: 'Send feedback',
+            saveTitle: 'Save and explore',
+            saveText: 'Every university and scholarship you save helps shape the community Top rankings.',
+            seeTop: 'See Top rankings',
+        },
+    },
+    ru: {
+        footer: {
+            tagline: 'Помогаем студентам находить университеты и стипендии по всему миру — с подбором на основе данных и поддержкой ИИ на каждом шаге.',
+            explore: 'Разделы',
+            contact: 'Контакты',
+            rankings: 'Рейтинги',
+            signIn: 'Войти',
+            createAccount: 'Создать аккаунт',
+            supportUs: 'Поддержать нас',
+            rights: 'Все права защищены.',
+            privacy: 'Политика конфиденциальности',
+        },
+        consent: {
+            title: 'Cookies и аналитика',
+            text: 'Мы используем cookies Google Analytics, чтобы понимать, какие страницы больше всего помогают студентам. Без рекламы, и мы никогда не продаём ваши данные. Изменить выбор можно в любой момент в «Настройках cookies» внизу сайта.',
+            privacy: 'Политика конфиденциальности',
+            decline: 'Отклонить',
+            accept: 'Принять',
+            settings: 'Настройки cookies',
+        },
+        support: {
+            metaTitle: 'Поддержать ScholarizePath',
+            metaDescription:
+                'Помогите увеличить бюджет ИИ ScholarizePath, чтобы больше студентов каждый день получали помощь ИИ с выбором университетов и стипендий.',
+            funded: [
+                {
+                    title: 'Больше сообщений ИИ в день',
+                    description: 'У каждого студента небольшой дневной лимит ИИ — ваша поддержка поднимает его для всех.',
+                },
+                {
+                    title: 'Быстрее и мощнее модель',
+                    description: 'Более высокий тариф у провайдера ИИ — меньше сообщений «подождите немного» в часы пик.',
+                },
+                {
+                    title: 'Новые функции ИИ',
+                    description: 'Отзывы на эссе, более глубокая проверка соответствия требованиям и не только — всё это открывает бюджет ИИ.',
+                },
+            ],
+            heroTitle: 'Помогите большему числу студентов получить помощь ИИ',
+            heroLead: 'ScholarizePath развивают студенты на собственные средства. Пожертвования идут напрямую в бюджет ИИ, чтобы каждый студент получал больше помощи каждый день.',
+            donate: 'Поддержать через DonationAlerts',
+            opensNewTab: 'DonationAlerts откроется в новой вкладке',
+            soon: 'Скоро можно будет поддержать',
+            whereEyebrow: 'Куда идут деньги',
+            whereTitle: 'Что оплачивает ваша поддержка',
+            involvedEyebrow: 'Как ещё помочь',
+            involvedTitle: 'Другие способы помочь',
+            involvedLead: 'Помочь можно не только деньгами.',
+            shareTitle: 'Поделитесь с другом',
+            shareText: 'Знаете кого-то, кто ищет университет или стипендию? Отправьте ему ссылку.',
+            bugTitle: 'Сообщите об ошибке или предложите идею',
+            bugText: 'Заметили неверную стоимость, устаревший дедлайн или есть идея? Расскажите нам.',
+            sendFeedback: 'Написать отзыв',
+            saveTitle: 'Сохраняйте и исследуйте',
+            saveText: 'Каждый сохранённый университет и стипендия влияют на общий рейтинг сообщества.',
+            seeTop: 'Смотреть рейтинг',
+        },
+    },
+});

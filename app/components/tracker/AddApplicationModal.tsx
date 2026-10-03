@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Award, Building2, Check, Heart, Loader2, Search, X } from 'lucide-react';
 import { useIsClient } from '@/components/common/detailUi';
+import { useI18n } from '@/i18n/I18nProvider';
 
 export interface AvailableFavorite {
     itemType: 'university' | 'scholarship';
@@ -28,6 +29,8 @@ export default function AddApplicationModal({ open, onClose, favorites, loadingF
     const [query, setQuery] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const isClient = useIsClient();
+    const { t } = useI18n();
+    const m = t.tracker;
 
     useEffect(() => {
         if (!open) return;
@@ -83,39 +86,39 @@ export default function AddApplicationModal({ open, onClose, favorites, loadingF
                     >
                         <div className="flex items-start justify-between gap-3 px-5 pb-3 pt-5 sm:px-6">
                             <div>
-                                <h2 id="add-application-title" className="font-display text-lg font-bold text-ink">Add application</h2>
-                                <p className="mt-0.5 text-sm text-slate-500">Pick one of your saved universities or scholarships.</p>
+                                <h2 id="add-application-title" className="font-display text-lg font-bold text-ink">{m.addTitle}</h2>
+                                <p className="mt-0.5 text-sm text-slate-500">{m.addLead}</p>
                             </div>
-                            <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-ink">
+                            <button type="button" onClick={onClose} aria-label={m.close} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-ink">
                                 <X aria-hidden="true" className="h-4 w-4" />
                             </button>
                         </div>
 
                         <div className="flex-1 overflow-y-auto px-5 pb-4 sm:px-6">
                             {loadingFavorites ? (
-                                <div className="flex justify-center py-12"><Loader2 aria-label="Loading saved items" className="h-6 w-6 animate-spin text-brand" /></div>
+                                <div className="flex justify-center py-12"><Loader2 aria-label={m.loadingSaved} className="h-6 w-6 animate-spin text-brand" /></div>
                             ) : favorites.length === 0 ? (
                                 <div className="flex flex-col items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-5 py-10 text-center">
                                     <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-500"><Heart aria-hidden="true" className="h-5 w-5" /></span>
-                                    <p className="mt-3 text-sm text-slate-600">Save universities or scholarships first — the tracker uses your saved items. Items you already track aren&apos;t listed.</p>
-                                    <Link href="/universities" onClick={onClose} className="mt-4 text-sm font-semibold text-brand hover:underline">Browse universities</Link>
+                                    <p className="mt-3 text-sm text-slate-600">{m.noSaved}</p>
+                                    <Link href="/universities" onClick={onClose} className="mt-4 text-sm font-semibold text-brand hover:underline">{m.browseUniversities}</Link>
                                 </div>
                             ) : (
                                 <>
                                     {favorites.length > 5 && (
                                         <label className="relative mb-3 block">
-                                            <span className="sr-only">Search your saved items</span>
+                                            <span className="sr-only">{m.searchSaved}</span>
                                             <Search aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                             <input
                                                 type="search"
                                                 value={query}
                                                 onChange={(e) => setQuery(e.target.value)}
-                                                placeholder="Search your saved items"
+                                                placeholder={m.searchSaved}
                                                 className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-ink placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10"
                                             />
                                         </label>
                                     )}
-                                    <ul role="radiogroup" aria-label="Saved items" className="space-y-2">
+                                    <ul role="radiogroup" aria-label={m.savedItems} className="space-y-2">
                                         {visible.map((f) => {
                                             const key = `${f.itemType}:${f.itemId}`;
                                             const isSelected = selected === key;
@@ -143,12 +146,12 @@ export default function AddApplicationModal({ open, onClose, favorites, loadingF
                                                 </li>
                                             );
                                         })}
-                                        {visible.length === 0 && <li className="py-6 text-center text-sm text-slate-500">Nothing matches “{query}”.</li>}
+                                        {visible.length === 0 && <li className="py-6 text-center text-sm text-slate-500">{m.noMatch(query)}</li>}
                                     </ul>
 
                                     <div className="mt-5">
                                         <label htmlFor="add-deadline" className="mb-2 block text-sm font-semibold text-ink">
-                                            Deadline <span className="font-normal text-slate-400">(optional)</span>
+                                            {m.deadline} <span className="font-normal text-slate-400">{m.optional}</span>
                                         </label>
                                         <input
                                             id="add-deadline"
@@ -163,14 +166,14 @@ export default function AddApplicationModal({ open, onClose, favorites, loadingF
                         </div>
 
                         <div className="flex justify-end gap-3 border-t border-slate-100 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:px-6 sm:pb-4">
-                            <button type="button" onClick={onClose} className="h-11 rounded-xl px-4 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+                            <button type="button" onClick={onClose} className="h-11 rounded-xl px-4 text-sm font-semibold text-slate-600 hover:bg-slate-50">{m.cancel}</button>
                             <button
                                 type="button"
                                 onClick={handleSubmit}
                                 disabled={!selectedFavorite || submitting}
                                 className="inline-flex h-11 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#004a9f] disabled:cursor-not-allowed disabled:bg-slate-300"
                             >
-                                {submitting && <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />} Add to tracker
+                                {submitting && <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />} {m.addToTracker}
                             </button>
                         </div>
                     </motion.div>

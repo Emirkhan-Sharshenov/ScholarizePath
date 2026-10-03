@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight, LayoutGrid, Loader2, LogOut, X } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
+import LanguageSwitcher from "@/i18n/LanguageSwitcher";
+import { useI18n } from "@/i18n/I18nProvider";
 import { useSidebar } from "./SidebarContext";
 import {
     NAV_ITEMS,
@@ -23,6 +25,7 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
     const pathname = usePathname();
     const user = useCurrentUser();
     const { logout, loggingOut } = useLogout();
+    const { t } = useI18n();
 
     useEffect(() => {
         if (!open) return;
@@ -54,7 +57,7 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
                         key="more-sheet"
                         role="dialog"
                         aria-modal="true"
-                        aria-label="More sections"
+                        aria-label={t.nav.moreSections}
                         initial={{ y: "100%" }}
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
@@ -69,23 +72,24 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
                                 {userInitials(user)}
                             </span>
                             <span className="min-w-0 flex-1">
-                                <span className="block truncate font-display text-base font-semibold text-ink">{userDisplayName(user)}</span>
+                                <span className="block truncate font-display text-base font-semibold text-ink">{userDisplayName(user, t.nav.myAccount)}</span>
                                 {user?.email && <span className="block truncate text-sm text-slate-500">{user.email}</span>}
                             </span>
                             <button
                                 type="button"
                                 onClick={onClose}
-                                aria-label="Close"
+                                aria-label={t.nav.close}
                                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500"
                             >
                                 <X className="h-[18px] w-[18px]" />
                             </button>
                         </div>
 
-                        <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wider text-slate-500">More sections</p>
+                        <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wider text-slate-500">{t.nav.moreSections}</p>
                         <div className="grid grid-cols-2 gap-3">
-                            {MORE_ITEMS.map(({ href, label, hint, icon: Icon }) => {
+                            {MORE_ITEMS.map(({ href, key, icon: Icon }) => {
                                 const isActive = isNavItemActive(pathname, href);
+                                const { label, hint } = t.nav.items[key];
                                 return (
                                     <Link
                                         key={href}
@@ -107,14 +111,16 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
                             })}
                         </div>
 
+                        <LanguageSwitcher variant="full" className="mt-5 flex w-full bg-white ring-1 ring-slate-200/80" />
+
                         <button
                             type="button"
                             onClick={logout}
                             disabled={loggingOut}
-                            className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-red-50 text-[15px] font-semibold text-red-600 transition-colors active:bg-red-100 disabled:opacity-60"
+                            className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-red-50 text-[15px] font-semibold text-red-600 transition-colors active:bg-red-100 disabled:opacity-60"
                         >
                             {loggingOut ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : <LogOut className="h-[18px] w-[18px]" />}
-                            Log out
+                            {t.nav.logOut}
                         </button>
                     </motion.div>
                 </motion.div>
@@ -127,6 +133,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
     const { collapsed } = useSidebar();
     const pathname = usePathname();
     const [moreOpen, setMoreOpen] = useState(false);
+    const { t } = useI18n();
     const closeMore = useCallback(() => setMoreOpen(false), []);
 
     const currentItem = NAV_ITEMS.find((item) => isNavItemActive(pathname, item.href));
@@ -135,11 +142,11 @@ export default function MainContent({ children }: { children: React.ReactNode })
     return (
         <div className="flex min-h-screen w-full min-w-0 flex-1 flex-col">
             <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-slate-200/70 bg-white/85 px-4 font-body backdrop-blur-md md:hidden">
-                <Link href="/dashboard" className="flex shrink-0 items-center" aria-label="ScholarizePath home">
+                <Link href="/dashboard" className="flex shrink-0 items-center" aria-label={t.nav.homeLabel}>
                     <BrandLogo variant="mark" decorative className="text-[30px]" />
                 </Link>
                 <span className="min-w-0 flex-1 truncate font-display text-base font-semibold text-ink">
-                    {currentItem?.label ?? "ScholarizePath"}
+                    {currentItem ? t.nav.items[currentItem.key].label : "ScholarizePath"}
                 </span>
             </header>
 
@@ -150,12 +157,13 @@ export default function MainContent({ children }: { children: React.ReactNode })
             </main>
 
             <nav
-                aria-label="App navigation"
+                aria-label={t.nav.appNavigation}
                 className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/80 bg-white/95 pb-[env(safe-area-inset-bottom)] font-body backdrop-blur-md md:hidden"
             >
                 <ul className="grid grid-cols-5">
-                    {TAB_ITEMS.map(({ href, label, icon: Icon }) => {
+                    {TAB_ITEMS.map(({ href, key, icon: Icon }) => {
                         const isActive = isNavItemActive(pathname, href);
+                        const label = t.nav.items[key].short;
                         return (
                             <li key={href}>
                                 <Link
@@ -177,7 +185,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
                             className={`flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors ${moreActive || moreOpen ? "text-brand" : "text-slate-500"}`}
                         >
                             <LayoutGrid aria-hidden="true" className="h-[22px] w-[22px]" />
-                            More
+                            {t.nav.more}
                         </button>
                     </li>
                 </ul>

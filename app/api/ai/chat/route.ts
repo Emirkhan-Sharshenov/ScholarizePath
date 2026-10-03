@@ -1,3 +1,5 @@
+import { getLocale } from "@/i18n/server";
+import type { Locale } from "@/i18n/config";
 import { NextRequest, NextResponse } from "next/server";
 import { groq, AI_MODEL } from "@/lib/groq";
 import { aiTools, searchUniversities, searchScholarships } from "@/lib/ai/tools";
@@ -65,7 +67,11 @@ async function getStudentProfile(baseUrl: string, cookie?: string): Promise<Stud
     }
 }
 
-function buildSystemPrompt(profile: StudentProfile | null) {
+function buildSystemPrompt(profile: StudentProfile | null, locale: Locale) {
+    const language = locale === "ru"
+        ? "8. Reply in Russian — it's the student's interface language — unless the student clearly writes in another language; then reply in that language."
+        : "8. Reply in the language the student writes in.";
+
     const profileSummary = profile
         ? `Student profile (background context ONLY — see rule 2 below for how to use it):\n${JSON.stringify(profile, null, 2)}`
         : "No student profile is available. Just answer based on what the student asks.";
@@ -103,7 +109,8 @@ Rules:
    out (e.g. "a couple of these are fully funded", "one is ranked in the global top 20", a
    country or field pattern you noticed) — just don't turn it into a list of every single
    name/amount, since the full detail is already shown right below in the result cards. Think
-   "a knowledgeable friend giving you the highlights," not "a legal disclaimer."`;
+   "a knowledgeable friend giving you the highlights," not "a legal disclaimer."
+${language}`;
 }
 
 function isTransientGroqError(err: any): boolean {
@@ -194,7 +201,7 @@ export async function POST(req: NextRequest) {
         const profile = await getStudentProfile(baseUrl, cookie);
 
         const messages: any[] = [
-            { role: "system", content: buildSystemPrompt(profile) },
+            { role: "system", content: buildSystemPrompt(profile, await getLocale()) },
             ...history.map((m) => ({ role: m.role, content: m.content })),
             { role: "user", content: message },
         ];

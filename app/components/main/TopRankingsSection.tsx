@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { Award, GraduationCap, Heart, MapPin, type LucideIcon } from 'lucide-react';
+import { getI18n } from '@/i18n/server';
+import type { Messages } from '@/i18n/messages';
 
 interface RankedUniversity {
     id: string;
@@ -21,11 +23,6 @@ interface TopRankingsSectionProps {
     variant: 'teaser' | 'full';
 }
 
-function favoriteLabel(count: number): string {
-    if (count === 1) return '1 student favorited this';
-    return `${count} students favorited this`;
-}
-
 interface RankedItem {
     id: string;
     name: string;
@@ -38,11 +35,13 @@ function RankedList({
     icon: Icon,
     items,
     hrefBase,
+    t,
 }: {
     title: string;
     icon: LucideIcon;
     items: RankedItem[];
     hrefBase: string;
+    t: Messages;
 }) {
     return (
         <div className="min-w-0">
@@ -51,7 +50,7 @@ function RankedList({
                 {title}
             </h3>
             {items.length === 0 ? (
-                <p className="text-sm text-slate-500">No favorites yet.</p>
+                <p className="text-sm text-slate-500">{t.home.teaser.noFavorites}</p>
             ) : (
                 <ol className="space-y-3">
                     {items.map((item, idx) => (
@@ -76,12 +75,12 @@ function RankedList({
                                     </p>
                                 </div>
                                 <span
-                                    title={favoriteLabel(item.favoriteCount)}
+                                    title={t.common.favoritedBy(item.favoriteCount)}
                                     className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium tabular-nums text-slate-400 transition-colors group-hover:text-rose-500"
                                 >
                                     <Heart aria-hidden="true" className="h-4 w-4 stroke-[1.75]" />
                                     {item.favoriteCount}
-                                    <span className="sr-only">— {favoriteLabel(item.favoriteCount)}</span>
+                                    <span className="sr-only">— {t.common.favoritedBy(item.favoriteCount)}</span>
                                 </span>
                             </Link>
                         </li>
@@ -92,20 +91,20 @@ function RankedList({
     );
 }
 
-function EmptyState() {
+function EmptyState({ t }: { t: Messages }) {
     return (
         <p className="rounded-2xl border border-dashed border-slate-300 bg-white py-10 px-6 text-sm text-slate-500 text-center">
-            No favorites yet — be the first to add a scholarship or university to your
-            favorites and put it on the map.
+            {t.home.teaser.empty}
         </p>
     );
 }
 
-export default function TopRankingsSection({
+export default async function TopRankingsSection({
     topUniversities,
     topScholarships,
     variant,
 }: TopRankingsSectionProps) {
+    const { t } = await getI18n();
     const limit = variant === 'teaser' ? 4 : topUniversities.length;
     const scholarshipLimit = variant === 'teaser' ? 4 : topScholarships.length;
     const universities = topUniversities.slice(0, limit);
@@ -117,29 +116,30 @@ export default function TopRankingsSection({
             {variant === 'teaser' && (
                 <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-brand">Trending now</p>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-brand">{t.home.teaser.eyebrow}</p>
                         <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-                            Most Favorited Right Now
+                            {t.home.teaser.title}
                         </h2>
                         <p className="mt-2 text-sm text-slate-500 sm:text-base">
-                            Universities and scholarships students are saving the most
+                            {t.home.teaser.lead}
                         </p>
                     </div>
                     <Link
                         href="/top"
                         className="inline-flex items-center gap-1 self-start whitespace-nowrap rounded-[10px] px-3 py-2 -mx-3 text-sm font-semibold text-brand transition-colors hover:bg-blue-50 sm:self-auto"
                     >
-                        See full ranking →
+                        {t.home.teaser.seeAll}
                     </Link>
                 </div>
             )}
 
             {isEmpty ? (
-                <EmptyState />
+                <EmptyState t={t} />
             ) : (
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-10">
                     <RankedList
-                        title="Top Universities"
+                        title={t.home.teaser.topUniversities}
+                        t={t}
                         icon={GraduationCap}
                         hrefBase="/universities"
                         items={universities.map((uni) => ({
@@ -150,7 +150,8 @@ export default function TopRankingsSection({
                         }))}
                     />
                     <RankedList
-                        title="Top Scholarships"
+                        title={t.home.teaser.topScholarships}
+                        t={t}
                         icon={Award}
                         hrefBase="/scholarships"
                         items={scholarships.map((sch) => ({

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildUniListDocxBuffer } from "@/lib/uniListDocx";
+import { getI18n } from "@/i18n/server";
+import { intlLocale } from "@/i18n/format";
 
 export const runtime = "nodejs";
 
@@ -57,7 +59,8 @@ export async function GET(req: NextRequest) {
             Promise.all(schItems.map(fetchItem)),
         ]);
 
-        const buffer = await buildUniListDocxBuffer(universities, scholarships);
+        const { t, locale } = await getI18n();
+        const buffer = await buildUniListDocxBuffer(universities, scholarships, t.unilist.docx, locale, intlLocale(locale));
         const filename = `unilist-report-${Date.now()}.docx`;
 
         return new NextResponse(new Uint8Array(buffer), {

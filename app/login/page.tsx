@@ -2,18 +2,22 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { ErrorBoundary } from "@/components/login/ErrorBoundary";
 import LoginForm from "@/components/login/LoginForm";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = {
-    title: "Sign In — ScholarizePath",
-    description: "Sign in to ScholarizePath",
-    robots: {
-        index: false,
-        follow: false,
-    },
-    icons: {
-        icon: "/icon.png",
-    },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const { t } = await getI18n();
+    return {
+        title: t.auth.metaTitle,
+        description: t.auth.metaDescription,
+        robots: {
+            index: false,
+            follow: false,
+        },
+        icons: {
+            icon: "/icon.png",
+        },
+    };
+}
 
 export default function AuthPage() {
     return (

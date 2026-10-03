@@ -2,6 +2,7 @@
 
 import { Award, Building2, CalendarClock, GripVertical } from 'lucide-react';
 import { deadlineChip, type TrackedApplication } from './trackerConstants';
+import { useI18n } from '@/i18n/I18nProvider';
 
 interface TrackerCardProps {
     application: TrackedApplication;
@@ -13,7 +14,8 @@ interface TrackerCardProps {
 export default function TrackerCard({ application, onOpen, draggable = false }: TrackerCardProps) {
     const isUniversity = application.itemType === 'university';
     const Icon = isUniversity ? Building2 : Award;
-    const chip = deadlineChip(application);
+    const { t, locale } = useI18n();
+    const chip = deadlineChip(application, t.tracker, locale);
 
     return (
         <button
@@ -46,7 +48,7 @@ export default function TrackerCard({ application, onOpen, draggable = false }: 
             )}
 
             <p className={`mt-2.5 text-[11px] font-semibold uppercase tracking-wider ${isUniversity ? 'text-blue-400' : 'text-violet-400'}`}>
-                {isUniversity ? 'University' : 'Scholarship'}
+                {isUniversity ? t.tracker.university : t.tracker.scholarship}
             </p>
         </button>
     );

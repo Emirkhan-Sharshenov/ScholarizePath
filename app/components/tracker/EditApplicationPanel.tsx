@@ -8,6 +8,8 @@ import { ArrowUpRight, Award, Building2, Check, Loader2, SlidersHorizontal, Tras
 import { timeAgo } from '@/lib/timeAgo';
 import { useIsClient } from '@/components/common/detailUi';
 import { STATUS_COLUMNS, toDateInput, type ApplicationStatus, type TrackedApplication } from './trackerConstants';
+import { useI18n } from '@/i18n/I18nProvider';
+import { intlLocale } from '@/i18n/format';
 
 export interface ApplicationChanges {
     status: ApplicationStatus;
@@ -38,6 +40,8 @@ export default function EditApplicationPanel({ application, onClose, onSave, onR
 
     const open = application !== null;
     const isClient = useIsClient();
+    const { t, locale } = useI18n();
+    const m = t.tracker;
 
     useEffect(() => {
         if (!open) return;
@@ -64,7 +68,7 @@ export default function EditApplicationPanel({ application, onClose, onSave, onR
         const ok = await onSave(application._id, { status, deadline: deadline || null, notes: notes.trim() });
         setSaving(false);
         if (ok) onClose();
-        else setError("Couldn't save your changes. Please try again.");
+        else setError(m.saveError);
     };
 
     const isUniversity = application?.itemType === 'university';
@@ -96,9 +100,9 @@ export default function EditApplicationPanel({ application, onClose, onSave, onR
                         <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-slate-200 md:hidden" />
                         <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 md:px-6">
                             <h2 id="edit-application-title" className="flex items-center gap-2 font-display text-lg font-bold text-ink">
-                                <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-brand" /> Edit application
+                                <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-brand" /> {m.editTitle}
                             </h2>
-                            <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-ink">
+                            <button type="button" onClick={onClose} aria-label={m.close} className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-ink">
                                 <X aria-hidden="true" className="h-4 w-4" />
                             </button>
                         </div>
@@ -110,7 +114,7 @@ export default function EditApplicationPanel({ application, onClose, onSave, onR
                                 </span>
                                 <div className="min-w-0">
                                     <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${isUniversity ? 'bg-blue-100 text-brand' : 'bg-violet-100 text-violet-700'}`}>
-                                        {isUniversity ? 'University' : 'Scholarship'}
+                                        {isUniversity ? m.university : m.scholarship}
                                     </span>
                                     <p className="mt-1 font-semibold leading-snug text-ink">{application.itemName}</p>
                                     {application.itemSubtitle && <p className="truncate text-xs text-slate-500">{application.itemSubtitle}</p>}
@@ -118,7 +122,7 @@ export default function EditApplicationPanel({ application, onClose, onSave, onR
                             </div>
 
                             <fieldset>
-                                <legend className="mb-2 text-sm font-semibold text-ink">Status</legend>
+                                <legend className="mb-2 text-sm font-semibold text-ink">{m.statusField}</legend>
                                 <div className="grid grid-cols-2 gap-2">
                                     {STATUS_COLUMNS.map((col) => {
                                         const selected = status === col.id;
@@ -131,7 +135,7 @@ export default function EditApplicationPanel({ application, onClose, onSave, onR
                                                 className={`flex h-11 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-colors ${selected ? 'border-brand bg-brand text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}`}
                                             >
                                                 {selected ? <Check aria-hidden="true" className="h-4 w-4" /> : <span className={`h-2 w-2 rounded-full ${col.dotClass}`} />}
-                                                {col.label}
+                                                {m.status[col.id]}
                                             </button>
                                         );
                                     })}
@@ -140,8 +144,8 @@ export default function EditApplicationPanel({ application, onClose, onSave, onR
 
                             <div>
                                 <div className="mb-2 flex items-baseline justify-between">
-                                    <label htmlFor="application-deadline" className="text-sm font-semibold text-ink">Deadline</label>
-                                    {deadline && <button type="button" onClick={() => setDeadline('')} className="text-xs font-semibold text-brand hover:underline">Clear date</button>}
+                                    <label htmlFor="application-deadline" className="text-sm font-semibold text-ink">{m.deadline}</label>
+                                    {deadline && <button type="button" onClick={() => setDeadline('')} className="text-xs font-semibold text-brand hover:underline">{m.clearDate}</button>}
                                 </div>
                                 <input
                                     id="application-deadline"
@@ -153,18 +157,18 @@ export default function EditApplicationPanel({ application, onClose, onSave, onR
                             </div>
 
                             <div>
-                                <label htmlFor="application-notes" className="mb-2 block text-sm font-semibold text-ink">Notes</label>
+                                <label htmlFor="application-notes" className="mb-2 block text-sm font-semibold text-ink">{m.notes}</label>
                                 <textarea
                                     id="application-notes"
                                     rows={5}
                                     maxLength={MAX_NOTES}
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
-                                    placeholder="e.g. Ask Prof. Weber for a recommendation letter"
+                                    placeholder={m.notesPlaceholder}
                                     className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm leading-relaxed text-ink placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10"
                                 />
                                 <div className="mt-1 flex justify-between text-xs text-slate-400">
-                                    <span>{application.updatedAt ? `Updated ${timeAgo(application.updatedAt)}` : ''}</span>
+                                    <span>{application.updatedAt ? m.updated(timeAgo(application.updatedAt, intlLocale(locale))) : ''}</span>
                                     <span>{notes.length}/{MAX_NOTES}</span>
                                 </div>
                             </div>
@@ -173,7 +177,7 @@ export default function EditApplicationPanel({ application, onClose, onSave, onR
                                 href={`/${isUniversity ? 'universities' : 'scholarships'}/${application.itemId}`}
                                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:underline"
                             >
-                                Open {isUniversity ? 'university' : 'scholarship'} page <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+                                {isUniversity ? m.openUniversity : m.openScholarship} <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
                             </Link>
                             {error && <p role="alert" className="text-sm font-medium text-rose-600">{error}</p>}
                         </div>
@@ -181,12 +185,12 @@ export default function EditApplicationPanel({ application, onClose, onSave, onR
                         <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:px-6">
                             {confirmRemove ? (
                                 <span className="flex items-center gap-3 text-sm">
-                                    <button type="button" onClick={() => setConfirmRemove(false)} className="font-semibold text-slate-500 hover:text-ink">Cancel</button>
-                                    <button type="button" onClick={() => onRemove(application._id)} className="rounded-lg bg-rose-600 px-3 py-2 font-semibold text-white hover:bg-rose-700">Remove</button>
+                                    <button type="button" onClick={() => setConfirmRemove(false)} className="font-semibold text-slate-500 hover:text-ink">{m.cancel}</button>
+                                    <button type="button" onClick={() => onRemove(application._id)} className="rounded-lg bg-rose-600 px-3 py-2 font-semibold text-white hover:bg-rose-700">{m.remove}</button>
                                 </span>
                             ) : (
                                 <button type="button" onClick={() => setConfirmRemove(true)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-rose-600 hover:underline">
-                                    <Trash2 aria-hidden="true" className="h-4 w-4" /> Remove
+                                    <Trash2 aria-hidden="true" className="h-4 w-4" /> {m.remove}
                                 </button>
                             )}
                             <button
@@ -195,7 +199,7 @@ export default function EditApplicationPanel({ application, onClose, onSave, onR
                                 disabled={!dirty || saving}
                                 className="inline-flex h-11 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#004a9f] disabled:cursor-not-allowed disabled:bg-slate-300"
                             >
-                                {saving && <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />} Save changes
+                                {saving && <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />} {m.saveChanges}
                             </button>
                         </div>
                     </motion.div>

@@ -4,6 +4,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronDown, Heart, SearchX, X } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nProvider';
 
 export const inputClass =
     'h-11 w-full rounded-[10px] border border-slate-200 bg-white px-3.5 text-sm text-ink shadow-sm transition-colors placeholder:text-slate-400 hover:border-slate-300 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10';
@@ -38,12 +39,14 @@ export function SelectField({ name, value, onChange, children, ariaLabel }: {
 }
 
 /** Single-choice chips; clicking the selected chip clears it (back to `emptyValue`). */
-export function ChipGroup({ options, value, emptyValue, onChange, ariaLabel }: {
+export function ChipGroup({ options, value, emptyValue, onChange, ariaLabel, labels }: {
     options: string[];
     value: string;
     emptyValue: string;
     onChange: (v: string) => void;
     ariaLabel: string;
+    /** Display text per option, when it differs from the stored value. */
+    labels?: Record<string, string>;
 }) {
     return (
         <div role="radiogroup" aria-label={ariaLabel} className="flex flex-wrap gap-2">
@@ -58,7 +61,7 @@ export function ChipGroup({ options, value, emptyValue, onChange, ariaLabel }: {
                         onClick={() => onChange(selected ? emptyValue : opt)}
                         className={`h-9 rounded-full border px-3.5 text-sm font-medium transition-colors ${selected ? 'border-brand bg-brand text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-ink'}`}
                     >
-                        {opt}
+                        {labels?.[opt] ?? opt}
                     </button>
                 );
             })}
@@ -73,16 +76,17 @@ export interface ActiveFilter {
 }
 
 export function ActiveFilterChips({ filters, onClearAll }: { filters: ActiveFilter[]; onClearAll: () => void }) {
+    const { t } = useI18n();
     if (!filters.length) return null;
     return (
         <div className="flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <span className="hidden shrink-0 text-xs font-semibold uppercase tracking-wider text-slate-400 sm:inline">Active</span>
+            <span className="hidden shrink-0 text-xs font-semibold uppercase tracking-wider text-slate-400 sm:inline">{t.ui.active}</span>
             {filters.map((f) => (
                 <button
                     key={f.key}
                     type="button"
                     onClick={f.onRemove}
-                    aria-label={`Remove filter ${f.label}`}
+                    aria-label={t.ui.removeFilter(f.label)}
                     className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full bg-blue-50 px-3 text-sm font-medium text-brand transition-colors hover:bg-blue-100"
                 >
                     {f.label}
@@ -90,7 +94,7 @@ export function ActiveFilterChips({ filters, onClearAll }: { filters: ActiveFilt
                 </button>
             ))}
             <button type="button" onClick={onClearAll} className="shrink-0 px-1 text-sm font-semibold text-brand hover:underline">
-                Clear all
+                {t.ui.clearAll}
             </button>
         </div>
     );
@@ -114,12 +118,13 @@ export function Pagination({ page, totalPages, onChange, disabled }: {
     onChange: (p: number) => void;
     disabled?: boolean;
 }) {
+    const { t } = useI18n();
     if (totalPages <= 1) return null;
     const btn = 'inline-flex h-10 items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40';
     return (
-        <nav aria-label="Pagination" className="flex items-center justify-between gap-2 rounded-2xl border border-slate-200/80 bg-white p-2 shadow-[0_4px_12px_rgba(10,26,63,0.04)]">
+        <nav aria-label={t.ui.pagination} className="flex items-center justify-between gap-2 rounded-2xl border border-slate-200/80 bg-white p-2 shadow-[0_4px_12px_rgba(10,26,63,0.04)]">
             <button type="button" disabled={disabled || page <= 1} onClick={() => onChange(page - 1)} className={`${btn} text-ink hover:bg-slate-100`}>
-                <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Prev
+                <ArrowLeft aria-hidden="true" className="h-4 w-4" /> {t.ui.prev}
             </button>
 
             <div className="hidden items-center gap-1 sm:flex">
@@ -141,17 +146,18 @@ export function Pagination({ page, totalPages, onChange, disabled }: {
                 )}
             </div>
             <span className="text-sm text-slate-500 sm:hidden">
-                Page <span className="font-semibold text-ink">{page}</span> of {totalPages}
+                {t.ui.pageOf(page, totalPages)}
             </span>
 
             <button type="button" disabled={disabled || page >= totalPages} onClick={() => onChange(page + 1)} className={`${btn} text-ink hover:bg-slate-100`}>
-                Next <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                {t.ui.next} <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </button>
         </nav>
     );
 }
 
 export function EmptyState({ title, text, onClear }: { title: string; text: string; onClear?: () => void }) {
+    const { t } = useI18n();
     return (
         <div className="flex flex-col items-center rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
             <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-brand">
@@ -161,7 +167,7 @@ export function EmptyState({ title, text, onClear }: { title: string; text: stri
             <p className="mt-1 max-w-sm text-sm leading-relaxed text-slate-500">{text}</p>
             {onClear && (
                 <button type="button" onClick={onClear} className="mt-5 h-11 rounded-[10px] bg-brand px-5 text-sm font-semibold text-white hover:bg-[#004a9f]">
-                    Clear filters
+                    {t.ui.clearFilters}
                 </button>
             )}
         </div>
@@ -227,13 +233,14 @@ export function useFavoriteIds(type: 'university' | 'scholarship') {
 }
 
 export function FavoriteButton({ active, onClick, disabled }: { active: boolean; onClick: () => void; disabled?: boolean }) {
+    const { t } = useI18n();
     return (
         <button
             type="button"
             onClick={onClick}
             disabled={disabled}
             aria-pressed={active}
-            aria-label={active ? 'Remove from favourites' : 'Add to favourites'}
+            aria-label={active ? t.ui.removeFavourite : t.ui.addFavourite}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500 disabled:opacity-40"
         >
             <Heart aria-hidden="true" className={`h-[18px] w-[18px] ${active ? 'fill-rose-500 text-rose-500' : ''}`} />

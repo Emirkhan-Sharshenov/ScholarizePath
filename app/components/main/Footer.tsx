@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Mail, HeartHandshake } from 'lucide-react';
 import BrandLogo from '@/components/brand/BrandLogo';
 import CookieSettingsButton from '@/components/consent/CookieSettingsButton';
+import { getI18n } from '@/i18n/server';
 
 
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -22,13 +23,14 @@ function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
     );
 }
 
-const exploreLinks = [
-    { href: '/top', label: 'Rankings' },
-    { href: '/login', label: 'Sign In' },
-    { href: '/login?mode=register', label: 'Create account' },
-];
+export default async function Footer() {
+    const { t } = await getI18n();
+    const exploreLinks = [
+        { href: '/top', label: t.site.footer.rankings },
+        { href: '/login', label: t.site.footer.signIn },
+        { href: '/login?mode=register', label: t.site.footer.createAccount },
+    ];
 
-export default function Footer() {
     return (
         <footer className="border-t border-slate-200 bg-white font-body">
             <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-[2fr_1fr_1fr] lg:px-8">
@@ -37,13 +39,12 @@ export default function Footer() {
                         <BrandLogo animated={false} className="text-[19px]" />
                     </Link>
                     <p className="mt-4 text-sm leading-relaxed text-slate-500">
-                        Helping students find universities and scholarships worldwide — with
-                        data-driven matching and AI support at every step.
+                        {t.site.footer.tagline}
                     </p>
                 </div>
 
                 <div>
-                    <h2 className="text-xs font-semibold uppercase tracking-wider text-ink">Explore</h2>
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-ink">{t.site.footer.explore}</h2>
                     <ul className="mt-4 space-y-3">
                         {exploreLinks.map((link) => (
                             <li key={link.href}>
@@ -59,7 +60,7 @@ export default function Footer() {
                 </div>
 
                 <div>
-                    <h2 className="text-xs font-semibold uppercase tracking-wider text-ink">Contact</h2>
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-ink">{t.site.footer.contact}</h2>
                     <ul className="mt-4 space-y-3">
                         <li>
                             <a
@@ -87,7 +88,7 @@ export default function Footer() {
                                 className="inline-flex items-center gap-2 text-sm text-slate-600 transition-colors hover:text-amber-600"
                             >
                                 <HeartHandshake aria-hidden="true" className="h-4 w-4" />
-                                Support us
+                                {t.site.footer.supportUs}
                             </Link>
                         </li>
                     </ul>
@@ -96,10 +97,10 @@ export default function Footer() {
 
             <div className="border-t border-slate-100">
                 <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 text-xs text-slate-400 sm:px-6 lg:px-8">
-                    <p>&copy; {new Date().getFullYear()} ScholarizePath. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} ScholarizePath. {t.site.footer.rights}</p>
                     <div className="flex gap-5">
                         <Link href="/privacy" className="transition-colors hover:text-brand">
-                            Privacy Policy
+                            {t.site.footer.privacy}
                         </Link>
                         <CookieSettingsButton className="transition-colors hover:text-brand" />
                     </div>

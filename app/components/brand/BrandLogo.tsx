@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from 'react';
 import { motion, MotionConfig, useAnimationControls, type Transition } from 'framer-motion';
+import { useI18n } from '@/i18n/I18nProvider';
 
 // Vector version of /images/logo.png (a mortarboard resting on an open book),
 // traced from the original artwork on its 498 × 386 grid.
@@ -36,11 +37,14 @@ interface BrandLogoProps {
     className?: string;
     /** Extra classes for the tagline, e.g. hiding it on narrow screens. */
     taglineClassName?: string;
+    /** Extra classes for the name + tagline block, e.g. showing only the mark on phones. */
+    nameClassName?: string;
     /** Hide from assistive tech when a visible name sits right next to the mark. */
     decorative?: boolean;
 }
 
-export default function BrandLogo({ variant = 'full', tagline = true, animated = true, className = '', taglineClassName = '', decorative = false }: BrandLogoProps) {
+export default function BrandLogo({ variant = 'full', tagline = true, animated = true, className = '', taglineClassName = '', nameClassName = '', decorative = false }: BrandLogoProps) {
+    const { t } = useI18n();
     const maskId = `sp-cord-${useId().replace(/:/g, '')}`;
     const [intro] = useState(() => animated && !introPlayed);
     const hover = useAnimationControls();
@@ -130,11 +134,11 @@ export default function BrandLogo({ variant = 'full', tagline = true, animated =
                 onMouseEnter={tip}
                 {...(decorative
                     ? { 'aria-hidden': true }
-                    : { role: 'img', 'aria-label': variant === 'full' && tagline ? 'ScholarizePath — Your Pathway to Global Education' : 'ScholarizePath' })}
+                    : { role: 'img', 'aria-label': variant === 'full' && tagline ? `ScholarizePath — ${t.common.tagline}` : 'ScholarizePath' })}
             >
                 {mark}
                 {variant === 'full' && (
-                    <span className="flex flex-col justify-center" aria-hidden="true">
+                    <span className={`flex flex-col justify-center ${nameClassName}`} aria-hidden="true">
                         <span className="whitespace-nowrap font-display text-[1em] font-extrabold tracking-[-0.02em] text-ink" style={{ color: INK }}>
                             {name.split('').map((ch, i) => (
                                 <motion.span
@@ -154,7 +158,7 @@ export default function BrandLogo({ variant = 'full', tagline = true, animated =
                                 animate={{ opacity: 1, x: 0 }}
                                 {...from({ opacity: 0, x: -6 }, { duration: 0.6, delay: 1.1, ease })}
                             >
-                                Your Pathway to Global Education
+                                {t.common.tagline}
                             </motion.span>
                         )}
                     </span>
