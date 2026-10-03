@@ -342,7 +342,10 @@ export default function LoginForm() {
             const data = await response.json()
 
             if (data.success) {
-                router.push("/dashboard")
+                // Back to the page that sent them here (e.g. a scholarship they tried to save).
+                // Same-site paths only, so the link can't be used to redirect elsewhere.
+                const from = searchParams.get("from")
+                router.push(from && /^\/(?![/\\])/.test(from) ? from : "/dashboard")
             } else {
                 setError(apiMessage(t, data.message, t.auth.invalidLogin))
             }

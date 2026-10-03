@@ -5,6 +5,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronDown, Heart, SearchX, X } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nProvider';
+import { useGoToLogin } from '@/lib/goToLogin';
 
 export const inputClass =
     'h-11 w-full rounded-[10px] border border-slate-200 bg-white px-3.5 text-sm text-ink shadow-sm transition-colors placeholder:text-slate-400 hover:border-slate-300 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10';
@@ -193,11 +194,17 @@ export function CardSkeleton() {
 // is per item and would fire one /api/auth/self request per card.)
 export function useFavoriteIds(type: 'university' | 'scholarship') {
     const [ids, setIds] = useState<{ universities: string[]; scholarships: string[] } | null>(null);
+    // No session: the lists are public, and the heart takes the visitor to sign in.
+    const [guest, setGuest] = useState(false);
+    const goToLogin = useGoToLogin();
 
     useEffect(() => {
         let cancelled = false;
         fetch('/api/auth/self')
-            .then((res) => (res.ok ? res.json() : null))
+            .then((res) => {
+                if (res.status === 401 && !cancelled) setGuest(true);
+                return res.ok ? res.json() : null;
+            })
             .then((data) => {
                 if (cancelled || !data?.user) return;
                 setIds({ universities: data.user.favoriteUniversities ?? [], scholarships: data.user.favoriteScholarships ?? [] });
@@ -211,6 +218,7 @@ export function useFavoriteIds(type: 'university' | 'scholarship') {
     const list = ids ? (type === 'university' ? ids.universities : ids.scholarships) : [];
 
     const toggle = useCallback(async (id: string) => {
+        if (guest) return goToLogin();
         if (!ids) return;
         const key = type === 'university' ? 'universities' : 'scholarships';
         const previous = ids;
@@ -227,9 +235,9 @@ export function useFavoriteIds(type: 'university' | 'scholarship') {
         } catch {
             setIds(previous);
         }
-    }, [ids, type]);
+    }, [ids, type, guest, goToLogin]);
 
-    return { isFavorite: (id: string) => list.includes(id), toggle, ready: ids !== null };
+    return { isFavorite: (id: string) => list.includes(id), toggle, ready: ids !== null || guest };
 }
 
 export function FavoriteButton({ active, onClick, disabled }: { active: boolean; onClick: () => void; disabled?: boolean }) {

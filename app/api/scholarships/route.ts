@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { escapeRegex } from "@/lib/escapeRegex";
 import { connectDB } from "@/lib/mongodb";
 import Scholarship from "@/models/Scholarship";
 
@@ -22,9 +23,9 @@ export async function GET(request: Request) {
 
         if (search) {
             match.$or = [
-                { scholarshipName: { $regex: search, $options: "i" } },
-                { description: { $regex: search, $options: "i" } },
-                { searchKeywords: { $regex: search, $options: "i" } },
+                { scholarshipName: { $regex: escapeRegex(search), $options: "i" } },
+                { description: { $regex: escapeRegex(search), $options: "i" } },
+                { searchKeywords: { $regex: escapeRegex(search), $options: "i" } },
             ];
         }
 
@@ -37,7 +38,7 @@ export async function GET(request: Request) {
         }
 
         if (fieldOfStudy && fieldOfStudy !== "All Fields") {
-            match.fieldOfStudy = { $regex: fieldOfStudy, $options: "i" };
+            match.fieldOfStudy = { $regex: escapeRegex(fieldOfStudy), $options: "i" };
         }
 
         if (minAmount) {

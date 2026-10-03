@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, LayoutGrid, Loader2, LogOut, X } from "lucide-react";
+import { ChevronRight, LayoutGrid, Loader2, LogIn, LogOut, X } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import LanguageSwitcher from "@/i18n/LanguageSwitcher";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -23,7 +23,7 @@ const MORE_ITEMS = NAV_ITEMS.filter((item) => !item.tab);
 
 function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
     const pathname = usePathname();
-    const user = useCurrentUser();
+    const { user, guest } = useCurrentUser();
     const { logout, loggingOut } = useLogout();
     const { t } = useI18n();
 
@@ -68,13 +68,22 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
                         <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-slate-300" />
 
                         <div className="mb-5 flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4">
-                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand font-display text-sm font-bold text-white">
-                                {userInitials(user)}
-                            </span>
-                            <span className="min-w-0 flex-1">
-                                <span className="block truncate font-display text-base font-semibold text-ink">{userDisplayName(user, t.nav.myAccount)}</span>
-                                {user?.email && <span className="block truncate text-sm text-slate-500">{user.email}</span>}
-                            </span>
+                            {guest ? (
+                                <span className="min-w-0 flex-1">
+                                    <span className="block font-display text-base font-semibold text-ink">{t.nav.guestTitle}</span>
+                                    <span className="mt-0.5 block text-sm leading-snug text-slate-500">{t.nav.guestText}</span>
+                                </span>
+                            ) : (
+                                <>
+                                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand font-display text-sm font-bold text-white">
+                                        {userInitials(user)}
+                                    </span>
+                                    <span className="min-w-0 flex-1">
+                                        <span className="block truncate font-display text-base font-semibold text-ink">{userDisplayName(user, t.nav.myAccount)}</span>
+                                        {user?.email && <span className="block truncate text-sm text-slate-500">{user.email}</span>}
+                                    </span>
+                                </>
+                            )}
                             <button
                                 type="button"
                                 onClick={onClose}
@@ -113,15 +122,26 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
 
                         <LanguageSwitcher variant="full" className="mt-5 flex w-full bg-white ring-1 ring-slate-200/80" />
 
-                        <button
-                            type="button"
-                            onClick={logout}
-                            disabled={loggingOut}
-                            className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-red-50 text-[15px] font-semibold text-red-600 transition-colors active:bg-red-100 disabled:opacity-60"
-                        >
-                            {loggingOut ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : <LogOut className="h-[18px] w-[18px]" />}
-                            {t.nav.logOut}
-                        </button>
+                        {guest ? (
+                            <Link
+                                href={`/login?from=${encodeURIComponent(pathname)}`}
+                                onClick={onClose}
+                                className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-[15px] font-semibold text-white transition-colors active:bg-[#004a9f]"
+                            >
+                                <LogIn className="h-[18px] w-[18px]" />
+                                {t.nav.signIn}
+                            </Link>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={logout}
+                                disabled={loggingOut}
+                                className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-red-50 text-[15px] font-semibold text-red-600 transition-colors active:bg-red-100 disabled:opacity-60"
+                            >
+                                {loggingOut ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : <LogOut className="h-[18px] w-[18px]" />}
+                                {t.nav.logOut}
+                            </button>
+                        )}
                     </motion.div>
                 </motion.div>
             )}

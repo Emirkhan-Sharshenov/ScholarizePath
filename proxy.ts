@@ -17,6 +17,15 @@ const PUBLIC_PATH_PREFIXES = [
     "/api/cron",
 ];
 
+// Browsable without an account, so search engines can index every scholarship
+// and university (and visitors can look before signing up). Saving, the AI
+// tools and the tracker still need a session — those live under other paths.
+const GUEST_PAGE_PREFIXES = ["/scholarships", "/universities"];
+// The read-only data those pages load. GET only: nothing here writes.
+const GUEST_API_PREFIXES = ["/api/scholarships", "/api/universities"];
+
+const matchesPrefix = (pathname: string, prefix: string) => pathname === prefix || pathname.startsWith(`${prefix}/`);
+
 const PROFILE_SETUP_PATH = "/profile/setup";
 
 // Paths that get rate-limited, and their own limit/window.
@@ -103,6 +112,15 @@ export async function proxy(request: NextRequest) {
 
     // 2. Public routes pass straight through for anyone not caught by rule 1
     if (isPublicPath) {
+        return NextResponse.next();
+    }
+
+    // 2b. Scholarship and university pages are open to guests. Signed-in users
+    //     fall through so the profile-setup gate below still applies to them.
+    const isGuestRoute =
+        GUEST_PAGE_PREFIXES.some((prefix) => matchesPrefix(pathname, prefix)) ||
+        (request.method === "GET" && GUEST_API_PREFIXES.some((prefix) => matchesPrefix(pathname, prefix)));
+    if (isGuestRoute && !isAuthenticated) {
         return NextResponse.next();
     }
 
