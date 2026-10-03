@@ -6,8 +6,10 @@ export default defineMessages({
         programLevels: { Bachelor: 'Bachelor', Master: 'Master', PhD: 'PhD' } as Record<string, string>,
         setup: {
             steps: ['About you', 'Academics', 'Your goals'],
+            ageRequired: 'Enter your age',
             ageRange: 'Enter an age between 10 and 100',
             gpaRange: 'Enter a value between 0 and 4',
+            gpaRequired: 'Enter your GPA (on a 4.0 scale)',
             satRange: 'SAT scores range from 400 to 1600',
             ieltsRange: 'IELTS bands range from 0 to 9',
             toeflRange: 'TOEFL scores range from 0 to 120',
@@ -46,8 +48,10 @@ export default defineMessages({
         programLevels: { Bachelor: 'Бакалавриат', Master: 'Магистратура', PhD: 'PhD' },
         setup: {
             steps: ['О вас', 'Учёба', 'Цели'],
+            ageRequired: 'Укажите возраст',
             ageRange: 'Укажите возраст от 10 до 100',
             gpaRange: 'Укажите значение от 0 до 4',
+            gpaRequired: 'Укажите средний балл (по шкале 4.0)',
             satRange: 'Баллы SAT — от 400 до 1600',
             ieltsRange: 'Баллы IELTS — от 0 до 9',
             toeflRange: 'Баллы TOEFL — от 0 до 120',

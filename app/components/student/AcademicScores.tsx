@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { GraduationCap } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nProvider';
+import { NumberInput, parseScore } from '@/components/common/NumberInput';
 
 interface AcademicScoresProps {
     gpa?: number | null;
@@ -13,7 +15,35 @@ interface AcademicScoresProps {
 }
 
 const hasScore = (v?: number | null) => typeof v === 'number' && v > 0;
-const toNumberOrNull = (v: string) => (v === '' ? null : Number(v));
+
+/**
+ * The profile stores numbers, but "6." or "3.8" mid-typing aren't numbers
+ * yet — so the field keeps what was typed until it loses focus.
+ */
+function ScoreField({ value, onChange, decimal, label, maxLength, className }: {
+    value?: number | null;
+    onChange: (value: number | null) => void;
+    decimal?: boolean;
+    label: string;
+    maxLength: number;
+    className: string;
+}) {
+    const [draft, setDraft] = useState<string | null>(null);
+    return (
+        <NumberInput
+            aria-label={label}
+            decimal={decimal}
+            maxLength={maxLength}
+            value={draft ?? (value ?? '').toString()}
+            onValueChange={(text) => {
+                setDraft(text);
+                onChange(parseScore(text));
+            }}
+            onBlur={() => setDraft(null)}
+            className={className}
+        />
+    );
+}
 
 const tileInput =
     'mt-1 h-11 w-full rounded-[10px] border border-slate-200 bg-white px-3 text-lg font-semibold text-ink focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10';
@@ -54,7 +84,7 @@ export function AcademicScores({ gpa, sat, englishTest, isEditing, onChange, onE
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Tile label={m.gpa}>
                     {isEditing ? (
-                        <input type="number" step="0.01" min={0} max={4} aria-label={m.gpa} value={gpa ?? ''} onChange={(e) => onChange('profile.gpa', toNumberOrNull(e.target.value))} className={tileInput} />
+                        <ScoreField decimal maxLength={4} label={m.gpa} value={gpa} onChange={(v) => onChange('profile.gpa', v)} className={tileInput} />
                     ) : hasScore(gpa) ? (
                         <p className="mt-1.5 font-display text-3xl font-bold text-ink">{gpa}<span className="ml-1 text-sm font-medium text-slate-400">/ 4.0</span></p>
                     ) : <NotAdded onEdit={onEdit} />}
@@ -62,7 +92,7 @@ export function AcademicScores({ gpa, sat, englishTest, isEditing, onChange, onE
 
                 <Tile label={m.sat}>
                     {isEditing ? (
-                        <input type="number" min={400} max={1600} aria-label={m.satScore} value={sat ?? ''} onChange={(e) => onChange('profile.sat', toNumberOrNull(e.target.value))} className={tileInput} />
+                        <ScoreField maxLength={4} label={m.satScore} value={sat} onChange={(v) => onChange('profile.sat', v)} className={tileInput} />
                     ) : hasScore(sat) ? (
                         <p className="mt-1.5 font-display text-3xl font-bold text-ink">{sat}<span className="ml-1 text-sm font-medium text-slate-400">/ 1600</span></p>
                     ) : <NotAdded onEdit={onEdit} />}
@@ -86,14 +116,12 @@ export function AcademicScores({ gpa, sat, englishTest, isEditing, onChange, onE
                                         </button>
                                     ))}
                                 </div>
-                                <input
-                                    type="number"
-                                    step={testType === 'IELTS' ? '0.5' : '1'}
-                                    min={0}
-                                    max={testType === 'IELTS' ? 9 : 120}
-                                    aria-label={m.englishScore}
-                                    value={englishTest?.score ?? ''}
-                                    onChange={(e) => onChange('profile.englishTest.score', toNumberOrNull(e.target.value))}
+                                <ScoreField
+                                    decimal={testType === 'IELTS'}
+                                    maxLength={3}
+                                    label={m.englishScore}
+                                    value={englishTest?.score}
+                                    onChange={(v) => onChange('profile.englishTest.score', v)}
                                     className={tileInput.replace('mt-1 ', '')}
                                 />
                             </div>

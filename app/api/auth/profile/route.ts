@@ -34,14 +34,12 @@ export async function POST(request: AuthRequest) {
             programLevel,
         } = body;
 
+        // SAT and the English test are optional: plenty of students haven't
+        // taken them yet when they sign up.
         const missing: string[] = [];
         if (age === undefined || age === null) missing.push("age");
         if (!nationality) missing.push("nationality");
         if (gpa === undefined || gpa === null) missing.push("gpa");
-        if (sat === undefined || sat === null) missing.push("sat");
-        if (!englishTest || !englishTest.type || englishTest.score === undefined || englishTest.score === null) {
-            missing.push("englishTest");
-        }
 
         if (missing.length > 0) {
             return NextResponse.json(
@@ -50,7 +48,16 @@ export async function POST(request: AuthRequest) {
             );
         }
 
-        if (englishTest.type !== "IELTS" && englishTest.type !== "TOEFL") {
+        const isNumberOrNull = (v: unknown) => v === undefined || v === null || (typeof v === "number" && Number.isFinite(v));
+        const hasEnglishScore = englishTest?.score !== undefined && englishTest?.score !== null;
+        if (!isNumberOrNull(sat) || (hasEnglishScore && !isNumberOrNull(englishTest.score))) {
+            return NextResponse.json(
+                { success: false, message: "Scores must be numbers" },
+                { status: 400 }
+            );
+        }
+
+        if (hasEnglishScore && englishTest.type !== "IELTS" && englishTest.type !== "TOEFL") {
             return NextResponse.json(
                 { success: false, message: "englishTest.type must be IELTS or TOEFL" },
                 { status: 400 }
@@ -76,11 +83,10 @@ export async function POST(request: AuthRequest) {
             age,
             nationality,
             gpa,
-            sat,
-            englishTest: {
-                type: englishTest.type,
-                score: englishTest.score,
-            },
+            sat: sat ?? null,
+            englishTest: hasEnglishScore
+                ? { type: englishTest.type, score: englishTest.score }
+                : { type: null, score: null },
             preferredField: preferredField || null,
             preferredCountry: preferredCountry || null,
             programLevel: programLevel || null,
