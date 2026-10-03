@@ -20,8 +20,9 @@ import type {
 export const runtime = "nodejs";
 
 const MAX_HISTORY_MESSAGES = 12;
-const MAX_MESSAGE_CHARS = 1000; // same as the chat input's maxLength
-const MAX_HISTORY_CHARS = 4000;
+const MAX_MESSAGE_CHARS = 4000; // same as the chat input's maxLength — room for a text to edit
+const MAX_HISTORY_CHARS = 6000; // per assistant message
+const MAX_HISTORY_TOTAL_CHARS = 24000; // oldest messages are dropped beyond this
 const MAX_SHOWN_PER_MESSAGE = 12;
 const MAX_TOOL_TURNS = 5;
 const MAX_TRANSIENT_RETRIES = 2;
@@ -37,14 +38,27 @@ const FALLBACK_REPLY: Record<Locale, { found: string }> = {
     ru: { found: "Я нашёл несколько вариантов — посмотрите карточки ниже." },
 };
 
-/** Keeps **bold** and "- " lists (the chat renders them); drops links, headings and tables. */
+/**
+ * Brings the reply down to what the chat renders — **bold**, `code`, ``` blocks,
+ * "- " / "1." lists and bare URLs. Links, headings and tables are rewritten into
+ * those; code blocks are left untouched.
+ */
 function sanitizeReply(reply: string): string {
     return reply
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-        .replace(/^#{1,6}\s+/gm, "")
-        .replace(/^\s*\|.*\|\s*$/gm, "")
-        .replace(/^(\s*)[*•]\s+/gm, "$1- ")
-        .replace(/\n{3,}/g, "\n\n")
+        .split(/(```[\s\S]*?```)/g)
+        .map((part) =>
+            part.startsWith("```")
+                ? part
+                : part
+                    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, "$1 ($2)")
+                    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+                    .replace(/^#{1,6}[ \t]+(.+?)[ \t]*#*$/gm, "**$1**")
+                    .replace(/^[ \t]*\|?[ \t]*:?-{2,}:?[ \t]*(\|[ \t]*:?-{2,}:?[ \t]*)*\|?[ \t]*$\n?/gm, "")
+                    .replace(/^[ \t]*\|(.*)\|[ \t]*$/gm, (_, row: string) => row.split("|").map((c) => c.trim()).filter(Boolean).join(" — "))
+                    .replace(/^([ \t]*)[*•][ \t]+/gm, "$1- ")
+                    .replace(/\n{3,}/g, "\n\n")
+        )
+        .join("")
         .trim();
 }
 
@@ -105,13 +119,15 @@ function buildSystemPrompt(profile: StudentProfile | null, locale: Locale) {
         ? "Reply in Russian — it's the student's interface language — unless the student clearly writes in another language; then reply in that language."
         : "Reply in the language the student writes in.";
 
-    return `You are the study-abroad advisor on ScholarizePath, a platform with a database of universities and scholarships. Today is ${today}.
+    return `You are the AI assistant on ScholarizePath, a platform with a database of universities and scholarships. Today is ${today}.
+
+Your specialty is studying abroad, but you're a general assistant too: answer ANY question the student asks — other school subjects and homework, math, writing and editing texts, languages, coding, careers, everyday questions — fully and helpfully, the way a capable general-purpose assistant would. Don't refuse or redirect a question just because it isn't about universities, and don't tack study-abroad suggestions onto unrelated answers.
 
 ${describeProfile(profile)}
 
-Tools (the platform's live database): search_universities, search_scholarships, get_details.
+Tools (the platform's live database): search_universities, search_scholarships, get_details. Use them only when the question is about universities, programs or scholarships; everything else is answered from your own knowledge.
 
-How to work:
+How to work with universities and scholarships:
 1. Never invent universities, scholarships, amounts, deadlines or requirements. Recommend specific ones only from tool results, and call get_details before answering detailed questions about one.
 2. The student's CURRENT message drives the search: search for exactly what they ask (country, field, level, budget). Use the profile only to fill gaps the message leaves open, as a soft default — if that returns nothing, drop it and search more broadly. Never override what they typed with profile preferences.
 3. Tool arguments are always in English, whatever language the student writes in.
@@ -126,7 +142,8 @@ How to work:
 Reply style:
 - Warm and direct, like a knowledgeable friend. No filler, no repeated greetings, no disclaimers beyond what's useful.
 - After a search: 2-4 sentences with the highlights — fully funded options, the soonest deadline, strong rankings, how it fits their profile. Don't list every result: cards with full details are shown right below your reply.
-- Explanations and detail answers: up to about 180 words. You may use short "- " bullet lists and **bold** for key facts. No headings, tables or markdown links; an official website may be given as a plain URL.
+- Other answers: as long as the question needs and no longer — a quick fact gets a sentence or two, an explanation a short paragraph or a list. When asked to write something (an essay, a motivation letter, an email), write the whole thing.
+- Formatting the chat can show: **bold**, "- " and "1." lists, \`inline code\` and \`\`\` code blocks, plain URLs. Don't use headings, tables or markdown links. Write math in plain text (x^2, sqrt(x), a/b), not LaTeX.
 - ${language}`;
 }
 
@@ -229,6 +246,9 @@ export async function POST(req: NextRequest) {
                     ? { role: "user", content: m.content.slice(0, MAX_MESSAGE_CHARS) }
                     : { role: "assistant", content: m.content.slice(0, MAX_HISTORY_CHARS) + shownNote(cleanShown(m.shown)) }
             );
+        while (history.length > 1 && history.reduce((sum, m) => sum + m.content.length, 0) > MAX_HISTORY_TOTAL_CHARS) {
+            history.shift();
+        }
 
         const locale = await getLocale();
         const profile = await getStudentProfile(userId);

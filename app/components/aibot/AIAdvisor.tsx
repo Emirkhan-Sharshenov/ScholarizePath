@@ -86,19 +86,30 @@ function saveChat(chat: SavedChat) {
 }
 
 // ── Answer formatting ───────────────────────────────────────────────────────
-// The advisor may use **bold**, "- " / "1." lists and plain URLs; nothing else is interpreted.
+// The advisor may use **bold**, `code`, ``` blocks, "- " / "1." lists and plain URLs;
+// nothing else is interpreted.
 
 const URL_RE = /(https?:\/\/[^\s<>()]+[^\s<>().,;:!?'"])/g;
 
+function links(text: string, key: string): React.ReactNode[] {
+    return text.split(URL_RE).map((chunk, i) =>
+        /^https?:\/\//.test(chunk) ? (
+            <a key={`${key}-${i}`} href={chunk} target="_blank" rel="noopener noreferrer nofollow" className="break-all font-medium text-brand underline underline-offset-2">
+                {chunk.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+            </a>
+        ) : chunk,
+    );
+}
+
 function inline(text: string): React.ReactNode[] {
-    return text.split(/(\*\*[^*\n]+\*\*)/g).flatMap((part, i) => {
-        if (/^\*\*[^*\n]+\*\*$/.test(part)) return [<strong key={i} className="font-semibold text-ink">{part.slice(2, -2)}</strong>];
-        return part.split(URL_RE).map((chunk, j) =>
-            /^https?:\/\//.test(chunk) ? (
-                <a key={`${i}-${j}`} href={chunk} target="_blank" rel="noopener noreferrer nofollow" className="break-all font-medium text-brand underline underline-offset-2">
-                    {chunk.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
-                </a>
-            ) : chunk,
+    return text.split(/(`[^`\n]+`)/g).flatMap((codePart, i): React.ReactNode[] => {
+        if (/^`[^`\n]+`$/.test(codePart)) {
+            return [<code key={i} className="rounded bg-slate-200/60 px-1 py-0.5 font-mono text-[0.85em] text-ink">{codePart.slice(1, -1)}</code>];
+        }
+        return codePart.split(/(\*\*[^*\n]+\*\*)/g).flatMap((part, j): React.ReactNode[] =>
+            /^\*\*[^*\n]+\*\*$/.test(part)
+                ? [<strong key={`${i}-${j}`} className="font-semibold text-ink">{links(part.slice(2, -2), `${i}-${j}`)}</strong>]
+                : links(part, `${i}-${j}`),
         );
     });
 }
@@ -107,6 +118,7 @@ function RichText({ text }: { text: string }) {
     const blocks: React.ReactNode[] = [];
     let para: string[] = [];
     let list: { ordered: boolean; items: string[] } | null = null;
+    let code: string[] | null = null;
 
     const flushPara = () => {
         if (para.length) blocks.push(<p key={blocks.length} className="whitespace-pre-wrap">{inline(para.join('\n'))}</p>);
@@ -122,8 +134,33 @@ function RichText({ text }: { text: string }) {
         }
         list = null;
     };
+    const flushCode = () => {
+        const c = code;
+        if (c) {
+            blocks.push(
+                <pre key={blocks.length} className="overflow-x-auto rounded-xl bg-slate-900 px-3.5 py-3 font-mono text-xs leading-relaxed text-slate-100">
+                    <code>{c.join('\n')}</code>
+                </pre>,
+            );
+        }
+        code = null;
+    };
 
     for (const line of text.split('\n')) {
+        if (/^\s*```/.test(line)) {
+            if (code) {
+                flushCode();
+            } else {
+                flushPara();
+                flushList();
+                code = [];
+            }
+            continue;
+        }
+        if (code) {
+            code.push(line);
+            continue;
+        }
         const item = line.match(/^\s*(?:[-*•]|(\d+)[.)])\s+(.*)$/);
         if (item) {
             flushPara();
@@ -143,8 +180,9 @@ function RichText({ text }: { text: string }) {
     }
     flushPara();
     flushList();
+    flushCode(); // a code block the model never closed
 
-    return <div className="space-y-2 break-words">{blocks}</div>;
+    return <div className="min-w-0 space-y-2 break-words">{blocks}</div>;
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -497,7 +535,7 @@ function Chat({ restore }: { restore: boolean }) {
                                 ref={inputRef}
                                 rows={1}
                                 value={input}
-                                maxLength={1000}
+                                maxLength={4000}
                                 onChange={(e) => {
                                     setInput(e.target.value);
                                     e.target.style.height = 'auto';
