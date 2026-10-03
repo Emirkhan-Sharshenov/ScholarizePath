@@ -1,19 +1,28 @@
+/** The parts of a student's profile the advisor uses — no email, ids or account data. */
 export interface StudentProfile {
-    _id: string;
-    name?: string;
-    email?: string;
-    fieldOfInterest?: string;
-    preferredCountries?: string[];
-    degreeLevel?: string;
+    firstName?: string;
+    nationality?: string;
+    age?: number;
     gpa?: number;
-    budgetUSD?: number;
-    languageTests?: { test: string; score: number }[];
-    [key: string]: any;
+    sat?: number;
+    englishTest?: { type: string; score: number };
+    preferredField?: string;
+    preferredCountry?: string;
+    programLevel?: string;
+}
+
+/** A university or scholarship card shown under an assistant reply. */
+export interface ShownItem {
+    kind: "university" | "scholarship";
+    id: string;
+    name: string;
 }
 
 export interface ChatMessage {
     role: "user" | "assistant";
     content: string;
+    /** Assistant turns only: the cards shown with the reply, so follow-ups can refer to them. */
+    shown?: ShownItem[];
 }
 
 export interface ScholarshipCardData {

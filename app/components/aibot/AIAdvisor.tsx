@@ -5,10 +5,10 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    AlertTriangle, ArrowUp, Award, Building2, Clock, GraduationCap, Info, Languages, MessageSquarePlus, RotateCw,
+    AlertTriangle, ArrowUp, Award, Building2, Check, Clock, Copy, GraduationCap, Info, Languages, MessageSquarePlus, RotateCw,
     Sparkles, Trophy, UserRound, Wallet, X, type LucideIcon,
 } from 'lucide-react';
-import type { ScholarshipCardData, UniversityCardData } from '@/lib/ai/types';
+import type { ScholarshipCardData, ShownItem, UniversityCardData } from '@/lib/ai/types';
 import { flagFor } from '@/components/profile/countryList';
 import { monogram, TONES, useIsClient, useStudentProfile } from '@/components/common/detailUi';
 import { FavoriteButton, useFavoriteIds } from '@/components/common/listUi';
@@ -43,6 +43,167 @@ const timeNow = () => new Date().toLocaleTimeString([], { hour: '2-digit', minut
 function mergeMatches(prev: Matches, next: Matches): Matches {
     const merge = <T extends { id: string }>(a: T[], b: T[]) => [...b, ...a.filter((x) => !b.some((y) => y.id === x.id))];
     return { universities: merge(prev.universities, next.universities), scholarships: merge(prev.scholarships, next.scholarships) };
+}
+
+/** The cards under a reply, sent back with the history so follow-ups can refer to them. */
+const toShown = (m: Matches): ShownItem[] => [
+    ...m.universities.map((u) => ({ kind: 'university' as const, id: u.id, name: u.name })),
+    ...m.scholarships.map((s) => ({ kind: 'scholarship' as const, id: s.id, name: s.title })),
+];
+
+// ── Saved chat ──────────────────────────────────────────────────────────────
+// Kept for the tab's session, so opening a card and coming back doesn't lose the chat.
+
+const STORAGE_KEY = 'ai-advisor-chat';
+
+interface SavedChat {
+    messages: Message[];
+    matches: Matches;
+    remaining: number | null;
+}
+
+function loadChat(): SavedChat | null {
+    try {
+        const data = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? 'null');
+        if (!data || !Array.isArray(data.messages)) return null;
+        return {
+            messages: data.messages,
+            matches: { universities: data.matches?.universities ?? [], scholarships: data.matches?.scholarships ?? [] },
+            remaining: typeof data.remaining === 'number' ? data.remaining : null,
+        };
+    } catch {
+        return null;
+    }
+}
+
+function saveChat(chat: SavedChat) {
+    try {
+        if (chat.messages.length === 0) sessionStorage.removeItem(STORAGE_KEY);
+        else sessionStorage.setItem(STORAGE_KEY, JSON.stringify(chat));
+    } catch {
+        // Storage blocked or full — the chat just won't survive a reload.
+    }
+}
+
+// ── Answer formatting ───────────────────────────────────────────────────────
+// The advisor may use **bold**, `code`, ``` blocks, "- " / "1." lists and plain URLs;
+// nothing else is interpreted.
+
+const URL_RE = /(https?:\/\/[^\s<>()]+[^\s<>().,;:!?'"])/g;
+
+function links(text: string, key: string): React.ReactNode[] {
+    return text.split(URL_RE).map((chunk, i) =>
+        /^https?:\/\//.test(chunk) ? (
+            <a key={`${key}-${i}`} href={chunk} target="_blank" rel="noopener noreferrer nofollow" className="break-all font-medium text-brand underline underline-offset-2">
+                {chunk.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+            </a>
+        ) : chunk,
+    );
+}
+
+function inline(text: string): React.ReactNode[] {
+    return text.split(/(`[^`\n]+`)/g).flatMap((codePart, i): React.ReactNode[] => {
+        if (/^`[^`\n]+`$/.test(codePart)) {
+            return [<code key={i} className="rounded bg-slate-200/60 px-1 py-0.5 font-mono text-[0.85em] text-ink">{codePart.slice(1, -1)}</code>];
+        }
+        return codePart.split(/(\*\*[^*\n]+\*\*)/g).flatMap((part, j): React.ReactNode[] =>
+            /^\*\*[^*\n]+\*\*$/.test(part)
+                ? [<strong key={`${i}-${j}`} className="font-semibold text-ink">{links(part.slice(2, -2), `${i}-${j}`)}</strong>]
+                : links(part, `${i}-${j}`),
+        );
+    });
+}
+
+function RichText({ text }: { text: string }) {
+    const blocks: React.ReactNode[] = [];
+    let para: string[] = [];
+    let list: { ordered: boolean; items: string[] } | null = null;
+    let code: string[] | null = null;
+
+    const flushPara = () => {
+        if (para.length) blocks.push(<p key={blocks.length} className="whitespace-pre-wrap">{inline(para.join('\n'))}</p>);
+        para = [];
+    };
+    const flushList = () => {
+        const l = list;
+        if (l) {
+            const items = l.items.map((item, i) => <li key={i} className="pl-0.5">{inline(item)}</li>);
+            blocks.push(l.ordered
+                ? <ol key={blocks.length} className="list-decimal space-y-1 pl-5 marker:text-slate-400">{items}</ol>
+                : <ul key={blocks.length} className="list-disc space-y-1 pl-5 marker:text-slate-400">{items}</ul>);
+        }
+        list = null;
+    };
+    const flushCode = () => {
+        const c = code;
+        if (c) {
+            blocks.push(
+                <pre key={blocks.length} className="overflow-x-auto rounded-xl bg-slate-900 px-3.5 py-3 font-mono text-xs leading-relaxed text-slate-100">
+                    <code>{c.join('\n')}</code>
+                </pre>,
+            );
+        }
+        code = null;
+    };
+
+    for (const line of text.split('\n')) {
+        if (/^\s*```/.test(line)) {
+            if (code) {
+                flushCode();
+            } else {
+                flushPara();
+                flushList();
+                code = [];
+            }
+            continue;
+        }
+        if (code) {
+            code.push(line);
+            continue;
+        }
+        const item = line.match(/^\s*(?:[-*•]|(\d+)[.)])\s+(.*)$/);
+        if (item) {
+            flushPara();
+            const ordered = Boolean(item[1]);
+            if (!list || list.ordered !== ordered) {
+                flushList();
+                list = { ordered, items: [] };
+            }
+            list.items.push(item[2]);
+        } else if (!line.trim()) {
+            flushPara();
+            flushList();
+        } else {
+            flushList();
+            para.push(line);
+        }
+    }
+    flushPara();
+    flushList();
+    flushCode(); // a code block the model never closed
+
+    return <div className="min-w-0 space-y-2 break-words">{blocks}</div>;
+}
+
+function CopyButton({ text }: { text: string }) {
+    const [copied, setCopied] = useState(false);
+    const { t } = useI18n();
+    return (
+        <button
+            type="button"
+            onClick={() => {
+                navigator.clipboard?.writeText(text).then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 1500);
+                }).catch(() => {});
+            }}
+            aria-label={copied ? t.aibot.copied : t.aibot.copy}
+            title={copied ? t.aibot.copied : t.aibot.copy}
+            className="flex h-6 w-6 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+        >
+            {copied ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-emerald-600" /> : <Copy aria-hidden="true" className="h-3.5 w-3.5" />}
+        </button>
+    );
 }
 
 // ── Matches panel ───────────────────────────────────────────────────────────
@@ -167,24 +328,46 @@ function InlineMatches({ matches, onShowAll }: { matches: Matches; onShowAll: ()
 }
 
 export default function AIAdvisor() {
-    const [messages, setMessages] = useState<Message[]>([]);
+    // The saved chat is in sessionStorage, which the server can't read: hydrate an
+    // empty chat, then remount it with the saved one on the client.
+    const isClient = useIsClient();
+    return <Chat key={isClient ? 'client' : 'server'} restore={isClient} />;
+}
+
+/** A question saved without its answer (the page was left mid-request) gets a retry notice. */
+function withRetryForUnanswered(messages: Message[], errorText: string): Message[] {
+    const last = messages[messages.length - 1];
+    if (last?.role !== 'user') return messages;
+    const id = Math.max(...messages.map((m) => m.id)) + 1;
+    return [...messages, { id, role: 'assistant', notice: 'error', content: errorText, retry: last.content, time: last.time }];
+}
+
+function Chat({ restore }: { restore: boolean }) {
+    const { t } = useI18n();
+    const a = t.aibot;
+    const [saved] = useState(() => (restore ? loadChat() : null));
+    const [messages, setMessages] = useState<Message[]>(() => withRetryForUnanswered(saved?.messages ?? [], a.errorNotice));
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
-    const [matches, setMatches] = useState<Matches>(EMPTY);
+    const [matches, setMatches] = useState<Matches>(saved?.matches ?? EMPTY);
+    const [remaining, setRemaining] = useState<number | null>(saved?.remaining ?? null);
     const [sheetOpen, setSheetOpen] = useState(false);
     const profile = useStudentProfile();
     const isClient = useIsClient();
     const listRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
-    const nextId = useRef(1);
-    const { t } = useI18n();
-    const a = t.aibot;
+    const nextId = useRef(messages.reduce((max, m) => Math.max(max, m.id), 0) + 1);
 
     const matchCount = matches.universities.length + matches.scholarships.length;
 
     useEffect(() => {
         listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
     }, [messages, loading]);
+
+    // Only the client copy saves — the hydration pass would wipe the saved chat before it's read.
+    useEffect(() => {
+        if (restore) saveChat({ messages, matches, remaining });
+    }, [restore, messages, matches, remaining]);
 
     const push = (m: Omit<Message, 'id' | 'time'>) => setMessages((prev) => [...prev, { ...m, id: nextId.current++, time: timeNow() }]);
 
@@ -195,8 +378,15 @@ export default function AIAdvisor() {
             const res = await fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, history: history.filter((m) => !m.notice).map(({ role, content }) => ({ role, content })) }),
+                body: JSON.stringify({
+                    message: text,
+                    history: history
+                        .filter((m) => !m.notice)
+                        .map(({ role, content, matches: shown }) => ({ role, content, ...(shown && { shown: toShown(shown) }) })),
+                }),
             });
+            const left = res.headers.get('X-RateLimit-Daily-Remaining');
+            if (left !== null && Number.isFinite(Number(left))) setRemaining(Number(left));
             const data = await res.json().catch(() => ({}));
             if (res.status === 401) {
                 push({ role: 'assistant', notice: 'signin', content: a.signInNotice });
@@ -303,11 +493,14 @@ export default function AIAdvisor() {
                             <div key={m.id} className="flex items-start gap-3">
                                 <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${TONES.violet}`}><Sparkles aria-hidden="true" className="h-4 w-4" /></span>
                                 <div className="min-w-0 max-w-[85%] sm:max-w-[75%]">
-                                    <div className="whitespace-pre-wrap break-words rounded-2xl rounded-tl-md border border-slate-200/80 bg-slate-50/70 px-4 py-3 text-sm leading-relaxed text-slate-700">
-                                        {m.content}
+                                    <div className="rounded-2xl rounded-tl-md border border-slate-200/80 bg-slate-50/70 px-4 py-3 text-sm leading-relaxed text-slate-700">
+                                        <RichText text={m.content} />
                                         {m.matches && <InlineMatches matches={m.matches} onShowAll={() => setSheetOpen(true)} />}
                                     </div>
-                                    <span className="mt-1 block pl-1 text-[11px] text-slate-400">{m.time}</span>
+                                    <div className="mt-0.5 flex items-center gap-1 pl-1">
+                                        <span className="text-[11px] text-slate-400">{m.time}</span>
+                                        <CopyButton text={m.content} />
+                                    </div>
                                 </div>
                             </div>
                         )))}
@@ -342,7 +535,7 @@ export default function AIAdvisor() {
                                 ref={inputRef}
                                 rows={1}
                                 value={input}
-                                maxLength={1000}
+                                maxLength={4000}
                                 onChange={(e) => {
                                     setInput(e.target.value);
                                     e.target.style.height = 'auto';
@@ -368,7 +561,9 @@ export default function AIAdvisor() {
                         </form>
                         <div className="mt-2 flex flex-wrap justify-between gap-x-4 gap-y-1 text-[11px] text-slate-400">
                             <span className="inline-flex items-center gap-1"><Info aria-hidden="true" className="h-3 w-3" /> {a.disclaimer}</span>
-                            <span className="hidden sm:inline">{a.newLine}</span>
+                            {remaining !== null
+                                ? <span className={remaining === 0 ? 'font-medium text-amber-700' : ''}>{a.remaining(remaining)}</span>
+                                : <span className="hidden sm:inline">{a.newLine}</span>}
                         </div>
                     </div>
                 </section>

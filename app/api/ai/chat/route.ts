@@ -2,14 +2,16 @@ import { getLocale } from "@/i18n/server";
 import type { Locale } from "@/i18n/config";
 import { NextRequest, NextResponse } from "next/server";
 import { groq, AI_MODEL } from "@/lib/groq";
-import { aiTools, searchUniversities, searchScholarships } from "@/lib/ai/tools";
+import { aiTools, getDetails, searchUniversities, searchScholarships } from "@/lib/ai/tools";
+import { connectDB } from "@/lib/mongodb";
+import User from "@/models/Users";
 import { authMiddleware } from "@/middleware/auth.middleware";
 import { checkRateLimit } from "@/lib/simpleRateLimit";
-import { checkRateLimit as checkDailyRateLimit } from "@/lib/simpleRateLimit";
 import type { AuthRequest } from "@/types/auth";
 import type {
     StudentProfile,
     ChatMessage,
+    ShownItem,
     AIChatResponse,
     ScholarshipCardData,
     UniversityCardData,
@@ -17,29 +19,46 @@ import type {
 
 export const runtime = "nodejs";
 
-const MAX_HISTORY_MESSAGES = 12; 
-const MAX_TOOL_TURNS = 4;
+const MAX_HISTORY_MESSAGES = 12;
+const MAX_MESSAGE_CHARS = 4000; // same as the chat input's maxLength — room for a text to edit
+const MAX_HISTORY_CHARS = 6000; // per assistant message
+const MAX_HISTORY_TOTAL_CHARS = 24000; // oldest messages are dropped beyond this
+const MAX_SHOWN_PER_MESSAGE = 12;
+const MAX_TOOL_TURNS = 5;
 const MAX_TRANSIENT_RETRIES = 2;
-
 
 const CHAT_RATE_LIMIT = 8;
 const CHAT_RATE_WINDOW_MS = 60 * 1000;
 
-
 const CHAT_DAILY_LIMIT = 3;
-const CHAT_DAILY_WINDOW_MS = 24 * 60 * 60 * 1000; 
+const CHAT_DAILY_WINDOW_MS = 24 * 60 * 60 * 1000;
 
-const FALLBACK_RESPONSE: AIChatResponse = {
-    reply:
-        "Sorry, something went wrong while looking that up. Please try again in a moment, or rephrase your question.",
-    scholarships: [],
-    universities: [],
+const FALLBACK_REPLY: Record<Locale, { found: string }> = {
+    en: { found: "I found some matches for you — take a look at the cards below." },
+    ru: { found: "Я нашёл несколько вариантов — посмотрите карточки ниже." },
 };
 
+/**
+ * Brings the reply down to what the chat renders — **bold**, `code`, ``` blocks,
+ * "- " / "1." lists and bare URLs. Links, headings and tables are rewritten into
+ * those; code blocks are left untouched.
+ */
 function sanitizeReply(reply: string): string {
     return reply
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-        .replace(/^[\s]*(?:[-*•]|\d+\.)\s+/gm, "")
+        .split(/(```[\s\S]*?```)/g)
+        .map((part) =>
+            part.startsWith("```")
+                ? part
+                : part
+                    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, "$1 ($2)")
+                    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+                    .replace(/^#{1,6}[ \t]+(.+?)[ \t]*#*$/gm, "**$1**")
+                    .replace(/^[ \t]*\|?[ \t]*:?-{2,}:?[ \t]*(\|[ \t]*:?-{2,}:?[ \t]*)*\|?[ \t]*$\n?/gm, "")
+                    .replace(/^[ \t]*\|(.*)\|[ \t]*$/gm, (_, row: string) => row.split("|").map((c) => c.trim()).filter(Boolean).join(" — "))
+                    .replace(/^([ \t]*)[*•][ \t]+/gm, "$1- ")
+                    .replace(/\n{3,}/g, "\n\n")
+        )
+        .join("")
         .trim();
 }
 
@@ -52,65 +71,97 @@ function dedupeById<T extends { id: string }>(items: T[]): T[] {
     });
 }
 
-async function getStudentProfile(baseUrl: string, cookie?: string): Promise<StudentProfile | null> {
+async function getStudentProfile(userId: string): Promise<StudentProfile | null> {
     try {
-        const res = await fetch(`${baseUrl}/api/auth/self`, {
-            headers: cookie ? { cookie } : undefined,
-            cache: "no-store",
-            signal: AbortSignal.timeout(5000),
-        });
-        if (!res.ok) return null;
-        const data = await res.json();
-        return data && typeof data === "object" ? data : null;
+        await connectDB();
+        const user: any = await User.findById(userId).select({ firstName: 1, profile: 1 }).lean();
+        if (!user) return null;
+        const p = user.profile ?? {};
+        const profile: StudentProfile = {
+            firstName: user.firstName || undefined,
+            nationality: p.nationality || undefined,
+            age: p.age ?? undefined,
+            gpa: p.gpa ?? undefined,
+            sat: p.sat ?? undefined,
+            englishTest: p.englishTest?.type && p.englishTest?.score != null ? { type: p.englishTest.type, score: p.englishTest.score } : undefined,
+            preferredField: p.preferredField || undefined,
+            preferredCountry: p.preferredCountry || undefined,
+            programLevel: p.programLevel || undefined,
+        };
+        return profile;
     } catch {
         return null;
     }
 }
 
+function describeProfile(p: StudentProfile | null): string {
+    const lines = p
+        ? [
+            p.firstName && `- Name: ${p.firstName}`,
+            p.nationality && `- Nationality: ${p.nationality}`,
+            p.age && `- Age: ${p.age}`,
+            p.programLevel && `- Wants to study at: ${p.programLevel} level`,
+            p.preferredField && `- Field of interest: ${p.preferredField}`,
+            p.preferredCountry && `- Preferred country: ${p.preferredCountry}`,
+            p.gpa && `- GPA: ${p.gpa} / 4.0`,
+            p.sat && `- SAT: ${p.sat}`,
+            p.englishTest && `- English test: ${p.englishTest.type} ${p.englishTest.score}`,
+        ].filter(Boolean)
+        : [];
+    return lines.length
+        ? `Student profile (soft defaults only — see rule 2):\n${lines.join("\n")}`
+        : "The student hasn't filled in a profile. Work from what they ask.";
+}
+
 function buildSystemPrompt(profile: StudentProfile | null, locale: Locale) {
+    const today = new Date().toISOString().split("T")[0];
     const language = locale === "ru"
-        ? "8. Reply in Russian — it's the student's interface language — unless the student clearly writes in another language; then reply in that language."
-        : "8. Reply in the language the student writes in.";
+        ? "Reply in Russian — it's the student's interface language — unless the student clearly writes in another language; then reply in that language."
+        : "Reply in the language the student writes in.";
 
-    const profileSummary = profile
-        ? `Student profile (background context ONLY — see rule 2 below for how to use it):\n${JSON.stringify(profile, null, 2)}`
-        : "No student profile is available. Just answer based on what the student asks.";
+    return `You are the AI assistant on ScholarizePath, a platform with a database of universities and scholarships. Today is ${today}.
 
-    return `You are an AI study-abroad advisor embedded in a scholarships/universities platform.
+Your specialty is studying abroad, but you're a general assistant too: answer ANY question the student asks — other school subjects and homework, math, writing and editing texts, languages, coding, careers, everyday questions — fully and helpfully, the way a capable general-purpose assistant would. Don't refuse or redirect a question just because it isn't about universities, and don't tack study-abroad suggestions onto unrelated answers.
 
-${profileSummary}
+${describeProfile(profile)}
 
-You have two tools that query the platform's LIVE database:
-- search_universities
-- search_scholarships
+Tools (the platform's live database): search_universities, search_scholarships, get_details. Use them only when the question is about universities, programs or scholarships; everything else is answered from your own knowledge.
 
-Rules:
-1. Never invent universities or scholarships — always call a tool before recommending anything specific.
-2. The student's CURRENT MESSAGE is what drives your search — always search for exactly what
-   they're asking right now (country, field, level, budget, etc. as stated in the message).
-   Do NOT silently filter or narrow results using their stored profile preferences instead of
-   what they typed — e.g. if they ask for "top universities in the USA," search the USA even
-   if their profile says they prefer Canada. Only fall back to the profile to fill in details
-   the student's message leaves unspecified (e.g. they just say "find me scholarships" with no
-   other detail) — and even then, treat it as a soft default, not a hard filter: if it returns
-   nothing, drop it and search more broadly rather than reporting no results.
-3. Call tools as many times as needed (different filters, both tools) but stop once you have enough good matches.
-4. If a search with a country/degree filter returns nothing, don't give up — retry with a
-   broader query (e.g. drop the country filter, or just search by field/keyword) before
-   concluding there are no matches. Only tell the student nothing was found after trying at
-   least one broader search.
-5. For "top" or "best" requests, ask for more results (limit 8-10) so there's a real list to show.
-6. When the student mentions multiple distinct topics/fields (e.g. "art or computer science"),
-   search separately for each one (e.g. one call with query "computer science", another with
-   query "art") rather than combining them into a single query string — this finds matches for
-   each topic instead of requiring both words to appear together.
-7. Write a genuinely helpful, warm reply (2-4 sentences) in plain text — no markdown syntax
-   (no [text](url) links, no #/*, no numbered or bulleted lines). You CAN mention what stands
-   out (e.g. "a couple of these are fully funded", "one is ranked in the global top 20", a
-   country or field pattern you noticed) — just don't turn it into a list of every single
-   name/amount, since the full detail is already shown right below in the result cards. Think
-   "a knowledgeable friend giving you the highlights," not "a legal disclaimer."
-${language}`;
+How to work with universities and scholarships:
+1. Never invent universities, scholarships, amounts, deadlines or requirements. Recommend specific ones only from tool results, and call get_details before answering detailed questions about one.
+2. The student's CURRENT message drives the search: search for exactly what they ask (country, field, level, budget). Use the profile only to fill gaps the message leaves open, as a soft default — if that returns nothing, drop it and search more broadly. Never override what they typed with profile preferences.
+3. Tool arguments are always in English, whatever language the student writes in.
+4. If a filtered search returns nothing, retry with a broader one (drop the country or level, simpler keywords) before saying nothing was found.
+5. Different topics or fields in one message ("art or computer science") get separate searches.
+6. For "top"/"best" requests ask for 8-10 results.
+7. Follow-ups about items shown earlier ("the second one", "tell me more about Chevening", "what documents do I need for it") refer to the cards listed in the conversation — use their ids with get_details.
+8. General questions (language tests, documents, motivation letters, visas, timelines, how admissions work) don't need a search — answer from general knowledge and mention that exact requirements vary by program.
+9. A deadline is upcoming only if the result says days are left; never present a passed deadline as open.
+10. If the request is too vague to search (e.g. just "help me"), ask one short clarifying question — unless the profile fills the gaps, then search first and ask afterwards.
+
+Reply style:
+- Warm and direct, like a knowledgeable friend. No filler, no repeated greetings, no disclaimers beyond what's useful.
+- After a search: 2-4 sentences with the highlights — fully funded options, the soonest deadline, strong rankings, how it fits their profile. Don't list every result: cards with full details are shown right below your reply.
+- Other answers: as long as the question needs and no longer — a quick fact gets a sentence or two, an explanation a short paragraph or a list. When asked to write something (an essay, a motivation letter, an email), write the whole thing.
+- Formatting the chat can show: **bold**, "- " and "1." lists, \`inline code\` and \`\`\` code blocks, plain URLs. Don't use headings, tables or markdown links. Write math in plain text (x^2, sqrt(x), a/b), not LaTeX.
+- ${language}`;
+}
+
+function shownNote(shown: ShownItem[] | undefined): string {
+    if (!shown?.length) return "";
+    const list = shown.map((s) => `${s.kind} "${s.name}" (id: ${s.id})`).join("; ");
+    return `\n\n[Cards shown with this reply: ${list}]`;
+}
+
+function cleanShown(raw: unknown): ShownItem[] | undefined {
+    if (!Array.isArray(raw)) return undefined;
+    return raw
+        .filter((s): s is ShownItem =>
+            s && (s.kind === "university" || s.kind === "scholarship") &&
+            typeof s.id === "string" && s.id.length <= 100 &&
+            typeof s.name === "string" && s.name.length <= 200
+        )
+        .slice(0, MAX_SHOWN_PER_MESSAGE);
 }
 
 function isTransientGroqError(err: any): boolean {
@@ -138,7 +189,6 @@ async function withRetries<T>(fn: () => Promise<T>, retries = MAX_TRANSIENT_RETR
 
 export async function POST(req: NextRequest) {
     try {
-        
         const auth = await authMiddleware(req as AuthRequest);
         if (auth instanceof NextResponse) {
             return auth;
@@ -151,7 +201,28 @@ export async function POST(req: NextRequest) {
         }
         const userId = auth.userId;
 
-        const { allowed: dailyAllowed, remaining: dailyRemaining } = await checkDailyRateLimit(
+        // Validate before touching the limits, so a malformed request doesn't use up a question.
+        let body: { message?: string; history?: ChatMessage[] };
+        try {
+            body = await req.json();
+        } catch {
+            return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+        }
+
+        const message = typeof body.message === "string" ? body.message.trim().slice(0, MAX_MESSAGE_CHARS) : "";
+        if (!message) {
+            return NextResponse.json({ error: "message is required" }, { status: 400 });
+        }
+
+        const { allowed } = await checkRateLimit(`chat:minute:${userId}`, CHAT_RATE_LIMIT, CHAT_RATE_WINDOW_MS);
+        if (!allowed) {
+            return NextResponse.json(
+                { success: false, message: "Too many messages — please slow down and try again in a minute." },
+                { status: 429 }
+            );
+        }
+
+        const { allowed: dailyAllowed, remaining: dailyRemaining } = await checkRateLimit(
             `chat:daily:${userId}`,
             CHAT_DAILY_LIMIT,
             CHAT_DAILY_WINDOW_MS
@@ -162,53 +233,37 @@ export async function POST(req: NextRequest) {
                     success: false,
                     message: "You've reached your daily limit of AI messages. Please come back tomorrow.",
                 },
-                { status: 429 }
+                { status: 429, headers: { "X-RateLimit-Daily-Remaining": "0" } }
             );
-        }
-
-        const { allowed } = await checkRateLimit(
-            userId,
-            CHAT_RATE_LIMIT,
-            CHAT_RATE_WINDOW_MS
-        );
-        if (!allowed) {
-            return NextResponse.json(
-                { success: false, message: "Too many messages — please slow down and try again in a minute." },
-                { status: 429 }
-            );
-        }
-
-        let body: { message?: string; history?: ChatMessage[] };
-        try {
-            body = await req.json();
-        } catch {
-            return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-        }
-
-        const message = typeof body.message === "string" ? body.message.trim() : "";
-        if (!message) {
-            return NextResponse.json({ error: "message is required" }, { status: 400 });
         }
 
         const rawHistory = Array.isArray(body.history) ? body.history : [];
         const history = rawHistory
             .filter((m) => m && typeof m.content === "string" && (m.role === "user" || m.role === "assistant"))
-            .slice(-MAX_HISTORY_MESSAGES);
+            .slice(-MAX_HISTORY_MESSAGES)
+            .map((m) =>
+                m.role === "user"
+                    ? { role: "user", content: m.content.slice(0, MAX_MESSAGE_CHARS) }
+                    : { role: "assistant", content: m.content.slice(0, MAX_HISTORY_CHARS) + shownNote(cleanShown(m.shown)) }
+            );
+        while (history.length > 1 && history.reduce((sum, m) => sum + m.content.length, 0) > MAX_HISTORY_TOTAL_CHARS) {
+            history.shift();
+        }
 
-        const baseUrl = req.nextUrl.origin;
-        const cookie = req.headers.get("cookie") ?? undefined;
-
-        const profile = await getStudentProfile(baseUrl, cookie);
+        const locale = await getLocale();
+        const profile = await getStudentProfile(userId);
 
         const messages: any[] = [
-            { role: "system", content: buildSystemPrompt(profile, await getLocale()) },
-            ...history.map((m) => ({ role: m.role, content: m.content })),
+            { role: "system", content: buildSystemPrompt(profile, locale) },
+            ...history,
             { role: "user", content: message },
         ];
 
-       
         const foundScholarships: ScholarshipCardData[] = [];
         const foundUniversities: UniversityCardData[] = [];
+        let reply = "";
+        let usedTools = false;
+        let modelFailed = false;
 
         for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
             let completion;
@@ -224,7 +279,6 @@ export async function POST(req: NextRequest) {
                 );
             } catch (err: any) {
                 if (isToolValidationError(err)) {
-            
                     messages.push({
                         role: "user",
                         content:
@@ -233,6 +287,7 @@ export async function POST(req: NextRequest) {
                     continue;
                 }
                 console.error("[ai/chat] Groq completion failed:", err?.message ?? err);
+                modelFailed = true;
                 break;
             }
 
@@ -240,9 +295,12 @@ export async function POST(req: NextRequest) {
             if (!choice) break;
             messages.push(choice as any);
 
+            // No tool calls means this is the answer — no second round-trip needed.
             if (!choice.tool_calls || choice.tool_calls.length === 0) {
-                break; 
+                reply = choice.content ?? "";
+                break;
             }
+            usedTools = true;
 
             for (const call of choice.tool_calls) {
                 let args: Record<string, unknown> = {};
@@ -255,13 +313,18 @@ export async function POST(req: NextRequest) {
                 let result: unknown;
                 try {
                     if (call.function.name === "search_universities") {
-                        const unis = await searchUniversities(args as any, baseUrl, cookie);
-                        foundUniversities.push(...unis);
-                        result = unis;
+                        const hits = await searchUniversities(args as any);
+                        foundUniversities.push(...hits.map((h) => h.card));
+                        result = hits.length ? { results: hits.map((h) => h.facts) } : { results: [], note: "No matches. Try broader filters." };
                     } else if (call.function.name === "search_scholarships") {
-                        const scholarships = await searchScholarships(args as any, baseUrl, cookie);
-                        foundScholarships.push(...scholarships);
-                        result = scholarships;
+                        const hits = await searchScholarships(args as any);
+                        foundScholarships.push(...hits.map((h) => h.card));
+                        result = hits.length ? { results: hits.map((h) => h.facts) } : { results: [], note: "No matches. Try broader filters." };
+                    } else if (call.function.name === "get_details") {
+                        const details = await getDetails(args as any);
+                        if (details?.kind === "university") foundUniversities.push(details.card);
+                        if (details?.kind === "scholarship") foundScholarships.push(details.card);
+                        result = details ? details.facts : { error: "Not found. Search for it by name instead." };
                     } else {
                         result = { error: `Unknown tool ${call.function.name}` };
                     }
@@ -281,33 +344,41 @@ export async function POST(req: NextRequest) {
         const scholarships = dedupeById(foundScholarships).slice(0, 8);
         const universities = dedupeById(foundUniversities).slice(0, 8);
 
-        let reply = "Here's what I found — check the recommendations panel!";
-        try {
-            const finalCompletion = await withRetries(() =>
-                groq.chat.completions.create({
-                    model: AI_MODEL,
-                    temperature: 0.5,
-                    messages: [
-                        ...messages,
-                        {
-                            role: "user",
-                            content: `Write your final reply to the student now: 2-4 warm, genuinely helpful
-plain-text sentences — no markdown (no links, no lists). ${scholarships.length === 0 && universities.length === 0
-                                    ? "No matches were found in the database even after broadening the search — say so honestly, and suggest 1-2 concrete ways they could adjust their request (different country, broader field, etc.)."
-                                    : `You found ${scholarships.length} scholarship(s) and ${universities.length} university match(es) — feel free to mention what's notable about them (fully-funded options, strong rankings, a good fit for their field/budget, etc.) without listing every single name, since the cards below already show full details.`
-                                }`,
-                        },
-                    ],
-                })
-            );
-            const content = finalCompletion.choices[0]?.message?.content;
-            if (content) reply = sanitizeReply(content);
-        } catch (err: any) {
-            console.error("[ai/chat] Final reply generation failed:", err?.message ?? err);
-            reply =
-                scholarships.length || universities.length
-                    ? "I found some matches for you — take a look at the recommendations panel!"
-                    : "I couldn't complete that search right now — please try again in a moment.";
+        // The loop ran out of turns (or the model returned no text) — ask for the answer explicitly.
+        if (!reply.trim() && !modelFailed) {
+            const found = scholarships.length + universities.length;
+            try {
+                const finalCompletion = await withRetries(() =>
+                    groq.chat.completions.create({
+                        model: AI_MODEL,
+                        temperature: 0.5,
+                        messages: [
+                            ...messages,
+                            {
+                                role: "user",
+                                content: `Write your reply to the student now, following the reply style. ${usedTools && found === 0
+                                    ? "Nothing matched in the database even after broadening — say so honestly and suggest 1-2 concrete ways to adjust the request."
+                                    : found > 0
+                                        ? `You found ${scholarships.length} scholarship(s) and ${universities.length} university match(es); the cards are shown below your reply.`
+                                        : ""
+                                    }`,
+                            },
+                        ],
+                    })
+                );
+                reply = finalCompletion.choices[0]?.message?.content ?? "";
+            } catch (err: any) {
+                console.error("[ai/chat] Final reply generation failed:", err?.message ?? err);
+            }
+        }
+
+        reply = sanitizeReply(reply);
+        if (!reply) {
+            // Show the cards if there are any; otherwise let the chat offer a retry.
+            if (scholarships.length + universities.length === 0) {
+                return NextResponse.json({ success: false, message: "The AI advisor is unavailable right now." }, { status: 503 });
+            }
+            reply = FALLBACK_REPLY[locale].found;
         }
 
         const response: AIChatResponse = { reply, scholarships, universities };
@@ -319,6 +390,6 @@ plain-text sentences — no markdown (no links, no lists). ${scholarships.length
         });
     } catch (err: any) {
         console.error("[ai/chat] Unhandled error:", err?.message ?? err);
-        return NextResponse.json(FALLBACK_RESPONSE, { status: 200 });
+        return NextResponse.json({ success: false, message: "The AI advisor is unavailable right now." }, { status: 500 });
     }
 }
