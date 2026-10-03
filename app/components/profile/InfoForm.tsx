@@ -10,6 +10,7 @@ import { useI18n } from '@/i18n/I18nProvider';
 import { localizeCountry } from '@/i18n/countries';
 import { apiMessage, intlLocale } from '@/i18n/format';
 import type { Messages } from '@/i18n/messages';
+import { NumberInput, parseScore } from '@/components/common/NumberInput';
 
 type EnglishTest = 'ielts' | 'toefl';
 
@@ -33,15 +34,20 @@ const inputClass = (invalid?: boolean) =>
         : 'border-slate-200 bg-white hover:border-slate-300 focus:border-brand focus:ring-brand/10'
     }`;
 
-// Range checks for each step — all fields stay optional (as before), but a
-// value that is filled in must make sense before moving on.
+// Checks for each step. Age and GPA are required (the API rejects the form
+// without them); SAT and the English test are optional, but a value that is
+// filled in must make sense before moving on.
 function validateStep(step: number, f: FormState, test: EnglishTest, m: Messages['profile']['setup']): Partial<Record<keyof FormState, string>> {
     const errors: Partial<Record<keyof FormState, string>> = {};
     const outOfRange = (v: string, min: number, max: number) => v !== '' && (Number.isNaN(Number(v)) || Number(v) < min || Number(v) > max);
 
-    if (step === 0 && outOfRange(f.age, 10, 100)) errors.age = m.ageRange;
+    if (step === 0) {
+        if (f.age === '') errors.age = m.ageRequired;
+        else if (outOfRange(f.age, 10, 100)) errors.age = m.ageRange;
+    }
     if (step === 1) {
-        if (outOfRange(f.gpa, 0, 4)) errors.gpa = m.gpaRange;
+        if (f.gpa === '') errors.gpa = m.gpaRequired;
+        else if (outOfRange(f.gpa, 0, 4)) errors.gpa = m.gpaRange;
         if (outOfRange(f.satScore, 400, 1600)) errors.satScore = m.satRange;
         if (test === 'ielts' && outOfRange(f.englishScore, 0, 9)) errors.englishScore = m.ieltsRange;
         if (test === 'toefl' && outOfRange(f.englishScore, 0, 120)) errors.englishScore = m.toeflRange;
@@ -146,12 +152,12 @@ export default function AdditionalInfoForm() {
         const payload = {
             age: formData.age ? Number(formData.age) : null,
             nationality: formData.nationality || null,
-            gpa: formData.gpa ? Number(formData.gpa) : null,
-            sat: formData.satScore ? Number(formData.satScore) : null,
-            englishTest: {
-                type: englishTestType.toUpperCase(), // "IELTS" | "TOEFL"
-                score: formData.englishScore ? Number(formData.englishScore) : null,
-            },
+            gpa: parseScore(formData.gpa),
+            sat: parseScore(formData.satScore),
+            // Optional: no score means no test taken yet.
+            englishTest: parseScore(formData.englishScore) === null
+                ? null
+                : { type: englishTestType.toUpperCase(), score: parseScore(formData.englishScore) }, // "IELTS" | "TOEFL"
             preferredField: formData.fieldOfStudy || null,
             preferredCountry: formData.country || null,
             programLevel: formData.programLevel || null,
@@ -254,12 +260,12 @@ export default function AdditionalInfoForm() {
                             {step === 1 && (
                                 <>
                                     <Field id="gpa" label={m.gpa} hint={m.gpaHint} error={fieldErrors.gpa}>
-                                        <input id="gpa" type="number" inputMode="decimal" step="0.01" min={0} max={4} placeholder={m.gpaPlaceholder} value={formData.gpa} onChange={(e) => set('gpa', e.target.value)} className={inputClass(!!fieldErrors.gpa)} />
+                                        <NumberInput id="gpa" decimal maxLength={4} placeholder={m.gpaPlaceholder} value={formData.gpa} onValueChange={(v) => set('gpa', v)} className={inputClass(!!fieldErrors.gpa)} />
                                     </Field>
                                     <Field id="satScore" label={m.sat} optional hint={m.satHint} error={fieldErrors.satScore}>
-                                        <input id="satScore" type="number" inputMode="numeric" min={400} max={1600} placeholder={m.satPlaceholder} value={formData.satScore} onChange={(e) => set('satScore', e.target.value)} className={inputClass(!!fieldErrors.satScore)} />
+                                        <NumberInput id="satScore" maxLength={4} placeholder={m.satPlaceholder} value={formData.satScore} onValueChange={(v) => set('satScore', v)} className={inputClass(!!fieldErrors.satScore)} />
                                     </Field>
-                                    <Field id="englishScore" label={m.english} error={fieldErrors.englishScore}>
+                                    <Field id="englishScore" label={m.english} optional error={fieldErrors.englishScore}>
                                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                             <div role="radiogroup" aria-label={m.englishTest} className="grid h-12 grid-cols-2 rounded-[10px] bg-slate-100 p-1">
                                                 {(['ielts', 'toefl'] as const).map((test) => (
@@ -276,16 +282,13 @@ export default function AdditionalInfoForm() {
                                                 ))}
                                             </div>
                                             <div className="relative">
-                                                <input
+                                                <NumberInput
                                                     id="englishScore"
-                                                    type="number"
-                                                    inputMode="decimal"
-                                                    step={englishTestType === 'ielts' ? '0.5' : '1'}
-                                                    min={0}
-                                                    max={englishTestType === 'ielts' ? 9 : 120}
+                                                    decimal={englishTestType === 'ielts'}
+                                                    maxLength={3}
                                                     placeholder={m.eg(englishTestType === 'ielts' ? '7.5' : '100')}
                                                     value={formData.englishScore}
-                                                    onChange={(e) => set('englishScore', e.target.value)}
+                                                    onValueChange={(v) => set('englishScore', v)}
                                                     className={`${inputClass(!!fieldErrors.englishScore)} pr-16`}
                                                 />
                                                 <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400">
