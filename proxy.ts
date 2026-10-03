@@ -15,6 +15,9 @@ const PUBLIC_PATH_PREFIXES = [
     // Server-to-server (Vercel Cron), not a user session — the route itself
     // gates on `Authorization: Bearer $CRON_SECRET` instead of a user token.
     "/api/cron",
+    // Called by Telegram, not a user session — the route checks the
+    // X-Telegram-Bot-Api-Secret-Token header instead.
+    "/api/telegram/webhook",
 ];
 
 // Browsable without an account, so search engines can index every scholarship

@@ -6,6 +6,10 @@ import Universities from "../models/Universities";
 import Users from "../models/Users";
 import ReminderLog from "../models/ReminderLog";
 import DeadlineReminderEmail from "../emails/DeadlineReminderEmail";
+import { escapeHtml, sendTelegramMessage, telegramConfigured } from "../lib/telegram";
+import { getMessages } from "../i18n/messages";
+import { isLocale, type Locale } from "../i18n/config";
+import { intlLocale } from "../i18n/format";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const EMAIL_FROM =
@@ -59,9 +63,10 @@ function collectDueDeadlines(
     const due: DeadlineEntry[] = [];
 
     for (const item of items) {
-        const deadlines = Array.isArray(item.deadlines)
-            ? (item.deadlines as Record<string, unknown>[])
-            : [];
+        // Scholarships keep their dates in `deadlines`, universities in `applicationDeadlines`.
+        const deadlines = [item.deadlines, item.applicationDeadlines].flatMap((list) =>
+            Array.isArray(list) ? (list as Record<string, unknown>[]) : []
+        );
         const itemName = (item[nameField] as string) || "Unnamed";
 
         for (const deadline of deadlines) {
@@ -70,6 +75,8 @@ function collectDueDeadlines(
 
             const label =
                 (deadline?.name as string) || (deadline?.round as string) || "Application deadline";
+            // "Applications open" is a date, not a deadline — don't warn about it.
+            if (/open/i.test(label)) continue;
             due.push({
                 itemType,
                 itemId: item._id,
@@ -89,8 +96,9 @@ export async function sendDeadlineReminders() {
 
     const [scholarships, universities] = await Promise.all([
         Scholarships.find({}, { scholarshipName: 1, deadlines: 1 }).lean(),
-        Universities.find({}, { name: 1, deadlines: 1 }).lean(),
+        Universities.find({}, { name: 1, deadlines: 1, applicationDeadlines: 1 }).lean(),
     ]);
+    const telegramOn = telegramConfigured();
 
     const dueDeadlines = [
         ...collectDueDeadlines(scholarships, "scholarship", "scholarshipName"),
@@ -99,6 +107,7 @@ export async function sendDeadlineReminders() {
 
     let checked = 0;
     let sent = 0;
+    let telegramSent = 0;
     let skipped = 0;
 
     for (const deadline of dueDeadlines) {
@@ -107,10 +116,24 @@ export async function sendDeadlineReminders() {
         const favField =
             deadline.itemType === "scholarship" ? "favoriteScholarships" : "favoriteUniversities";
 
+        // Two independent channels: the profile switch turns email reminders
+        // on or off; Telegram is on for as long as the bot is connected.
         const favoritingUsers = await Users.find(
-            { [favField]: deadline.itemId, deadlineReminders: { $ne: false } },
-            { email: 1, firstName: 1 }
-        ).lean();
+            {
+                [favField]: deadline.itemId,
+                $or: [
+                    { deadlineReminders: { $ne: false } },
+                    ...(telegramOn ? [{ "telegram.chatId": { $exists: true } }] : []),
+                ],
+            },
+            { email: 1, firstName: 1, deadlineReminders: 1, telegram: 1 }
+        ).lean<{
+            _id: string;
+            email: string;
+            firstName: string;
+            deadlineReminders?: boolean;
+            telegram?: { chatId?: string; locale?: string };
+        }[]>();
 
         for (const user of favoritingUsers) {
             try {
@@ -132,9 +155,31 @@ export async function sendDeadlineReminders() {
                 continue;
             }
 
-            try {
-                const link = `${APP_URL}/${deadline.itemType === "scholarship" ? "scholarships" : "universities"}/${deadline.itemId}`;
+            const link = `${APP_URL}/${deadline.itemType === "scholarship" ? "scholarships" : "universities"}/${deadline.itemId}`;
 
+            // Telegram first and independently: a failed email shouldn't cost the student this one.
+            if (telegramOn && user.telegram?.chatId) {
+                const locale: Locale = isLocale(user.telegram.locale) ? user.telegram.locale : "ru";
+                const m = getMessages(locale).telegram;
+                const date = deadline.deadlineDate.toLocaleDateString(intlLocale(locale), {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    timeZone: "UTC",
+                });
+                const result = await sendTelegramMessage(
+                    user.telegram.chatId,
+                    `<b>${m.reminderTitle(deadline.daysUntil)}</b>\n\n${escapeHtml(deadline.itemName)}\n${escapeHtml(deadline.deadlineLabel)}: ${date}`,
+                    { text: m.open, url: link }
+                );
+                if (result === "sent") telegramSent += 1;
+                // They blocked the bot or deleted the chat: stop trying.
+                if (result === "blocked") await Users.updateOne({ _id: user._id }, { $unset: { telegram: 1 } });
+            }
+
+            if (user.deadlineReminders === false) continue;
+
+            try {
                 const { error } = await resend.emails.send({
                     from: EMAIL_FROM,
                     to: user.email,
@@ -166,5 +211,5 @@ export async function sendDeadlineReminders() {
         }
     }
 
-    return { checked, sent, skipped };
+    return { checked, sent, telegramSent, skipped };
 }

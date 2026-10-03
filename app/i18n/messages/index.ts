@@ -15,6 +15,7 @@ import scholarships from './scholarships';
 import seo from './seo';
 import site from './site';
 import student from './student';
+import telegram from './telegram';
 import tracker from './tracker';
 import ui from './ui';
 import unilist from './unilist';
@@ -38,6 +39,7 @@ const namespaces = {
     seo,
     site,
     student,
+    telegram,
     tracker,
     ui,
     unilist,

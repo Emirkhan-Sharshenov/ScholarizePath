@@ -26,7 +26,7 @@ export async function GET(request: AuthRequest) {
         }
 
 
-        const user = await User.findById(auth.userId).select("-password").lean();
+        const user = await User.findById(auth.userId).select("-password -telegramLink").lean();
 
         if (!user) {
             return NextResponse.json(
@@ -102,7 +102,7 @@ export async function PUT(request: AuthRequest) {
             new: true,
             runValidators: true,
         })
-            .select("-password")
+            .select("-password -telegramLink")
             .lean();
 
         if (!updatedUser) {
