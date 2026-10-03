@@ -14,6 +14,7 @@ import profile from './profile';
 import scholarships from './scholarships';
 import site from './site';
 import student from './student';
+import telegram from './telegram';
 import tracker from './tracker';
 import ui from './ui';
 import unilist from './unilist';
@@ -36,6 +37,7 @@ const namespaces = {
     scholarships,
     site,
     student,
+    telegram,
     tracker,
     ui,
     unilist,

@@ -22,7 +22,7 @@ export default function PrivacyEn() {
         <PolicyFrame
             eyebrow="Legal"
             title="Privacy Policy"
-            updated="Last updated: October 1, 2026"
+            updated="Last updated: October 3, 2026"
             tocLabel="On this page"
             sections={SECTIONS}
             intro={
@@ -52,6 +52,10 @@ export default function PrivacyEn() {
                         Saved universities and scholarships, entries in the application tracker (including your notes and
                         deadlines) and your deadline-reminder setting.
                     </Item>
+                    <Item term="Telegram">
+                        If you connect Telegram for reminders: your Telegram chat ID and username. Disconnecting in your
+                        profile, sending /stop to the bot or blocking it deletes them.
+                    </Item>
                     <Item term="AI advisor messages">
                         The questions you ask the AI advisor and eligibility checker, together with the relevant parts of
                         your profile, are sent to our AI provider to generate an answer. We don&rsquo;t save the
@@ -75,7 +79,7 @@ export default function PrivacyEn() {
                 <ul className={list}>
                     <li>To create and secure your account and keep you signed in.</li>
                     <li>To show universities and scholarships that fit your profile, and to power the AI advisor.</li>
-                    <li>To email you a verification code and, if you turn them on, application deadline reminders.</li>
+                    <li>To email you a verification code and, if you turn them on, application deadline reminders (also in Telegram, if you connect it).</li>
                     <li>To prevent abuse, such as password guessing and spam.</li>
                     <li>To understand which features are useful and fix what isn&rsquo;t.</li>
                 </ul>
@@ -129,6 +133,7 @@ export default function PrivacyEn() {
                     <Item term="Upstash">Short-lived counters for rate limiting</Item>
                     <Item term="Groq">Runs the AI model behind the advisor and eligibility checker</Item>
                     <Item term="Resend">Sends verification and reminder emails</Item>
+                    <Item term="Telegram">Delivers reminders to students who connect the bot</Item>
                     <Item term="Google">Google sign-in and Google Analytics</Item>
                 </ul>
             </Section>

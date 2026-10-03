@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import { BellRing } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nProvider';
+import { TelegramConnect } from './TelegramConnect';
 
 interface NotificationSettingsProps {
     deadlineReminders: boolean;
+    telegram?: { chatId?: string | null; username?: string | null } | null;
 }
 
-export function NotificationSettings({ deadlineReminders }: NotificationSettingsProps) {
+export function NotificationSettings({ deadlineReminders, telegram }: NotificationSettingsProps) {
     const [enabled, setEnabled] = useState(deadlineReminders);
     const [saving, setSaving] = useState(false);
     const { t } = useI18n();
@@ -65,6 +67,8 @@ export function NotificationSettings({ deadlineReminders }: NotificationSettings
                     <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
                 </button>
             </div>
+
+            <TelegramConnect telegram={telegram} />
         </section>
     );
 }

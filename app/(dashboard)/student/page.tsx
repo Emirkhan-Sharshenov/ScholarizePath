@@ -18,6 +18,7 @@ export interface ProfileData {
     email: string;
     authProvider?: 'local' | 'google';
     deadlineReminders?: boolean;
+    telegram?: { chatId?: string | null; username?: string | null } | null;
     profile?: {
         age?: number | null;
         nationality?: string | null;
@@ -169,7 +170,7 @@ export default function ProfilePage() {
                     />
                 </div>
 
-                <NotificationSettings deadlineReminders={formData.deadlineReminders !== false} />
+                <NotificationSettings deadlineReminders={formData.deadlineReminders !== false} telegram={data?.telegram} />
 
                 <DeleteAccount email={data?.email ?? formData.email} authProvider={formData.authProvider} />
             </div>

@@ -144,10 +144,33 @@ const UserSchema = new Schema(
             type: Boolean,
             default: true,
         },
+
+        // Deadline reminders in Telegram. Set when the student opens the bot
+        // from their profile (/start <token>); cleared by /stop, the profile
+        // button, or when the bot can no longer reach them.
+        telegram: {
+            chatId: { type: String },
+            username: { type: String },
+            // Language of the bot's messages: the site language when they connected.
+            locale: { type: String, enum: ["en", "ru"] },
+            linkedAt: { type: Date },
+        },
+
+        // One-time link for connecting Telegram. Only a hash is stored; never
+        // sent back to the client (see /api/auth/self).
+        telegramLink: {
+            tokenHash: { type: String },
+            expiresAt: { type: Date },
+            locale: { type: String, enum: ["en", "ru"] },
+        },
     },
     {
         timestamps: true,
     }
 );
+
+// The bot looks users up by chat (/stop) and by link token (/start).
+UserSchema.index({ "telegram.chatId": 1 }, { sparse: true });
+UserSchema.index({ "telegramLink.tokenHash": 1 }, { sparse: true });
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);
