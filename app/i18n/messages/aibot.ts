@@ -1,4 +1,5 @@
 import { defineMessages } from '../define';
+import { pluralEn, pluralRu } from '../format';
 
 export default defineMessages({
     en: {
@@ -38,6 +39,9 @@ export default defineMessages({
         matchesTitle: 'Matches from this chat',
         found: (n: number) => `${n} found`,
         close: 'Close',
+        remaining: (n: number) => (n === 0 ? 'No questions left today' : pluralEn(n, '# question left today', '# questions left today')),
+        copy: 'Copy answer',
+        copied: 'Copied',
     },
     ru: {
         suggestions: [
@@ -76,5 +80,8 @@ export default defineMessages({
         matchesTitle: 'Найдено в этом чате',
         found: (n: number) => `${n} найдено`,
         close: 'Закрыть',
+        remaining: (n: number) => (n === 0 ? 'На сегодня вопросы закончились' : pluralRu(n, 'Остался # вопрос на сегодня', 'Осталось # вопроса на сегодня', 'Осталось # вопросов на сегодня')),
+        copy: 'Скопировать ответ',
+        copied: 'Скопировано',
     },
 });
