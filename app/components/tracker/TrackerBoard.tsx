@@ -8,7 +8,7 @@ import { buttonClass, TONES, useIsClient } from '@/components/common/detailUi';
 import TrackerCard from './TrackerCard';
 import AddApplicationModal, { AvailableFavorite } from './AddApplicationModal';
 import EditApplicationPanel, { type ApplicationChanges } from './EditApplicationPanel';
-import { STATUS_COLUMNS, TrackedApplication, ApplicationStatus, daysUntil, isDueSoon } from './trackerConstants';
+import { STATUS_COLUMNS, TrackedApplication, ApplicationStatus, daysUntil, isDueSoon, type ApplicationDocument } from './trackerConstants';
 import { useI18n } from '@/i18n/I18nProvider';
 
 /** Nearest deadline first; applications without one go last. */
@@ -177,6 +177,40 @@ export default function TrackerBoard() {
         if (!current || current.status === status) return;
         setApplications((prev) => prev.map((a) => (a._id === id ? { ...a, status } : a)));
         if (!(await patch(id, { status }))) setApplications(previous);
+    };
+
+    // The checklist sends its saves one at a time; the card's progress
+    // follows once each one is stored.
+    const saveDocuments = async (id: string, documents: ApplicationDocument[]): Promise<boolean> => {
+        try {
+            const res = await fetch(`/api/tracker/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ documents }),
+            });
+            if (!res.ok) return false;
+            setApplications((prev) => prev.map((a) => (a._id === id ? { ...a, documents } : a)));
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
+    const prefillDocuments = async (id: string): Promise<ApplicationDocument[] | null> => {
+        try {
+            const res = await fetch(`/api/tracker/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prefillDocuments: true }),
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) return null;
+            const documents: ApplicationDocument[] = data.application.documents ?? [];
+            setApplications((prev) => prev.map((a) => (a._id === id ? { ...a, documents } : a)));
+            return documents;
+        } catch {
+            return null;
+        }
     };
 
     const handleRemove = async (id: string) => {
@@ -378,6 +412,8 @@ export default function TrackerBoard() {
                 onClose={closeEditor}
                 onSave={(id, changes) => patch(id, changes)}
                 onRemove={handleRemove}
+                onDocumentsChange={saveDocuments}
+                onPrefillDocuments={prefillDocuments}
             />
         </div>
     );

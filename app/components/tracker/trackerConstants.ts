@@ -15,9 +15,18 @@ export interface TrackedApplication {
     status: ApplicationStatus;
     deadline?: string | null;
     notes?: string;
+    documents?: ApplicationDocument[];
     createdAt?: string;
     updatedAt?: string;
 }
+
+export interface ApplicationDocument {
+    name: string;
+    done: boolean;
+}
+
+export const MAX_DOCUMENTS = 40;
+export const MAX_DOCUMENT_NAME = 200;
 
 import type { Messages } from "@/i18n/messages";
 import type { Locale } from "@/i18n/config";

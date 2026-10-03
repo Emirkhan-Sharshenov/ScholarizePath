@@ -1,6 +1,6 @@
 'use client';
 
-import { Award, Building2, CalendarClock, GripVertical } from 'lucide-react';
+import { Award, Building2, CalendarClock, FileCheck2, GripVertical } from 'lucide-react';
 import { deadlineChip, type TrackedApplication } from './trackerConstants';
 import { useI18n } from '@/i18n/I18nProvider';
 
@@ -16,6 +16,8 @@ export default function TrackerCard({ application, onOpen, draggable = false }: 
     const Icon = isUniversity ? Building2 : Award;
     const { t, locale } = useI18n();
     const chip = deadlineChip(application, t.tracker, locale);
+    const docsTotal = application.documents?.length ?? 0;
+    const docsDone = application.documents?.filter((d) => d.done).length ?? 0;
 
     return (
         <button
@@ -39,9 +41,21 @@ export default function TrackerCard({ application, onOpen, draggable = false }: 
                 {draggable && <GripVertical aria-hidden="true" className="h-4 w-4 shrink-0 text-slate-300 opacity-0 transition-opacity group-hover:opacity-100" />}
             </div>
 
-            <span className={`mt-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${chip.className}`}>
-                <CalendarClock aria-hidden="true" className="h-3.5 w-3.5" /> {chip.label}
-            </span>
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${chip.className}`}>
+                    <CalendarClock aria-hidden="true" className="h-3.5 w-3.5" /> {chip.label}
+                </span>
+                {docsTotal > 0 && (
+                    <span
+                        title={t.tracker.documentsProgress(docsDone, docsTotal)}
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${docsDone === docsTotal ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}
+                    >
+                        <FileCheck2 aria-hidden="true" className="h-3.5 w-3.5" />
+                        <span aria-hidden="true">{docsDone}/{docsTotal}</span>
+                        <span className="sr-only">{t.tracker.documentsProgress(docsDone, docsTotal)}</span>
+                    </span>
+                )}
+            </div>
 
             {application.notes && (
                 <p className="mt-2.5 line-clamp-2 rounded-xl bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-600">{application.notes}</p>

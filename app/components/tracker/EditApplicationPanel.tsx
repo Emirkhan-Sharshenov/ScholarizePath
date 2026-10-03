@@ -7,7 +7,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUpRight, Award, Building2, Check, Loader2, SlidersHorizontal, Trash2, X } from 'lucide-react';
 import { timeAgo } from '@/lib/timeAgo';
 import { useIsClient } from '@/components/common/detailUi';
-import { STATUS_COLUMNS, toDateInput, type ApplicationStatus, type TrackedApplication } from './trackerConstants';
+import { STATUS_COLUMNS, toDateInput, type ApplicationDocument, type ApplicationStatus, type TrackedApplication } from './trackerConstants';
+import DocumentsChecklist from './DocumentsChecklist';
 import { useI18n } from '@/i18n/I18nProvider';
 import { intlLocale } from '@/i18n/format';
 
@@ -22,6 +23,9 @@ interface EditApplicationPanelProps {
     onClose: () => void;
     onSave: (id: string, changes: ApplicationChanges) => Promise<boolean>;
     onRemove: (id: string) => Promise<void>;
+    /** The documents checklist saves on every change, separately from the form. */
+    onDocumentsChange: (id: string, documents: ApplicationDocument[]) => Promise<boolean>;
+    onPrefillDocuments: (id: string) => Promise<ApplicationDocument[] | null>;
 }
 
 const MAX_NOTES = 2000;
@@ -30,7 +34,7 @@ const MAX_NOTES = 2000;
  * Side panel on desktop, bottom sheet on phones. Remounted per application
  * (keyed by the board) so the form starts from that application's values.
  */
-export default function EditApplicationPanel({ application, onClose, onSave, onRemove }: EditApplicationPanelProps) {
+export default function EditApplicationPanel({ application, onClose, onSave, onRemove, onDocumentsChange, onPrefillDocuments }: EditApplicationPanelProps) {
     const [status, setStatus] = useState<ApplicationStatus>(application?.status ?? 'not_started');
     const [deadline, setDeadline] = useState(toDateInput(application?.deadline));
     const [notes, setNotes] = useState(application?.notes ?? '');
@@ -155,6 +159,12 @@ export default function EditApplicationPanel({ application, onClose, onSave, onR
                                     className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm text-ink focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10"
                                 />
                             </div>
+
+                            <DocumentsChecklist
+                                application={application}
+                                onChange={(documents) => onDocumentsChange(application._id, documents)}
+                                onPrefill={() => onPrefillDocuments(application._id)}
+                            />
 
                             <div>
                                 <label htmlFor="application-notes" className="mb-2 block text-sm font-semibold text-ink">{m.notes}</label>
