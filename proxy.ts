@@ -4,7 +4,16 @@ import { authMiddleware } from "@/middleware/auth.middleware";
 import { checkRateLimit } from "@/lib/simpleRateLimit";
 
 // Pages/APIs reachable with NO token at all (exact match)
-const PUBLIC_PATHS = new Set<string>(["/", "/login", "/top", "/support", "/privacy"]);
+const PUBLIC_PATHS = new Set<string>([
+    "/",
+    "/login",
+    "/top",
+    "/support",
+    "/privacy",
+    // Google Search Console ownership check (public/googlee6eb2f6aeb44a0dc.html) — keep it
+    // reachable, or Search Console loses verification.
+    "/googlee6eb2f6aeb44a0dc.html",
+]);
 
 // Pages/APIs reachable with NO token at all (prefix match — covers nested paths too)
 const PUBLIC_PATH_PREFIXES = [
