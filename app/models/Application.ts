@@ -65,6 +65,20 @@ const ApplicationSchema = new Schema(
             default: "",
             trim: true,
         },
+
+        // Checklist of what to send. Prefilled from the scholarship's
+        // requiredDocuments (or a university's admission requirements);
+        // the student ticks items off and can add or remove their own.
+        documents: {
+            type: [
+                {
+                    _id: false,
+                    name: { type: String, required: true, trim: true, maxlength: 200 },
+                    done: { type: Boolean, default: false },
+                },
+            ],
+            default: [],
+        },
     },
     {
         collection: "applications",

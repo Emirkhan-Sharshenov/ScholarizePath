@@ -64,6 +64,24 @@ export default defineMessages({
         noMatch: (q: string) => `Nothing matches “${q}”.`,
         optional: '(optional)',
         addToTracker: 'Add to tracker',
+        // Documents checklist
+        documents: 'Documents',
+        documentsProgress: (done: number, total: number) => `${done} of ${total} ready`,
+        documentsSaved: 'Saved automatically',
+        documentsEmpty: 'Keep track of what you need to send: tick each document off when it’s ready.',
+        prefillScholarship: 'Fill in from the scholarship’s requirements',
+        prefillUniversity: 'Fill in from the admission requirements',
+        prefillNone: 'This page doesn’t list required documents — add your own below.',
+        addDocumentLabel: 'New document',
+        addDocumentPlaceholder: 'e.g. Motivation letter',
+        addDocument: 'Add',
+        removeDocument: (name: string) => `Remove “${name}”`,
+        documentsSaveError: 'Couldn’t save the checklist. Please try again.',
+        // Suggested documents for a university, from its admission requirements
+        docPassport: 'Passport',
+        docTranscript: 'Diploma and transcript of grades',
+        docEnglish: (tests: string) => `English test: ${tests}`,
+        docSat: (range: string) => `SAT: ${range}`,
     },
     ru: {
         status: {
@@ -125,5 +143,23 @@ export default defineMessages({
         noMatch: (q: string) => `Ничего не найдено по «${q}».`,
         optional: '(необязательно)',
         addToTracker: 'Добавить в трекер',
+        // Documents checklist
+        documents: 'Документы',
+        documentsProgress: (done: number, total: number) => `Готово ${done} из ${total}`,
+        documentsSaved: 'Сохраняется автоматически',
+        documentsEmpty: 'Отмечайте, какие документы уже готовы, чтобы ничего не забыть.',
+        prefillScholarship: 'Заполнить по требованиям стипендии',
+        prefillUniversity: 'Заполнить по требованиям к поступлению',
+        prefillNone: 'На странице нет списка документов — добавьте свои ниже.',
+        addDocumentLabel: 'Новый документ',
+        addDocumentPlaceholder: 'Например, мотивационное письмо',
+        addDocument: 'Добавить',
+        removeDocument: (name: string) => `Удалить «${name}»`,
+        documentsSaveError: 'Не удалось сохранить чек-лист. Попробуйте ещё раз.',
+        // Suggested documents for a university, from its admission requirements
+        docPassport: 'Паспорт',
+        docTranscript: 'Аттестат или диплом с оценками',
+        docEnglish: (tests: string) => `Тест по английскому: ${tests}`,
+        docSat: (range: string) => `SAT: ${range}`,
     },
 });

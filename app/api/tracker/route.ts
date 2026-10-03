@@ -3,6 +3,8 @@ import { connectDB } from "@/lib/mongodb";
 import Application from "@/models/Application";
 import { authMiddleware } from "@/middleware/auth.middleware";
 import { AuthRequest } from "@/types/auth";
+import { suggestedDocuments } from "@/lib/applicationDocuments";
+import { getLocale } from "@/i18n/server";
 
 export async function GET(request: AuthRequest) {
     try {
@@ -56,6 +58,12 @@ export async function POST(request: AuthRequest) {
             );
         }
 
+        // A missing checklist shouldn't stop the application from being tracked.
+        const documents = await suggestedDocuments(itemType, itemId, await getLocale()).catch((err) => {
+            console.error("Tracker POST: couldn't suggest documents:", err);
+            return [];
+        });
+
         const application = await Application.create({
             _id: crypto.randomUUID(),
             userId: auth.userId,
@@ -66,6 +74,7 @@ export async function POST(request: AuthRequest) {
             deadline: deadline ? new Date(deadline) : null,
             status: "not_started",
             notes: "",
+            documents,
         });
 
         return NextResponse.json({ success: true, application }, { status: 201 });

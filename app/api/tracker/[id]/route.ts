@@ -3,6 +3,8 @@ import { connectDB } from "@/lib/mongodb";
 import Application, { APPLICATION_STATUS_VALUES } from "@/models/Application";
 import { authMiddleware } from "@/middleware/auth.middleware";
 import { AuthRequest } from "@/types/auth";
+import { cleanDocuments, suggestedDocuments } from "@/lib/applicationDocuments";
+import { getLocale } from "@/i18n/server";
 
 export async function PATCH(
     request: AuthRequest,
@@ -35,6 +37,30 @@ export async function PATCH(
 
         if ("notes" in body && typeof body.notes === "string") {
             update.notes = body.notes;
+        }
+
+        if ("documents" in body) {
+            const documents = cleanDocuments(body.documents);
+            if (!documents) {
+                return NextResponse.json(
+                    { success: false, message: "Invalid documents" },
+                    { status: 400 }
+                );
+            }
+            update.documents = documents;
+        }
+
+        // Fills an empty checklist from the scholarship/university record —
+        // for applications tracked before checklists existed.
+        if (body.prefillDocuments === true) {
+            const current = await Application.findOne({ _id: id, userId: auth.userId }).select({ itemType: 1, itemId: 1 }).lean<{ itemType: "university" | "scholarship"; itemId: string }>();
+            if (!current) {
+                return NextResponse.json(
+                    { success: false, message: "Tracked application not found" },
+                    { status: 404 }
+                );
+            }
+            update.documents = await suggestedDocuments(current.itemType, current.itemId, await getLocale());
         }
 
         if (Object.keys(update).length === 0) {
