@@ -5,8 +5,9 @@ import Universities from "@/models/Universities";
 
 // The public routes worth indexing — kept in sync by hand with app/robots.ts's
 // `allow` list — plus every scholarship and university page.
-// Built per request, so new records show up without a redeploy.
-export const dynamic = "force-dynamic";
+// Rebuilt at most once an hour (crawlers get the cached copy instantly), so
+// new records show up within the hour without a redeploy.
+export const revalidate = 3600;
 
 const BASE = "https://scholarizepath.xyz";
 
@@ -37,9 +38,13 @@ async function catalogue(): Promise<MetadataRoute.Sitemap> {
             })),
         ];
     } catch (err) {
-        // A database hiccup shouldn't take the whole sitemap down.
         console.error("[sitemap] Failed to list scholarships and universities:", err);
-        return [];
+        // During an hourly rebuild, failing keeps the last good sitemap cached
+        // instead of replacing it with one that lists no scholarships. At build
+        // time there's nothing cached yet, so a short sitemap beats a failed
+        // deploy; the next rebuild fills it in.
+        if (process.env.NEXT_PHASE === "phase-production-build") return [];
+        throw err;
     }
 }
 
